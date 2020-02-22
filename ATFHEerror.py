@@ -6,21 +6,21 @@ from scipy.special import erfc
 # Original TFHE's parameter.
 
 DEF_n = 500;
-DEF_q = 2**32;
-DEF_p = 2**16;
+DEF_q = 2**16;
+DEF_p = 2**14;
 DEF_α = 1/(2*DEF_p);
 DEF_Nbit = 10;
 DEF_N = 2**DEF_Nbit;
-DEF_l = 4;
-DEF_Bgbit =6;
+DEF_l = 2;
+DEF_Bgbit = 8;
 DEF_Bg = 2**DEF_Bgbit;
-DEF_αbk = 1/(2**31);
-DEF_t = 3;
-DEF_basebit = 5;
+DEF_αbk = 1/(2**32);
+DEF_t = 2;
+DEF_basebit = 8;
 DEF_αks = DEF_α;
 DEF_μ = 2**29;
 DEF_ε = 1/(2*(DEF_Bg**DEF_l))
-DEF_β = DEF_Bg/2
+DEF_β = DEF_Bg/2;
 
 DEF_nbarbit = 11;
 DEF_nbar = 2**DEF_nbarbit;
