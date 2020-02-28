@@ -5,14 +5,14 @@ from scipy.special import erfc
 
 # Original TFHE's parameter.
 
-DEF_n = 500;
-DEF_α = 2.44e-5;
+DEF_n = 630;
+DEF_α = 2**-15;
 DEF_Nbit = 10;
 DEF_N = 2**DEF_Nbit;
-DEF_l = 2;
-DEF_Bgbit = 9;
+DEF_l = 3;
+DEF_Bgbit = 7;
 DEF_Bg = 2**DEF_Bgbit;
-DEF_αbk = 3.73e-9;
+DEF_αbk = 2**-25;
 DEF_t = 8;
 DEF_basebit = 2;
 DEF_αks = 2.44e-5;
@@ -56,15 +56,15 @@ print(erfc(1/(16*np.sqrt(2*romnoise))))
 
 # TFHEpp's parameter.
 
-DEF_n = 500;
-DEF_α = 2.44e-5;
+DEF_n = 630;
+DEF_α = 2**-15;
 DEF_Nbit = 10;
 DEF_N = 2**DEF_Nbit;
-DEF_l = 2;
-DEF_Bgbit = 9;
+DEF_l = 3;
+DEF_Bgbit = 7;
 DEF_Bg = 2**DEF_Bgbit;
-DEF_αbk = 3.73e-9;
-DEF_t = 7;
+DEF_αbk = 2**-25;
+DEF_t = 8;
 DEF_basebit = 2;
 DEF_αks = 2.44e-5;
 DEF_μ = 2**29;
