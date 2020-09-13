@@ -1,7 +1,11 @@
 #!/bin/python3
 
 import  numpy as np
-from scipy.special import erfc
+from scipy.special import erfc,erf
+import gmpy2
+from gmpy2 import mpfr
+
+gmpy2.get_context().precision=200
 
 # Original TFHE's parameter.
 
@@ -33,6 +37,12 @@ DEF_μbar = 2**61;
 DEF_εbar = 1/(2*(DEF_Bgbar**DEF_lbar))
 DEF_βbar = DEF_Bgbar/2
 
+# Processor parameter
+
+ROMaddress = 7 # 4 word block
+RAMaddress = 11
+RAMwordbit = 16
+
 print("TFHE Gate Bootstrapping Noise")
 
 gbnoise  = DEF_n*2*DEF_l*DEF_N*(DEF_β**2)*(DEF_αbk**2)+DEF_n*(1+DEF_N)*(DEF_ε**2)+DEF_N*(2**(-2*(DEF_basebit*DEF_t+1)))+DEF_t*DEF_N*(DEF_αks**2)
@@ -48,17 +58,19 @@ print("TFHE Circuit Bootstrapping Noise")
 print(cbnoise)
 
 print("TFHE ROM CMUX noise")
-romnoise = DEF_αbk+7*(2*DEF_l*DEF_N*(DEF_β**2)*cbnoise+(DEF_N+1)*(DEF_ε**2))+DEF_N*(2**(-2*(DEF_basebit*DEF_t+1)))+DEF_t*DEF_N*(DEF_αks**2)
+romnoise = DEF_αbk+ROMaddress*(2*DEF_l*DEF_N*(DEF_β**2)*cbnoise+(DEF_N+1)*(DEF_ε**2))+DEF_N*(2**(-2*(DEF_basebit*DEF_t+1)))+DEF_t*DEF_N*(DEF_αks**2)
 print(romnoise)
 
 print("TFHE ROM error prob")
 print(erfc(1/(16*np.sqrt(2*romnoise))))
 
 print("RAM Read Noise")
-rnoise = DEF_n*2*DEF_l*DEF_N*(DEF_β**2)*(DEF_αbk**2)+DEF_n*(1+DEF_N)*(DEF_ε**2)+9*(2*DEF_l*DEF_N*(DEF_β**2)*cbnoise+(DEF_N+1)*(DEF_ε**2)) + DEF_N*(2**(-2*(DEF_basebit*DEF_t+1)))+DEF_t*DEF_N*(DEF_αks**2)
+rnoise = DEF_n*2*DEF_l*DEF_N*(DEF_β**2)*(DEF_αbk**2)+DEF_n*(1+DEF_N)*(DEF_ε**2)+RAMaddress*(2*DEF_l*DEF_N*(DEF_β**2)*cbnoise+(DEF_N+1)*(DEF_ε**2)) + DEF_N*(2**(-2*(DEF_basebit*DEF_t+1)))+DEF_t*DEF_N*(DEF_αks**2)
 print(rnoise)
 print("RAM Read error prob")
 print(erfc(1/(16*np.sqrt(2*rnoise))))
+print("RAM Read error prob in 3000 cycle")
+print(1-(1-mpfr(erfc(1/(16*np.sqrt(2*rnoise)))))**(3000*RAMwordbit))
 
 print("Packing Switch noise")
 psnoise = DEF_n*2*DEF_l*DEF_N*(DEF_β**2)*(DEF_αbk**2)+DEF_n*(1+DEF_N)*(DEF_ε**2) + DEF_N*(2**(-2*(DEF_basebit*DEF_t+1)))+8*DEF_t*DEF_N*(DEF_αbk**2)
