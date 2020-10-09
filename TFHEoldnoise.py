@@ -40,7 +40,7 @@ DEF_βbar = DEF_Bgbar/2
 # Processor parameter
 
 ROMaddress = 7 # 4 word block
-RAMaddress = 11
+RAMaddress = 15
 RAMwordbit = 16
 
 print("TFHE Gate Bootstrapping Noise")
