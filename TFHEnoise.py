@@ -113,6 +113,6 @@ DEF_εbar = 1/(2*(DEF_Bgbar**DEF_lbar))
 DEF_βbar = DEF_Bgbar/2
 
 print("TFHEpp-10ms Gate Bootstrapping Noise")
-print(3*DEF_n*2*DEF_l*DEF_N*(DEF_β**2)*(DEF_αbk**2)+DEF_n*(1+DEF_N)*(DEF_ε**2)/2+DEF_N*(2**(-2*(DEF_basebit*DEF_t+1)))+DEF_t*DEF_N*(DEF_αks**2))
+print(2*DEF_n*2*DEF_l*DEF_N*(DEF_β**2)*(DEF_αbk**2)+DEF_n*(1+DEF_N)*(DEF_ε**2)/2+DEF_N*(2**(-2*(DEF_basebit*DEF_t+1)))+DEF_t*DEF_N*(DEF_αks**2))
 print("TFHE Circuit Bootstrapping Noise")
-print(3*DEF_n*2*DEF_lbar*DEF_nbar*(DEF_βbar**2)*(DEF_αbklvl02**2)+DEF_n*(1+DEF_nbar)*(DEF_εbar**2)/2+DEF_nbar*(2**(-2*(DEF_basebitlvl21*DEF_tbar+1)))+DEF_tbar*DEF_nbar*(DEF_αprivks**2))
+print(2*DEF_n*2*DEF_lbar*DEF_nbar*(DEF_βbar**2)*(DEF_αbklvl02**2)+DEF_n*(1+DEF_nbar)*(DEF_εbar**2)/2+DEF_nbar*(2**(-2*(DEF_basebitlvl21*DEF_tbar+1)))+DEF_tbar*DEF_nbar*(DEF_αprivks**2))
