@@ -58,7 +58,7 @@ print("TFHE Circuit Bootstrapping Noise")
 print(cbnoise)
 
 print("TFHE ROM CMUX noise")
-romnoise = DEF_αbk+7*(2*DEF_l*DEF_N*(DEF_β**2)*cbnoise+(DEF_N+1)*(DEF_ε**2))+DEF_N*(2**(-2*(DEF_basebit*DEF_t+1)))+DEF_t*DEF_N*(DEF_αks**2)
+romnoise = DEF_αbk+ROMaddress*(2*DEF_l*DEF_N*(DEF_β**2)*cbnoise+(DEF_N+1)*(DEF_ε**2))+DEF_N*(2**(-2*(DEF_basebit*DEF_t+1)))+DEF_t*DEF_N*(DEF_αks**2)
 print(romnoise)
 
 print("TFHE ROM error prob")
