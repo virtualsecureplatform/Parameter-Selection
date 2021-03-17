@@ -40,8 +40,8 @@ class lvl10param:
     basebit = 2
 
 class lvl22param:
-    t = 10
-    basebit = 3
+    t = 8
+    basebit = 4
 
 class lvl20param:
     t = 7
@@ -53,6 +53,7 @@ def cmuxnoisecalc(P,α):
 def brnoisecalc(lowP,highP):
     return lowP.n*cmuxnoisecalc(highP,highP.α)
 
+# https://tches.iacr.org/index.php/TCHES/article/view/8793
 def iknoisecalc(lowP,highP,funcP):
     return highP.n*(2**(-2*(funcP.basebit*funcP.t+1)))+funcP.t*highP.n*(lowP.α**2)
 
