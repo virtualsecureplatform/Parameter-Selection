@@ -51,8 +51,9 @@ class lvl20param:
     t = 7
     basebit =  2
 
+# Rounding error from Decomposition of External Product should be treated as Irwin-Hall like Keyswitching.
 def cmuxnoisecalc(P,α):
-    return 2*P.l*P.n*(P.β**2)*(α**2)+(1+P.n)*(P.ε**2)
+    return 2*P.l*P.n*(P.β**2)*(α**2)+1/12*(1+P.n)*((2*P.ε)**2)
 
 def brnoisecalc(lowP,highP):
     return lowP.n*cmuxnoisecalc(highP,highP.α)
