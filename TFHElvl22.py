@@ -12,14 +12,14 @@ lvl0_μ = lvl1_μ = 2**29;
 lvl2_μ = 2**61;
 
 class lvl0param:
-    n = 634
+    n = 635
     α = 2**-15
 
 class lvl1param:
     nbit = 10
     n = 2**nbit
     l = 3
-    Bgbit = 7
+    Bgbit = 6
     Bg = 2**Bgbit
     α = 2**-25
     ε = 1/(2*(Bg**l))
@@ -39,6 +39,10 @@ class lvl10param:
     t = 8
     basebit = 2
 
+class lvl21param:
+    t = 10
+    basebit = 3
+
 class lvl22param:
     t = 8
     basebit = 4
@@ -55,7 +59,7 @@ def brnoisecalc(lowP,highP):
 
 # https://tches.iacr.org/index.php/TCHES/article/view/8793
 def iknoisecalc(lowP,highP,funcP):
-    return highP.n*(2**(-2*(funcP.basebit*funcP.t+1)))+funcP.t*highP.n*(lowP.α**2)
+    return 1/12*highP.n*(2**(-2*(funcP.basebit*funcP.t)))+funcP.t*highP.n*(lowP.α**2)
 
 def gbnoisecalc(lowP,highP,funcP):
     return brnoisecalc(lowP,highP)+iknoisecalc(lowP,highP,funcP)
@@ -66,6 +70,9 @@ ROMaddress = 7 # 4 word block
 RAMaddress = 9
 RAMwordbit = 8
 
+print("TFHE IK noise")
+print(iknoisecalc(lvl0param,lvl1param,lvl10param))
+
 print("TFHE Gate Bootstrapping Noise")
 
 gbnoise  = gbnoisecalc(lvl0param,lvl1param,lvl10param)
@@ -75,9 +82,9 @@ print(gbnoise)
 print("TFHE GB error prob")
 print(erfc(1/(16*np.sqrt(2*gbnoise))))
 
-
+# https://tches.iacr.org/index.php/TCHES/article/view/8793
 def privksnoisecalc(domainP,targetP,privksP):
-    return domainP.n*(2**(-2*(privksP.basebit*privksP.t+1)))+privksP.t*domainP.n*(targetP.α**2)
+    return 1/12*(domainP.n+1)*(2**(-2*(privksP.basebit*privksP.t)))+privksP.t*(domainP.n+1)*(targetP.α**2)
 
 def cbnoisecalc(domainP,middleP,targetP,privksP):
     return brnoisecalc(domainP,middleP)+privksnoisecalc(middleP,targetP,privksP)

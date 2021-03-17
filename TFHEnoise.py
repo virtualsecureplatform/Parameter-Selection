@@ -49,7 +49,7 @@ gbnoise  = DEF_n*2*DEF_l*DEF_N*(DEF_β**2)*(DEF_αbk**2)+DEF_n*(1+DEF_N)*(DEF_ε
 
 print(gbnoise)
 
-cbnoise = DEF_n*2*DEF_lbar*DEF_nbar*(DEF_βbar**2)*(DEF_αbklvl02**2)+DEF_n*(1+DEF_nbar)*(DEF_εbar**2)+DEF_nbar*(2**(-2*(DEF_basebitlvl21*DEF_tbar+1)))+DEF_tbar*DEF_nbar*(DEF_αprivks**2)
+cbnoise = DEF_n*2*DEF_lbar*DEF_nbar*(DEF_βbar**2)*(DEF_αbklvl02**2)+DEF_n*(1+DEF_nbar)*(DEF_εbar**2)+(DEF_nbar+1)*(2**(-2*(DEF_basebitlvl21*DEF_tbar+1)))+DEF_tbar*(DEF_nbar+1)*(DEF_αprivks**2)
 
 print("TFHE GB error prob")
 print(erfc(1/(16*np.sqrt(2*gbnoise))))
