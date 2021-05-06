@@ -28,8 +28,8 @@ class lvl1param:
 class lvl2param:
     nbit = 11
     n = 2**nbit
-    l = 3
-    Bgbit = 11
+    l = 4
+    Bgbit = 9
     Bg = 2**Bgbit
     α = 2**-44
     ε = 1/(2*(Bg**l))
@@ -40,12 +40,12 @@ class lvl10param:
     basebit = 2
 
 class lvl21param:
-    t = 10
-    basebit = 3
+    t = 7
+    basebit = 4
 
 class lvl22param:
-    t = 10
-    basebit = 3
+    t = 8
+    basebit = 4
 
 class lvl20param:
     t = 7
@@ -91,19 +91,19 @@ def privksnoisecalc(domainP,targetP,privksP):
 def cbnoisecalc(domainP,middleP,targetP,privksP):
     return brnoisecalc(domainP,middleP)+privksnoisecalc(middleP,targetP,privksP)
 
-cbnoise = cbnoisecalc(lvl0param,lvl2param,lvl2param,lvl22param)
+cbnoise = cbnoisecalc(lvl0param,lvl2param,lvl1param,lvl21param)
 
 print("TFHE lvl20 iks noise")
 print(iknoisecalc(lvl0param,lvl2param,lvl20param))
 
-print("TFHE Circuit Bootstrapping lvl22 Noise")
+print("TFHE Circuit Bootstrapping lvl21 Noise")
 print(cbnoise)
 
 def romnoisecalc(addressP,dataP,middleP,ikP,privksP,ROMaddress):
     return dataP.α+ROMaddress*cmuxnoisecalc(dataP,cbnoisecalc(addressP,middleP,dataP,privksP))+iknoisecalc(addressP,dataP,ikP)
 
 print("TFHE ROM CMUX noise")
-romnoise = romnoisecalc(lvl0param,lvl2param,lvl2param,lvl20param,lvl22param,ROMaddress)
+romnoise = romnoisecalc(lvl0param,lvl2param,lvl1param,lvl10param,lvl21param,ROMaddress)
 print(romnoise)
 
 print("TFHE ROM error prob")

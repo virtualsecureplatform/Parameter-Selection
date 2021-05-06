@@ -9,7 +9,7 @@ gmpy2.get_context().precision=200
 
 # 128bit TFHE's parameter.
 
-DEF_n = 634;
+DEF_n = 635;
 DEF_α = 2**-15;
 DEF_Nbit = 10;
 DEF_N = 2**DEF_Nbit;
