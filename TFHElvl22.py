@@ -115,6 +115,7 @@ def annihilaterecursive(P,nbit):
 print("Annihilate")
 print(annihilatecalc(Annihilatelvl1param))
 # print(annihilatecalc(lvl2param))
+print(erfc(1/(4*np.sqrt(2*100*(annihilatecalc(Annihilatelvl1param)+brnoisecalc(lvl0param,lvl1param))))))
 
 # https://tches.iacr.org/index.php/TCHES/article/view/8793
 def privksnoisecalc(domainP,targetP,privksP):

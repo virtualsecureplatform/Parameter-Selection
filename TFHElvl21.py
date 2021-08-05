@@ -25,11 +25,21 @@ class lvl1param:
     ε = 1/(2*(Bg**l))
     β = Bg/2
 
+class Annihilatelvl1param:
+    nbit = 10
+    n = 2**nbit
+    l = 12
+    Bgbit = 2
+    Bg = 2**Bgbit
+    α = 2**-25
+    ε = 1/(2*(Bg**l))
+    β = Bg/2
+
 class lvl2param:
     nbit = 11
     n = 2**nbit
-    l = 4
-    Bgbit = 9
+    l = 3
+    Bgbit = 11
     Bg = 2**Bgbit
     α = 2**-44
     ε = 1/(2*(Bg**l))
@@ -40,12 +50,12 @@ class lvl10param:
     basebit = 2
 
 class lvl21param:
-    t = 7
-    basebit = 4
+    t = 10
+    basebit = 3
 
 class lvl22param:
-    t = 8
-    basebit = 4
+    t = 10
+    basebit = 3
 
 class lvl20param:
     t = 7
@@ -103,7 +113,7 @@ def romnoisecalc(addressP,dataP,middleP,ikP,privksP,ROMaddress):
     return dataP.α+ROMaddress*cmuxnoisecalc(dataP,cbnoisecalc(addressP,middleP,dataP,privksP))+iknoisecalc(addressP,dataP,ikP)
 
 print("TFHE ROM CMUX noise")
-romnoise = romnoisecalc(lvl0param,lvl2param,lvl1param,lvl10param,lvl21param,ROMaddress)
+romnoise = romnoisecalc(lvl0param,lvl1param,lvl2param,lvl10param,lvl21param,ROMaddress)
 print(romnoise)
 
 print("TFHE ROM error prob")
@@ -113,7 +123,7 @@ def ramnoisecalc(addressP,dataP,middleP,ikP,privksP,RAMaddress):
     return brnoisecalc(addressP,dataP)+RAMaddress*cmuxnoisecalc(dataP,cbnoisecalc(addressP,middleP,dataP,privksP))+iknoisecalc(addressP,dataP,ikP)
 
 print("RAM Read Noise")
-rnoise = ramnoisecalc(lvl0param,lvl2param,lvl2param,lvl20param,lvl22param,RAMaddress)
+rnoise = ramnoisecalc(lvl0param,lvl1param,lvl2param,lvl10param,lvl21param,RAMaddress)
 print(rnoise)
 print("RAM Read error prob")
 print(erfc(1/(16*np.sqrt(2*rnoise))))
