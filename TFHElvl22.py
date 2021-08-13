@@ -28,8 +28,8 @@ class lvl1param:
 class Annihilatelvl1param:
     nbit = 10
     n = 2**nbit
-    l = 12
-    Bgbit = 2
+    l = 3
+    Bgbit = 6
     Bg = 2**Bgbit
     α = 2**-25
     ε = 1/(2*(Bg**l))
@@ -63,8 +63,8 @@ class lvl20param:
 
 # Rounding error from Decomposition of External Product should be treated as Irwin-Hall like Keyswitching.
 def cmuxnoisecalc(P,α):
-    # return 2*P.l*P.n*(P.β**2)*(α**2)+1/12*(1+P.n)*((2*P.ε)**2)
-    return 2*P.l*P.n*(P.β**2)*(α**2)+(1+P.n)*(P.ε**2)
+    return 2*P.l*P.n*(P.β**2)*(α**2)+1/12*(1+P.n)*((2*P.ε)**2)
+    # return 2*P.l*P.n*(P.β**2)*(α**2)+(1+P.n)*(P.ε**2)
 
 def externalproduct(P):
     return 2*P.l*P.n*(P.β**2)*(P.α**2)+(1+P.n)*P.n*(P.ε**2)
@@ -77,7 +77,8 @@ def brnoisecalc(lowP,highP):
 
 # https://tches.iacr.org/index.php/TCHES/article/view/8793
 def iknoisecalc(domainP,targetP,funcP):
-    return 1/12*domainP.n*(2**(-2*(funcP.basebit*funcP.t)))+funcP.t*domainP.n*(targetP.α**2)
+    # return 1/12*domainP.n*(2**(-2*(funcP.basebit*funcP.t)))+funcP.t*domainP.n*(targetP.α**2)
+    return domainP.n*(2**(-2*(funcP.basebit*funcP.t+1)))+funcP.t*domainP.n*(targetP.α**2)
 
 def gbnoisecalc(lowP,highP,funcP):
     return brnoisecalc(lowP,highP)+iknoisecalc(highP,lowP,funcP)
