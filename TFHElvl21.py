@@ -38,8 +38,8 @@ class Annihilatelvl1param:
 class lvl2param:
     nbit = 11
     n = 2**nbit
-    l = 3
-    Bgbit = 11
+    l = 4
+    Bgbit = 9
     Bg = 2**Bgbit
     α = 2**-44
     ε = 1/(2*(Bg**l))
@@ -61,7 +61,8 @@ class lvl20param:
     t = 7
     basebit =  2
 
-# Rounding error from Decomposition of External Product should be treated as Irwin-Hall like Keyswitching.
+# Rounding error from Decomposition of External Product should be treated as Irwin-Hall(though not upper bound)
+# https://tches.iacr.org/index.php/TCHES/article/view/8793
 def cmuxnoisecalc(P,α):
     # return 2*P.l*P.n*(P.β**2)*(α**2)+1/12*(1+P.n)*((2*P.ε)**2)
     return 2*P.l*P.n*(P.β**2)*(α**2)+(1+P.n)*(P.ε**2)
@@ -69,9 +70,9 @@ def cmuxnoisecalc(P,α):
 def brnoisecalc(lowP,highP):
     return lowP.n*cmuxnoisecalc(highP,highP.α)
 
-# https://tches.iacr.org/index.php/TCHES/article/view/8793
 def iknoisecalc(lowP,highP,funcP):
-    return 1/12*highP.n*(2**(-2*(funcP.basebit*funcP.t)))+funcP.t*highP.n*(lowP.α**2)
+    # return 1/12*highP.n*(2**(-2*(funcP.basebit*funcP.t)))+funcP.t*highP.n*(lowP.α**2)
+    return highP.n*(2**(-2*(funcP.basebit*funcP.t+1)))+funcP.t*highP.n*(lowP.α**2)
 
 def gbnoisecalc(lowP,highP,funcP):
     return brnoisecalc(lowP,highP)+iknoisecalc(lowP,highP,funcP)
@@ -96,7 +97,7 @@ print(erfc(1/(16*np.sqrt(2*gbnoise))))
 
 # https://tches.iacr.org/index.php/TCHES/article/view/8793
 def privksnoisecalc(domainP,targetP,privksP):
-    return 1/12*(domainP.n+1)*(2**(-2*(privksP.basebit*privksP.t)))+privksP.t*(domainP.n+1)*(targetP.α**2)
+    return (domainP.n+1)*(2**(-2*(privksP.basebit*privksP.t+1)))+privksP.t*(domainP.n+1)*(targetP.α**2)
 
 def cbnoisecalc(domainP,middleP,targetP,privksP):
     return brnoisecalc(domainP,middleP)+privksnoisecalc(middleP,targetP,privksP)
@@ -110,7 +111,7 @@ print("TFHE Circuit Bootstrapping lvl21 Noise")
 print(cbnoise)
 
 def romnoisecalc(addressP,dataP,middleP,ikP,privksP,ROMaddress):
-    return dataP.α+ROMaddress*cmuxnoisecalc(dataP,cbnoisecalc(addressP,middleP,dataP,privksP))+iknoisecalc(addressP,dataP,ikP)
+    return dataP.α**2+ROMaddress*cmuxnoisecalc(dataP,np.sqrt(cbnoisecalc(addressP,middleP,dataP,privksP)))+iknoisecalc(addressP,dataP,ikP)
 
 print("TFHE ROM CMUX noise")
 romnoise = romnoisecalc(lvl0param,lvl1param,lvl2param,lvl10param,lvl21param,ROMaddress)

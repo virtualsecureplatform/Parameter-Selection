@@ -28,8 +28,8 @@ class lvl1param:
 class Annihilatelvl1param:
     nbit = 10
     n = 2**nbit
-    l = 3
-    Bgbit = 6
+    l = 13
+    Bgbit = 2
     Bg = 2**Bgbit
     α = 2**-25
     ε = 1/(2*(Bg**l))
@@ -38,8 +38,8 @@ class Annihilatelvl1param:
 class lvl2param:
     nbit = 11
     n = 2**nbit
-    l = 3
-    Bgbit = 11
+    l = 4
+    Bgbit = 9
     Bg = 2**Bgbit
     α = 2**-44
     ε = 1/(2*(Bg**l))
@@ -120,7 +120,8 @@ print(erfc(1/(4*np.sqrt(2*100*(annihilatecalc(Annihilatelvl1param)+brnoisecalc(l
 
 # https://tches.iacr.org/index.php/TCHES/article/view/8793
 def privksnoisecalc(domainP,targetP,privksP):
-    return 1/12*(domainP.n+1)*(2**(-2*(privksP.basebit*privksP.t)))+privksP.t*(domainP.n+1)*(targetP.α**2)
+    # return 1/12*(domainP.n+1)*(2**(-2*(privksP.basebit*privksP.t)))+privksP.t*(domainP.n+1)*(targetP.α**2)
+    return (domainP.n+1)*(2**(-2*(privksP.basebit*privksP.t+1)))+privksP.t*(domainP.n+1)*(targetP.α**2)
 
 def cbnoisecalc(domainP,middleP,targetP,privksP):
     return brnoisecalc(domainP,middleP)+privksnoisecalc(middleP,targetP,privksP)
@@ -139,7 +140,7 @@ print("TFHE Circuit Bootstrapping lvl22 Noise")
 print(cbnoise)
 
 def romnoisecalc(addressP,dataP,middleP,ikP,privksP,ROMaddress):
-    return dataP.α+ROMaddress*cmuxnoisecalc(dataP,cbnoisecalc(addressP,middleP,dataP,privksP))+iknoisecalc(dataP,addressP,ikP)
+    return dataP.α+ROMaddress*cmuxnoisecalc(dataP,np.sqrt(cbnoisecalc(addressP,middleP,dataP,privksP)))+iknoisecalc(dataP,addressP,ikP)
 
 print("TFHE ROM CMUX noise")
 romnoise = romnoisecalc(lvl0param,lvl2param,lvl2param,lvl20param,lvl22param,ROMaddress)
