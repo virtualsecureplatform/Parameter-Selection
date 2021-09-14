@@ -106,7 +106,9 @@ def ccfunc(μ,dists):
     def diffccfunc(numtarr):
         return np.array([diff(func,t).subs([(t,numt)]).evalf() for numt in numtarr],dtype=np.float64)
         # return diff(func,t).subs([(t,numtarr)]).evalf()
-    return numccfunc, diffccfunc
+    def funwithjac(numtarr):
+        return numccfunc(numtarr),diffccfunc(numtarr)
+    return numccfunc, diffccfunc, funwithjac
 
 def cmux(P,cmuxdists,dists):
     dists['normal'] += 2*P.l*P.n*(P.β**2)*cmuxdists["normal"]
@@ -183,19 +185,25 @@ dists = {'normal': 0,'uniform':{}}
 # CircuitBootstrapping(lvl02param,lvl21param,dists)
 # CircuitBootstrapping(lvl02param,lvl22param,dists)
 # dists = romnoisecalc(lvl01param,lvl10param,lvl11param,ROMaddress)
-# dists = romnoisecalc(lvl02param,lvl10param,lvl21param,ROMaddress)
-dists = romnoisecalc(lvl02param,lvl20param,lvl22param,ROMaddress)
+dists = romnoisecalc(lvl02param,lvl10param,lvl21param,ROMaddress)
+# dists = romnoisecalc(lvl02param,lvl20param,lvl22param,ROMaddress)
 
 print(dists)
 print([((2*key)**2)*value/12 for key,value in dists["uniform"].items()])
 print(dists["normal"]+sum([((2*key)**2)*value/12 for key,value in dists["uniform"].items()]))
 
 import math
-numccfunc, diffccfunc = ccfunc(1/16,dists)
+numccfunc, diffccfunc, funwithjac = ccfunc(1/16,dists)
 
-from scipy.optimize import minimize
+from scipy.optimize import minimize,shgo,dual_annealing
 
-result = minimize(fun = numccfunc,x0 = np.array([7]), jac = diffccfunc, method = 'Newton-CG')
-print(result['x'])
-print(result['fun'])
-print(2*math.exp(result['fun']))
+# result = minimize(fun = numccfunc,x0 = np.array([1e-6]), jac = diffccfunc, method = 'Newton-CG')
+# print(result['x'])
+# print(result['fun'])
+# print(2*math.exp(result['fun']))
+
+# result = shgo(numccfunc,bounds=[(1e-6,None)],minimizer_kwargs={'method': "SLSQP", 'jac':diffccfunc})
+result = dual_annealing(numccfunc,bounds=[(1e-6,1e6)])
+print(result.x)
+print(result.fun)
+print(2*math.exp(result.fun))
