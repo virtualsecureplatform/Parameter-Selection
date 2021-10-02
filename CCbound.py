@@ -43,7 +43,7 @@ class lvl2param:
     β = Bg/2
 
 class lvl10param:
-    t = 8
+    t = 7
     basebit = 2
     domainP = lvl1param
     targetP = lvl0param
@@ -164,6 +164,10 @@ def CircuitBootstrapping(brP,privksP,dists):
     blindrotate(brP,dists)
     privatekeyswitching(privksP,dists)
 
+def ChensPackingCircuitBootstrapping(brP,dists):
+    blindrotate(brP,dists)
+    annihilatekeyswitching(brP.targetP,dists)
+
 def romnoisecalc(brP,ikP,privksP,ROMaddress):
     dists = {'normal': 0,'uniform':{}}
     dists['normal'] += privksP.targetP.α**2
@@ -182,10 +186,12 @@ dists = {'normal': 0,'uniform':{}}
 # GateBootstrapping(lvl01param,lvl10param,dists)
 # privatekeyswitching(lvl11param,dists)
 # privatekeyswitching(lvl22param,dists)
+# annihilatekeyswitching(lvl2param,dists)
 # CircuitBootstrapping(lvl02param,lvl21param,dists)
 # CircuitBootstrapping(lvl02param,lvl22param,dists)
+ChensPackingCircuitBootstrapping(lvl02param,dists)
 # dists = romnoisecalc(lvl01param,lvl10param,lvl11param,ROMaddress)
-dists = romnoisecalc(lvl02param,lvl10param,lvl21param,ROMaddress)
+# dists = romnoisecalc(lvl02param,lvl10param,lvl21param,ROMaddress)
 # dists = romnoisecalc(lvl02param,lvl20param,lvl22param,ROMaddress)
 
 print(dists)
@@ -203,7 +209,8 @@ from scipy.optimize import minimize,shgo,dual_annealing
 # print(2*math.exp(result['fun']))
 
 # result = shgo(numccfunc,bounds=[(1e-6,None)],minimizer_kwargs={'method': "SLSQP", 'jac':diffccfunc})
-result = dual_annealing(numccfunc,bounds=[(1e-6,1e6)])
+result = dual_annealing(numccfunc,bounds=[(1e-5,1e4)],initial_temp=1e4)
+
 print(result.x)
 print(result.fun)
 print(2*math.exp(result.fun))

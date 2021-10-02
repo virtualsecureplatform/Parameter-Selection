@@ -2,8 +2,8 @@
 from sage.all import load, sqrt, RR, ZZ, pi, oo
 load('https://bitbucket.org/malb/lwe-estimator/raw/HEAD/estimator.py')
 
-n = 635                # ciphertext dimension (also, key entropy)
-sd = 2**(-15)            # noise standard deviation
+n = 500                # ciphertext dimension (also, key entropy)
+sd = 2**(-11)            # noise standard deviation
 alpha = sqrt(2*pi)*sd    # estimator defines noise rate = sqrt(2pi).stdev
 q = 2**32                # for compatibility only
 m = oo                   # the attacker can use as many samples he wishes 
