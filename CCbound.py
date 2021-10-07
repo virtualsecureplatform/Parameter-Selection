@@ -55,14 +55,14 @@ class lvl11param:
     targetP = lvl1param
 
 class lvl21param:
-    t = 10
+    t = 8
     basebit = 3
     domainP = lvl2param
     targetP = lvl1param
 
 class lvl22param:
-    t = 8
-    basebit = 4
+    t = 42
+    basebit = 1
     domainP = lvl2param
     targetP = lvl2param
 
@@ -110,6 +110,25 @@ def ccfunc(μ,dists):
         return numccfunc(numtarr),diffccfunc(numtarr)
     return numccfunc, diffccfunc, funwithjac
 
+def externalproduct(P,squaresum,linf,trgswdists,dists):
+    dists['normal'] = squaresum*dists['normal']+2*P.l*P.n*(P.β**2)*trgswdists["normal"]
+    if P.ε in dists['uniform']:
+        if linf*P.ε in dists['uniform']:
+            dists['uniform'][linf*P.ε] += (1+P.n)*dists['uniform'][P.ε]
+        else:
+            dists['uniform'][linf*P.ε] = (1+P.n)*dists['uniform'][P.ε]
+        del dists['uniform'][P.ε]
+    else:
+        if linf*P.ε in dists['uniform']:
+            dists['uniform'][linf*P.ε] += 1+P.n
+        else:
+            dists['uniform'][linf*P.ε] = 1+P.n
+    for key,value in trgswdists["uniform"].items():
+        if P.β*key in dists['uniform']:
+            dists['uniform'][P.β*key] += 2*P.l*P.n*value
+        else:
+            dists['uniform'][P.β*key] = 2*P.l*P.n*value
+
 def cmux(P,cmuxdists,dists):
     dists['normal'] += 2*P.l*P.n*(P.β**2)*cmuxdists["normal"]
     if P.ε in dists['uniform']:
@@ -149,11 +168,15 @@ def annihilatekeyswitching(P,dists):
 def annihilaterecursive(P,nbit,dists):
     if(nbit != 0):
         annihilaterecursive(P,nbit-1,dists)
-        dists["normal"] *= 2
-        for key in dists["uniform"].keys():
-            dists["uniform"][key] *= 2
-        cmuxdists = {'normal': P.α**2,'uniform':{}}
-        cmux(P,cmuxdists,dists)
+        currentdists = dists
+        trgswdists = {'normal': P.α**2,'uniform':{}}
+        cmux(P,trgswdists,dists)
+        dists["normal"] += currentdists["normal"]
+        for key,value in currentdists["uniform"].items():
+            if key in dists["uniform"]:
+                dists["uniform"][key] += value
+            else:
+                dists["uniform"][key] = value
 
 
 def GateBootstrapping(brP,ikP,dists):
@@ -185,18 +208,23 @@ dists = {'normal': 0,'uniform':{}}
 # blindrotate(lvl02param,dists)
 # GateBootstrapping(lvl01param,lvl10param,dists)
 # privatekeyswitching(lvl11param,dists)
+# privatekeyswitching(lvl21param,dists)
 # privatekeyswitching(lvl22param,dists)
 # annihilatekeyswitching(lvl2param,dists)
 # CircuitBootstrapping(lvl02param,lvl21param,dists)
 # CircuitBootstrapping(lvl02param,lvl22param,dists)
-ChensPackingCircuitBootstrapping(lvl02param,dists)
+# ChensPackingCircuitBootstrapping(lvl02param,dists)
 # dists = romnoisecalc(lvl01param,lvl10param,lvl11param,ROMaddress)
 # dists = romnoisecalc(lvl02param,lvl10param,lvl21param,ROMaddress)
 # dists = romnoisecalc(lvl02param,lvl20param,lvl22param,ROMaddress)
 
+# dists = {'normal': 0.0006479548101205879,'uniform':{}}
 print(dists)
 print([((2*key)**2)*value/12 for key,value in dists["uniform"].items()])
-print(dists["normal"]+sum([((2*key)**2)*value/12 for key,value in dists["uniform"].items()]))
+conventionalvariance = dists["normal"]+sum([((2*key)**2)*value/12 for key,value in dists["uniform"].items()])
+print(conventionalvariance)
+from scipy.special import erfc
+print(erfc(1/(16*np.sqrt(2*dists["normal"]))))
 
 import math
 numccfunc, diffccfunc, funwithjac = ccfunc(1/16,dists)
@@ -209,7 +237,7 @@ from scipy.optimize import minimize,shgo,dual_annealing
 # print(2*math.exp(result['fun']))
 
 # result = shgo(numccfunc,bounds=[(1e-6,None)],minimizer_kwargs={'method': "SLSQP", 'jac':diffccfunc})
-result = dual_annealing(numccfunc,bounds=[(1e-5,1e4)],initial_temp=1e4)
+result = dual_annealing(numccfunc,bounds=[(1e-3,1e5)],initial_temp=1e4)
 
 print(result.x)
 print(result.fun)

@@ -50,7 +50,7 @@ class lvl10param:
     basebit = 2
 
 class lvl21param:
-    t = 10
+    t = 8
     basebit = 3
 
 class lvl22param:
@@ -121,7 +121,7 @@ print("TFHE ROM error prob")
 print(erfc(1/(16*np.sqrt(2*romnoise))))
 
 def ramnoisecalc(addressP,dataP,middleP,ikP,privksP,RAMaddress):
-    return brnoisecalc(addressP,dataP)+RAMaddress*cmuxnoisecalc(dataP,cbnoisecalc(addressP,middleP,dataP,privksP))+iknoisecalc(addressP,dataP,ikP)
+    return brnoisecalc(addressP,dataP)+RAMaddress*np.sqrt(cmuxnoisecalc(dataP,cbnoisecalc(addressP,middleP,dataP,privksP)))+iknoisecalc(addressP,dataP,ikP)
 
 print("RAM Read Noise")
 rnoise = ramnoisecalc(lvl0param,lvl1param,lvl2param,lvl10param,lvl21param,RAMaddress)
