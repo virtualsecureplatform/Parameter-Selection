@@ -43,7 +43,7 @@ class lvl2param:
     β = Bg/2
 
 class lvl10param:
-    t = 7
+    t = 8
     basebit = 2
     domainP = lvl1param
     targetP = lvl0param
@@ -79,6 +79,10 @@ class lvl01param:
 
 class lvl02param:
     domainP = lvl0param
+    targetP = lvl2param
+
+class lvl12param:
+    domainP = lvl1param
     targetP = lvl2param
 
 
@@ -207,18 +211,21 @@ dists = {'normal': 0,'uniform':{}}
 # blindrotate(lvl01param,dists)
 # blindrotate(lvl02param,dists)
 # GateBootstrapping(lvl01param,lvl10param,dists)
+# GateBootstrapping(lvl12param,lvl21param,dists)
 # privatekeyswitching(lvl11param,dists)
 # privatekeyswitching(lvl21param,dists)
 # privatekeyswitching(lvl22param,dists)
 # annihilatekeyswitching(lvl2param,dists)
 # CircuitBootstrapping(lvl02param,lvl21param,dists)
+# CircuitBootstrapping(lvl12param,lvl21param,dists)
 # CircuitBootstrapping(lvl02param,lvl22param,dists)
 # ChensPackingCircuitBootstrapping(lvl02param,dists)
 # dists = romnoisecalc(lvl01param,lvl10param,lvl11param,ROMaddress)
 # dists = romnoisecalc(lvl02param,lvl10param,lvl21param,ROMaddress)
 # dists = romnoisecalc(lvl02param,lvl20param,lvl22param,ROMaddress)
 
-# dists = {'normal': 0.0006479548101205879,'uniform':{}}
+# dists = {'normal': 0.0006479548101205879,'uniform': {9.5367431640625e-07: 1000000000}} # bounds=[(1e-3,1e5)],initial_temp=1e4
+dists = {'normal': 0.0006479548101205879,'uniform': {2.3283064365386963e-10: 559583539}} # bounds=[(1e-4,1e5)],initial_temp=1e4
 print(dists)
 print([((2*key)**2)*value/12 for key,value in dists["uniform"].items()])
 conventionalvariance = dists["normal"]+sum([((2*key)**2)*value/12 for key,value in dists["uniform"].items()])
@@ -237,7 +244,7 @@ from scipy.optimize import minimize,shgo,dual_annealing
 # print(2*math.exp(result['fun']))
 
 # result = shgo(numccfunc,bounds=[(1e-6,None)],minimizer_kwargs={'method': "SLSQP", 'jac':diffccfunc})
-result = dual_annealing(numccfunc,bounds=[(1e-3,1e5)],initial_temp=1e4)
+result = dual_annealing(numccfunc,bounds=[(1e-4,1e5)],initial_temp=1e4)
 
 print(result.x)
 print(result.fun)
