@@ -46,7 +46,7 @@ class lvl2param:
     β = Bg/2
 
 class lvl10param:
-    t = 8
+    t = 7
     basebit = 2
 
 class lvl21param:
