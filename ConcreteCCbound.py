@@ -13,10 +13,11 @@ class lvl0param:
     α = 2**-15
 
 class lvl1param:
-    nbit = 10
+    nbit = 9
+    k = 3
     n = 2**nbit
-    l = 3
-    Bgbit = 6
+    l = 2
+    Bgbit = 8
     Bg = 2**Bgbit
     α = 2**-25
     ε = 1/(2*(Bg**l))
@@ -43,8 +44,8 @@ class lvl2param:
     β = Bg/2
 
 class lvl10param:
-    t = 7
-    basebit = 2
+    t = 3
+    basebit = 4
     domainP = lvl1param
     targetP = lvl0param
 
@@ -115,7 +116,7 @@ def ccfunc(μ,dists):
     return numccfunc, diffccfunc, funwithjac
 
 def externalproduct(P,squaresum,linf,trgswdists,dists):
-    dists['normal'] = squaresum*dists['normal']+2*P.l*P.n*(P.β**2)*trgswdists["normal"]
+    dists['normal'] = squaresum*dists['normal']+P.k*P.l*P.n*(P.β**2)*trgswdists["normal"]
     if P.ε in dists['uniform']:
         if linf*P.ε in dists['uniform']:
             dists['uniform'][linf*P.ε] += (1+P.n)*dists['uniform'][P.ε]
@@ -129,21 +130,21 @@ def externalproduct(P,squaresum,linf,trgswdists,dists):
             dists['uniform'][linf*P.ε] = 1+P.n
     for key,value in trgswdists["uniform"].items():
         if P.β*key in dists['uniform']:
-            dists['uniform'][P.β*key] += 2*P.l*P.n*value
+            dists['uniform'][P.β*key] += P.k*P.l*P.n*value
         else:
-            dists['uniform'][P.β*key] = 2*P.l*P.n*value
+            dists['uniform'][P.β*key] = P.k*P.l*P.n*value
 
 def cmux(P,cmuxdists,dists):
-    dists['normal'] += 2*P.l*P.n*(P.β**2)*cmuxdists["normal"]
+    dists['normal'] += P.k*P.l*P.n*(P.β**2)*cmuxdists["normal"]
     if P.ε in dists['uniform']:
         dists['uniform'][P.ε] += 1+P.n
     else:
         dists['uniform'][P.ε] = 1+P.n
     for key,value in cmuxdists["uniform"].items():
         if P.β*key in dists['uniform']:
-            dists['uniform'][P.β*key] += 2*P.l*P.n*value
+            dists['uniform'][P.β*key] += P.k*P.l*P.n*value
         else:
-            dists['uniform'][P.β*key] = 2*P.l*P.n*value
+            dists['uniform'][P.β*key] = P.k*P.l*P.n*value
 
 def blindrotate(P,dists):
     cmuxdists = {'normal': P.targetP.α**2,'uniform':{}}
@@ -151,12 +152,12 @@ def blindrotate(P,dists):
         cmux(P.targetP,cmuxdists,dists)
 
 def identitiykeyswithing(P,dists):
-    dists['normal'] += P.t*P.domainP.n*(P.targetP.α**2)
+    dists['normal'] += P.t*(P.domainP.k-1)*P.domainP.n*(P.targetP.α**2)
     a = 2**(-P.basebit*P.t-1)
     if a in dists['uniform']:
-        dists["uniform"][a] += P.domainP.n
+        dists["uniform"][a] += (P.domainP.k-1)*P.domainP.n
     else:
-        dists["uniform"][a] = P.domainP.n
+        dists["uniform"][a] = (P.domainP.k-1)*P.domainP.n
 
 def privatekeyswitching(P,dists):
     dists['normal'] += P.t*(P.domainP.n+1)*(P.targetP.α**2)
@@ -210,10 +211,11 @@ dists = {'normal': 0,'uniform':{}}
 
 # blindrotate(lvl01param,dists)
 # blindrotate(lvl02param,dists)
-# GateBootstrapping(lvl01param,lvl10param,dists)
+# identitiykeyswithing(lvl10param,dists)
+GateBootstrapping(lvl01param,lvl10param,dists)
 # GateBootstrapping(lvl12param,lvl21param,dists)
 # privatekeyswitching(lvl11param,dists)
-privatekeyswitching(lvl21param,dists)
+# privatekeyswitching(lvl21param,dists)
 # privatekeyswitching(lvl22param,dists)
 # annihilatekeyswitching(lvl2param,dists)
 # CircuitBootstrapping(lvl02param,lvl21param,dists)
@@ -232,6 +234,7 @@ conventionalvariance = dists["normal"]+sum([((2*key)**2)*value/12 for key,value 
 print(conventionalvariance)
 from scipy.special import erfc
 print(erfc(1/(16*np.sqrt(2*dists["normal"]))))
+print(erfc(1/(16*np.sqrt(2*conventionalvariance))))
 
 import math
 numccfunc, diffccfunc, funwithjac = ccfunc(1/16,dists)
@@ -243,8 +246,8 @@ from scipy.optimize import minimize,shgo,dual_annealing
 # print(result['fun'])
 # print(2*math.exp(result['fun']))
 
-# result = shgo(numccfunc,bounds=[(1e-6,None)],minimizer_kwargs={'method': "SLSQP", 'jac':diffccfunc})
-result = dual_annealing(numccfunc,bounds=[(1e-3,1e4)],initial_temp=1e4)
+result = shgo(numccfunc,bounds=[(1e-6,None)],minimizer_kwargs={'method': "SLSQP", 'jac':diffccfunc})
+# result = dual_annealing(numccfunc,bounds=[(1e-3,1e5)],initial_temp=1e4)
 
 print(result.x)
 print(result.fun)

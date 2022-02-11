@@ -80,7 +80,7 @@ def gbnoisecalc(lowP,highP,funcP):
 # Processor parameter
 
 ROMaddress = 7 # 4 word block
-RAMaddress = 9
+RAMaddress = 7
 RAMwordbit = 8
 
 print("TFHE IK noise")
@@ -107,6 +107,10 @@ cbnoise = cbnoisecalc(lvl0param,lvl2param,lvl1param,lvl21param)
 print("TFHE lvl20 iks noise")
 print(iknoisecalc(lvl0param,lvl2param,lvl20param))
 
+print("BR lvl 02")
+print(brnoisecalc(lvl0param,lvl2param))
+print("privks lvl21")
+print(privksnoisecalc(lvl2param,lvl1param,lvl21param))
 print("TFHE Circuit Bootstrapping lvl21 Noise")
 print(cbnoise)
 
