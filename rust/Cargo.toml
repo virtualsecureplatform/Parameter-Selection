@@ -1,0 +1,7 @@
+[package]
+name = "Parameter-Selection"
+version = "0.0.1"
+edition = "2021"
+[dependencies]
+concrete-npe = "=0.2.0"
+concrete-commons = "=0.1.2"
