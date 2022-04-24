@@ -14,7 +14,7 @@ class lvl0param:
 
 class lvl1param:
     nbit = 9
-    k = 3
+    k = 2
     n = 2**nbit
     l = 2
     Bgbit = 8
