@@ -24,11 +24,11 @@ class lvl1param:
     l = 2
     ℬbit = 8
     ℬ = 2**ℬbit
-    α = 0.00000002989040792967434 * q
+    α = 0.0000000342338787018369 * q
 
 class lvl10param:
-    t = 5
-    basebit = 2
+    t = 4
+    basebit = 3
 
 variance_key_coefficient = 1./4
 expectation_key_coefficient = 1./2
@@ -39,19 +39,21 @@ def brnoisecalc(lowP,highP):
     return lowP.n * (res1+res2)
 
 def iksnoisecalc(lowP,highP,funcP):
-    # return 1/12*highP.n*(2**(-2*(funcP.basebit*funcP.t)))+funcP.t*highP.n*(lowP.α**2)
+    # return 1/12*highP.k*highP.n*(2**(-2*(funcP.basebit*funcP.t)))+funcP.t*highP.k*highP.n*(lowP.α**2)
     roundwidth = 2**(-funcP.basebit*funcP.t-1) * q
-    round_variance = ((2*roundwidth)**2-1)/12
+    round_variance = roundwidth**2/12 - 1/12
     round_expectation = -1./2
-    return highP.n*(round_variance*variance_key_coefficient+round_variance*expectation_key_coefficient**2+round_expectation**2 * variance_key_coefficient)+funcP.t*highP.n*(lowP.α**2)
+    return highP.k*highP.n*((round_variance*variance_key_coefficient+round_variance*expectation_key_coefficient**2+round_expectation**2 * variance_key_coefficient)+funcP.t*(lowP.α**2))
 
 brnoise = brnoisecalc(lvl0param,lvl1param)
 print(brnoise)
 print(np.sqrt(brnoise)/q)
 
 iksnoise = iksnoisecalc(lvl0param,lvl1param,lvl10param)
+print("IKS noise")
 print(iksnoise)
 print(np.sqrt(iksnoise)/q)
 print(erfc((q/16)/np.sqrt(2*iksnoise)))
+print(erfc((q/16)/np.sqrt(2*brnoise)))
 
 print(erfc((q/16)/np.sqrt(2*(iksnoise+brnoise))))
