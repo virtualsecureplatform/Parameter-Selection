@@ -9,8 +9,8 @@ import numpy as np
 # 128bit TFHE's parameter.
 
 class lvl0param:
-    n = 635
-    α = 2**-15
+    n = 586
+    α = 0.00008976167396834998
 
 class lvl1param:
     nbit = 9
@@ -19,7 +19,7 @@ class lvl1param:
     l = 2
     Bgbit = 8
     Bg = 2**Bgbit
-    α = 2**-25
+    α = 0.0000000342338787018369
     ε = 1/(2*(Bg**l))
     β = Bg/2
 
@@ -234,20 +234,22 @@ conventionalvariance = dists["normal"]+sum([((2*key)**2)*value/12 for key,value 
 print(conventionalvariance)
 from scipy.special import erfc
 print(erfc(1/(16*np.sqrt(2*dists["normal"]))))
+print("conventional error rate")
 print(erfc(1/(16*np.sqrt(2*conventionalvariance))))
 
 import math
 numccfunc, diffccfunc, funwithjac = ccfunc(1/16,dists)
 
-from scipy.optimize import minimize,shgo,dual_annealing
+from scipy.optimize import minimize,shgo,dual_annealing,direct
 
 # result = minimize(fun = numccfunc,x0 = np.array([1e-6]), jac = diffccfunc, method = 'Newton-CG')
 # print(result['x'])
 # print(result['fun'])
 # print(2*math.exp(result['fun']))
 
-result = shgo(numccfunc,bounds=[(1e-6,None)],minimizer_kwargs={'method': "SLSQP", 'jac':diffccfunc})
+# result = shgo(numccfunc,bounds=[(1e-6,None)],minimizer_kwargs={'method': "SLSQP", 'jac':diffccfunc})
 # result = dual_annealing(numccfunc,bounds=[(1e-3,1e5)],initial_temp=1e4)
+result = direct(numccfunc,bounds=[(1e-3,1e5)])
 
 print(result.x)
 print(result.fun)

@@ -27,8 +27,8 @@ class lvl1param:
     α = 0.0000000342338787018369 * q
 
 class lvl10param:
-    t = 4
-    basebit = 3
+    t = 3
+    basebit = 4
 
 variance_key_coefficient = 1./4
 expectation_key_coefficient = 1./2
