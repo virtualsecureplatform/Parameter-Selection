@@ -1,0 +1,3 @@
+[submodule "python/lattice-estimator"]
+	path = python/lattice-estimator
+	url = https://github.com/malb/lattice-estimator.git
