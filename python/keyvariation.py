@@ -15,7 +15,10 @@ q = 2**32
 
 class lvl0param:
     n = 586
-    α = 0.00008976167396834998 * q
+    α = 0.000_092_511_997_467_675_6 * q
+    # binary
+    variance_key_coefficient = 1./4
+    expectation_key_coefficient = 1./2
 
 class lvl1param:
     nbit = 9
@@ -25,17 +28,42 @@ class lvl1param:
     ℬbit = 8
     ℬ = 2**ℬbit
     α = 0.0000000342338787018369 * q
+    # ternary
+    variance_key_coefficient = 2./3
+    expectation_key_coefficient = 0
 
 class lvl10param:
     t = 3
     basebit = 4
 
-variance_key_coefficient = 1./4
-expectation_key_coefficient = 1./2
+# class lvl0param:
+#     n = 636
+#     α = 0.000_092_511_997_467_675_6 * q
+#     # binary
+#     variance_key_coefficient = 1./4
+#     expectation_key_coefficient = 1./2
+
+# class lvl1param:
+#     nbit = 10
+#     n = 2**nbit
+#     k = 1
+#     l = 3
+#     ℬbit = 6
+#     ℬ = 2**ℬbit
+#     α = 2 ** (32-25)
+#     # ternary
+#     variance_key_coefficient = 2./3
+#     expectation_key_coefficient = 0
+
+# class lvl10param:
+#     t = 4
+#     basebit = 3
+
+
 
 def brnoisecalc(lowP,highP):
     res1 = highP.l * (highP.k + 1.) * highP.n * (highP.ℬ**2 + 2.) / 12. * highP.α**2
-    res2 = (q**2-highP.ℬ**(2*highP.l)) / (24 * highP.ℬ**(2*highP.l)) * (1. + highP.k * highP.n * (variance_key_coefficient + expectation_key_coefficient**2)) + highP.k * highP.n/8 * variance_key_coefficient  + 1 / 16. * (1. - highP.k * highP.n * expectation_key_coefficient)**2; # Last Part seems to be integer representation specific.
+    res2 = (q**2-highP.ℬ**(2*highP.l)) / (24 * highP.ℬ**(2*highP.l)) * (1. + highP.k * highP.n * (lowP.variance_key_coefficient + lowP.expectation_key_coefficient**2)) + highP.k * highP.n/8 * lowP.variance_key_coefficient  + 1 / 16. * (1. - highP.k * highP.n * lowP.expectation_key_coefficient)**2; # Last Part seems to be integer representation specific.
     return lowP.n * (res1+res2)
 
 def iksnoisecalc(lowP,highP,funcP):
@@ -43,7 +71,7 @@ def iksnoisecalc(lowP,highP,funcP):
     roundwidth = 2**(-funcP.basebit*funcP.t-1) * q
     round_variance = roundwidth**2/12 - 1/12
     round_expectation = -1./2
-    return highP.k*highP.n*((round_variance*variance_key_coefficient+round_variance*expectation_key_coefficient**2+round_expectation**2 * variance_key_coefficient)+funcP.t*(lowP.α**2))
+    return highP.k*highP.n*((round_variance*highP.variance_key_coefficient+round_variance*highP.expectation_key_coefficient**2+round_expectation**2 * highP.variance_key_coefficient)+funcP.t*(lowP.α**2))
 
 brnoise = brnoisecalc(lvl0param,lvl1param)
 print(brnoise)
