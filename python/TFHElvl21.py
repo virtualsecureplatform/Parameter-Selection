@@ -50,8 +50,8 @@ class lvl10param:
     basebit = 2
 
 class lvl21param:
-    t = 8
-    basebit = 3
+    t = 24
+    basebit = 1
 
 class lvl22param:
     t = 10

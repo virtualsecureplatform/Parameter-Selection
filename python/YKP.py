@@ -15,9 +15,9 @@ q = 2**32
 Q = 2**64
 
 class lvl0param:
-  n = 636
+  n = 500
   k = 1
-  α = 0.000_092_511_997_467_675_6 * q
+  α = 2.44e-5 * q
   # binary
   variance_key_coefficient = 1./4
   expectation_key_coefficient = 1./2
@@ -43,20 +43,20 @@ class lvl0param:
 #     expectation_key_coefficient = 0
 
 class lvl1param:
-    nbit = 9
+    nbit = 10
     n = 2**nbit
-    k = 2
+    k = 1
     l = 2
-    ℬbit = 9
+    ℬbit = 10
     ℬ = 2**ℬbit
-    α = 0.0000000342338787018369 * q
+    α = 3.73e-9 * q
     # ternary
-    variance_key_coefficient = 2./3
-    expectation_key_coefficient = 0
+    variance_key_coefficient = 1./4
+    expectation_key_coefficient = 1./2
 
 class lvl10param:
-    t = 4
-    basebit = 3
+    t = 7
+    basebit = 2
 
 class lvl2param:
     nbit = 10
@@ -150,13 +150,13 @@ print(erfc((q/16)/np.sqrt(2*iksnoise)))
 print("Gate Error")
 print(erfc((q/16)/np.sqrt(2*(iksnoise+brnoise))))
 
-print("m = 2 BR noise")
-brnoise = unrollbrnoisecalc(lvl0param,lvl1param,2)
+print("m = 4 BR noise")
+brnoise = unrollbrnoisecalc(lvl0param,lvl1param,4)
 print(brnoise)
 print(np.sqrt(brnoise)/q)
 print(erfc((q/16)/np.sqrt(2*brnoise)))
 
-print("m=2 Gate Error")
+print("Gate Error")
 print(erfc((q/16)/np.sqrt(2*(iksnoise+brnoise))))
 
 print("CB")
