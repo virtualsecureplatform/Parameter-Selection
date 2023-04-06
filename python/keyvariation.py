@@ -1,6 +1,5 @@
 #!/bin/python3
 
-from humanfriendly import round_number
 import  numpy as np
 from scipy.special import erfc
 import gmpy2
