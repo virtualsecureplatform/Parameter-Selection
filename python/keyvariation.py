@@ -14,10 +14,18 @@ lvl2_μ = 2**61;
 q = 2**32
 Q = 2**64
 
+# class lvl0param:
+#   n = 636
+#   k = 1
+#   α = 0.000_092_511_997_467_675_6 * q
+#   # binary
+#   variance_key_coefficient = 1./4
+#   expectation_key_coefficient = 1./2
+
 class lvl0param:
-  n = 636
+  n = 777
   k = 1
-  α = 0.000_092_511_997_467_675_6 * q
+  α = 0.000003725679281679651 * q
   # binary
   variance_key_coefficient = 1./4
   expectation_key_coefficient = 1./2
@@ -42,38 +50,51 @@ class lvl0param:
 #     variance_key_coefficient = 2./3
 #     expectation_key_coefficient = 0
 
+# class lvl1param:
+#     nbit = 9
+#     n = 2**nbit
+#     k = 2
+#     l = 1
+#     ℬbit = 18
+#     ℬ = 2**ℬbit
+#     α = 0.0000000342338787018369 * q
+#     # ternary
+#     variance_key_coefficient = 2./3
+#     expectation_key_coefficient = 0
+
 class lvl1param:
     nbit = 9
     n = 2**nbit
     k = 2
-    l = 2
-    ℬbit = 9
+    l = 1
+    ℬbit = 16
     ℬ = 2**ℬbit
-    α = 0.0000000342338787018369 * q
+    α = 0.0000000000034525330484572114 * q
     # ternary
     variance_key_coefficient = 2./3
     expectation_key_coefficient = 0
+
 
 class lvl10param:
     t = 4
     basebit = 3
 
 class lvl2param:
-    nbit = 10
-    k = 2
+    nbit = 9
+    k = 3
     n = 2**nbit
-    l = 4
-    ℬbit = 9
+    l = 2
+    ℬbit = 13
     ℬ = 2**ℬbit
-    α = 2**-47
+    α = 2**-37
     ε = 1/(2*(ℬ**l))
     β = ℬ/2
     variance_key_coefficient = 1./4
     expectation_key_coefficient = 1./2
 
 class lvl21param:
-    t = 24
-    basebit = 1
+    t = 6
+    basebit = 4
     domainP = lvl2param
     targetP = lvl1param
 
