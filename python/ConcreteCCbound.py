@@ -9,12 +9,12 @@ import numpy as np
 # 128bit TFHE's parameter.
 
 class lvl0param:
-    n = 586
+    n = 636
     α = 0.00008976167396834998
 
 class lvl1param:
-    nbit = 9
-    k = 2
+    nbit = 8
+    k = 4
     n = 2**nbit
     l = 2
     Bgbit = 8
@@ -36,10 +36,22 @@ class Annihilatelvl1param:
 class lvl2param:
     nbit = 11
     n = 2**nbit
+    k = 1
     l = 4
     Bgbit = 9
     Bg = 2**Bgbit
     α = 2**-44
+    ε = 1/(2*(Bg**l))
+    β = Bg/2
+
+class lvl2param:
+    nbit = 9
+    n = 2**nbit
+    k = 3
+    l = 3
+    Bgbit = 10
+    Bg = 2**Bgbit
+    α = 0.0000000000034525330484572114
     ε = 1/(2*(Bg**l))
     β = Bg/2
 
@@ -87,7 +99,7 @@ class lvl12param:
     targetP = lvl2param
 
 
-ROMaddress = 7 # 4 word block
+ROMaddress = 32 # 4 word block
 RAMaddress = 9
 RAMwordbit = 8
 
@@ -152,12 +164,12 @@ def blindrotate(P,dists):
         cmux(P.targetP,cmuxdists,dists)
 
 def identitiykeyswithing(P,dists):
-    dists['normal'] += P.t*(P.domainP.k-1)*P.domainP.n*(P.targetP.α**2)
+    dists['normal'] += P.t*P.domainP.k*P.domainP.n*(P.targetP.α**2)
     a = 2**(-P.basebit*P.t-1)
     if a in dists['uniform']:
-        dists["uniform"][a] += (P.domainP.k-1)*P.domainP.n
+        dists["uniform"][a] += P.domainP.k*P.domainP.n
     else:
-        dists["uniform"][a] = (P.domainP.k-1)*P.domainP.n
+        dists["uniform"][a] = P.domainP.k*P.domainP.n
 
 def privatekeyswitching(P,dists):
     dists['normal'] += P.t*(P.domainP.n+1)*(P.targetP.α**2)
@@ -183,7 +195,6 @@ def annihilaterecursive(P,nbit,dists):
             else:
                 dists["uniform"][key] = value
 
-
 def GateBootstrapping(brP,ikP,dists):
     blindrotate(brP,dists)
     identitiykeyswithing(ikP,dists)
@@ -191,6 +202,13 @@ def GateBootstrapping(brP,ikP,dists):
 def CircuitBootstrapping(brP,privksP,dists):
     blindrotate(brP,dists)
     privatekeyswitching(privksP,dists)
+
+def BRround(brP,manybit):
+    roundwidth = 2**manybit/(4*brP.targetP.n)
+    if roundwidth in dists["uniform"]:
+        dists[roundwidth] += brP.domainP.n
+    else:
+        dists[roundwidth] = brP.domainP.n
 
 def ChensPackingCircuitBootstrapping(brP,dists):
     blindrotate(brP,dists)
@@ -214,6 +232,7 @@ dists = {'normal': 0,'uniform':{}}
 # identitiykeyswithing(lvl10param,dists)
 GateBootstrapping(lvl01param,lvl10param,dists)
 # GateBootstrapping(lvl12param,lvl21param,dists)
+# BRround(lvl01param,1)
 # privatekeyswitching(lvl11param,dists)
 # privatekeyswitching(lvl21param,dists)
 # privatekeyswitching(lvl22param,dists)
