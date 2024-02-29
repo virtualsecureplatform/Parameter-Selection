@@ -20,23 +20,24 @@ lvl2_μ = 2**61;
 #   variance_key_coefficient = 1./4
 #   expectation_key_coefficient = 1./2
 
-# class lvl0param:
-#   n = 636
-#   k = 1
-#   q = 2**32
-#   α = 0.000_092_511_997_467_675_6 * q
-#   # binary
-#   variance_key_coefficient = 1./4
-#   expectation_key_coefficient = 1./2
-
 class lvl0param:
-  n = 128
-  k = 5
+#   n = 636
+  n = 512
+  k = 1
   q = 2**32
   α = 0.000_092_511_997_467_675_6 * q
   # binary
   variance_key_coefficient = 1./4
   expectation_key_coefficient = 1./2
+
+# class lvl0param:
+#   n = 128
+#   k = 5
+#   q = 2**32
+#   α = 0.000_092_511_997_467_675_6 * q
+#   # binary
+#   variance_key_coefficient = 1./4
+#   expectation_key_coefficient = 1./2
 
 # class lvl0param:
 #   n = 777
@@ -71,14 +72,15 @@ class lvl1param:
     nbit = 9
     # q = 2**32
     # q = 5**4*2**16+1
-    q = 2**25
+    q = 3**4*2**16+1
+    # q = 2**25
     n = 2**nbit
     k = 2
     l = 2
-    ℬbit = 8
+    ℬbit = 7
     ℬ = 2**ℬbit
     # α = 0.0000000342338787018369 * q
-    α = 2*4/4
+    α = 2*2/4
     # ternary
     variance_key_coefficient = 2./3
     expectation_key_coefficient = 0
@@ -99,11 +101,11 @@ class lvl1param:
 #     nbit = 8
 #     n = 2**nbit
 #     k = 4
-#     l = 2
-#     ℬbit = 7
+#     l = 1
+#     ℬbit = 14
 #     ℬ = 2**ℬbit
-#     q = (2 ** 16 + 1)*(2 **8 +1)
-#     α =  4.2
+#     q = 2**32
+#     α =  (2**-30)*q
 #     # ternary
 #     variance_key_coefficient = 2./3
 #     expectation_key_coefficient = 0
@@ -129,19 +131,19 @@ class lvl10param:
 #     t = 4
 #     basebit = 3
 
-class lvl2param:
-    nbit = 11
-    k = 1
-    n = 2**nbit
-    q = 2**64
-    l = 4
-    ℬbit = 9
-    ℬ = 2**ℬbit
-    α =  q * 2**-47
-    ε = 1/(2*(ℬ**l))
-    β = ℬ/2
-    variance_key_coefficient = 1./4
-    expectation_key_coefficient = 1./2
+# class lvl2param:
+#     nbit = 11
+#     k = 1
+#     n = 2**nbit
+#     q = 2**64
+#     l = 3
+#     ℬbit = 9
+#     ℬ = 2**ℬbit
+#     α =  q * 2**-47
+#     ε = 1/(2*(ℬ**l))
+#     β = ℬ/2
+#     variance_key_coefficient = 1./4
+#     expectation_key_coefficient = 1./2
 
 # class lvl2param:
 #     nbit = 9
@@ -157,19 +159,19 @@ class lvl2param:
 #     variance_key_coefficient = 1./4
 #     expectation_key_coefficient = 1./2
 
-# class lvl2param:
-#     nbit = 9
-#     k = 3
-#     n = 2**nbit
-#     q = 2**64
-#     l = 3
-#     ℬbit = 9
-#     ℬ = 2**ℬbit
-#     α = 2**-39 * q
-#     ε = 1/(2*(ℬ**l))
-#     β = ℬ/2
-#     variance_key_coefficient = 2./3
-#     expectation_key_coefficient = 0.
+class lvl2param:
+    nbit = 9
+    k = 3
+    n = 2**nbit
+    q = 2**64
+    l = 3
+    ℬbit = 10
+    ℬ = 2**ℬbit
+    α = 2**-39 * q
+    ε = 1/(2*(ℬ**l))
+    β = ℬ/2
+    variance_key_coefficient = 2./3
+    expectation_key_coefficient = 0.
 
 class lvl11param:
     t = 5
@@ -275,7 +277,7 @@ print("BR noise")
 brnoise = brnoisecalc(lvl0param,lvl1param)
 print(brnoise)
 print(np.sqrt(brnoise)/lvl1param.q)
-print(erfc((lvl1param.q/16)/np.sqrt(2*brnoise)))
+print(erfc((lvl1param.q/8)/np.sqrt(2*2*brnoise)))
 
 iksnoise = iksnoisecalc(lvl0param,lvl1param,lvl10param)
 print("IKS noise")
@@ -321,8 +323,8 @@ print("BRlvl02")
 brnoise = brnoisecalc(lvl0param,lvl2param)
 print(brnoise)
 print(np.sqrt(brnoise)/lvl2param.q)
+print(erfc((lvl2param.q/16)/np.sqrt(2*brnoise)))
 brnoise *= ((lvl1param.q/lvl2param.q)**2)
-print(erfc((lvl1param.q/16)/np.sqrt(2*brnoise)))
 
 privksnoise = privksnoisecalc(lvl1param,lvl2param,lvl21param)
 print("PrivIKS noise")
@@ -331,6 +333,7 @@ print(np.sqrt(privksnoise)/lvl1param.q)
 print(erfc((lvl1param.q/16)/np.sqrt(2*privksnoise)))
 
 print("CB")
+print(np.sqrt(privksnoise+brnoise)/lvl1param.q)
 print(erfc((lvl1param.q/16)/np.sqrt(2*(privksnoise+brnoise))))
 
 print("MRLWE IKS noise")
