@@ -130,7 +130,7 @@ class lvl12param:
     targetP = lvl2param
 
 
-ROMaddress = 500 # 4 word block
+ROMaddress = 9 # 4 word block
 RAMaddress = 9
 RAMwordbit = 8
 
@@ -168,8 +168,8 @@ def precccfunc(ta,μ,dists):
     if "uniform" in dists:
         for interval, num in dists["uniform"].items():
             # funclist.append(num * (logsumexp([t*interval,t*-interval],b=[1,-1]) - math.log(2*t*interval)))
-            # funclist.append(logsumexp([num*np.log(np.expm1(2*t*interval)/(2*interval*t)),math.log(num*interval*t)],b=[1,-1]))
-            funclist.append(math.log((np.expm1(2*t*interval)/(2*interval*t))**num-(num*interval*t)))
+            funclist.append(logsumexp([num*np.log(np.expm1(2*t*interval)/(2*interval*t)),math.log(num*interval*t)],b=[1,-1]))
+            # funclist.append(math.log((np.expm1(2*t*interval)/(2*interval*t))**num-(num*interval*t)))
             # print([math.log(math.exp(t*interval)-math.exp(t*-interval)),logsumexp([t*interval,t*-interval],b=[1,-1]),math.log(2*t*interval),logsumexp([t*interval,t*-interval],b=[1,-1])-math.log(2*t*interval),logsumexp([t*interval- math.log(2*t*interval),t*-interval- math.log(2*t*interval)],b=[1,-1]),num * (logsumexp([t*interval - math.log(2*t*interval),t*-interval - math.log(2*t*interval)],b=[1,-1]))])
     if "normal" in dists:
         # https://people.math.wisc.edu/~roch/grad-prob/gradprob-notes7.pdf
@@ -266,9 +266,17 @@ def ChensPackingCircuitBootstrapping(brP,dists):
     annihilatekeyswitching(brP.targetP,dists)
 
 def romnoisecalc(brP,ikP,privksP,ROMaddress):
-    dists = {'normal': 0,'uniform':{}}
-    dists['normal'] += privksP.targetP.α**2
+    dists = {'normal': privksP.targetP.α**2,'uniform':{}}
 
+    cbdists = {'normal': 0,'uniform':{}}
+    CircuitBootstrapping(brP,privksP,cbdists)
+    for i in range(ROMaddress):
+        cmux(privksP.targetP,cbdists,dists)
+    identitiykeyswithing(ikP,dists)
+    return dists
+
+def ChensPackingromnoisecalc(brP,ikP,privksP,ROMaddress):
+    dists = {'normal': privksP.targetP.α**2,'uniform':{}}
     cbdists = {'normal': 0,'uniform':{}}
     CircuitBootstrapping(brP,privksP,cbdists)
     for i in range(ROMaddress):
@@ -281,11 +289,11 @@ dists = {'normal': 0,'uniform':{}}
 # blindrotate(lvl01param,dists)
 # blindrotate(lvl02param,dists)
 # identitiykeyswithing(lvl10param,dists)
-GateBootstrapping(lvl01param,lvl10param,dists)
+# GateBootstrapping(lvl01param,lvl10param,dists)
 # GateBootstrapping(lvl12param,lvl21param,dists)
-# BRround(lvl01param,4,dists)
+# BRround(lvl01param,0,dists)
 # privatekeyswitching(lvl11param,dists)
-# privatekeyswitching(lvl21param,dists)
+privatekeyswitching(lvl21param,dists)
 # privatekeyswitching(lvl22param,dists)
 # annihilatekeyswitching(lvl2param,dists)
 # CircuitBootstrapping(lvl01param,lvl11param,dists)
@@ -328,8 +336,8 @@ from scipy.optimize import minimize,shgo,dual_annealing,direct
 # result = dual_annealing(numccfunc,bounds=[(1e-3,1e5)],initial_temp=1e4)
 # result = direct(numccfunc,bounds=[(1e-3,1e5)])
 
-result = direct(precccfunc,bounds=[(1e-8,1e4)],args=[messagedistance/2,dists])
-# result = dual_annealing(precccfunc,bounds=[(1e-3,1e-1)],args=[messagedistance/2,dists])
+# result = direct(precccfunc,bounds=[(1e-8,1e4)],args=[messagedistance/2,dists])
+result = dual_annealing(precccfunc,bounds=[(1e-6,1e4)],args=[messagedistance/2,dists])
 
 print("Result")
 print(precccfunc(result.x,messagedistance/2,dists))
