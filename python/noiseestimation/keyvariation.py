@@ -1,0 +1,90 @@
+import  numpy as np
+def extpnoisecalc(P,α):
+    res1 = P.l * (P.k + 1.) * P.n * (P.ℬ**2 + 2.) / 12. * α**2
+    res2 = P.ℬ**2/2
+    res3 = (P.q**2-P.ℬ**(2*P.l)) / (24 * P.ℬ**(2*P.l)) * (1. + P.k * P.n * (P.variance_key_coefficient + P.expectation_key_coefficient**2))
+    res4 = P.k * P.n/8 * P.variance_key_coefficient
+    res5 = 1 / 16. * (1. - P.k * P.n * P.expectation_key_coefficient)**2; # Last Part seems to be integer representation specific.
+    return res1 + res2 + res3 + res4 + res5
+
+def brnoisecalc(lowP,highP = None):
+    if highP is None:
+        highP = lowP.targetP
+        lowP = lowP.domainP
+    return lowP.k * lowP.n * extpnoisecalc(highP,highP.α)
+
+def unrollbrnoisecalc(lowP,highP,m):
+    res1 = highP.l * (highP.k + 1.) * highP.n * (highP.ℬ**2 + 2.) / 12. * (2**m - 1)*(highP.α)**2
+    res2 = (highP.q**2-highP.ℬ**(2*highP.l)) / (24 * highP.ℬ**(2*highP.l)) * (1. + highP.k * highP.n * (lowP.variance_key_coefficient + lowP.expectation_key_coefficient**2)) + highP.k * highP.n/8 * lowP.variance_key_coefficient  + 1 / 16. * (1. - highP.k * highP.n * lowP.expectation_key_coefficient)**2; # Last Part seems to be integer representation specific.
+    return lowP.k * lowP.n/m * (res1+res2)
+
+def iksnoisecalc(lowP,highP=None,funcP=None):
+    if highP is None:
+        funcP = lowP
+        highP = lowP.domainP
+        lowP = lowP.targetP
+    # return 1/12*highP.k*highP.n*(2**(-2*(funcP.basebit*funcP.t)))+funcP.t*highP.k*highP.n*(lowP.α**2)
+    roundwidth = 2**(-funcP.basebit*funcP.t-1) * lowP.q
+    round_variance = (2*roundwidth)**2/12 - 1/12
+    round_expectation = -1./2
+    return highP.k*highP.n*((round_variance*highP.variance_key_coefficient+round_variance*highP.expectation_key_coefficient**2+round_expectation**2 * highP.variance_key_coefficient)+funcP.t*(lowP.α**2))
+
+def privksnoisecalc(lowP,highP=None,funcP=None):
+    if highP is None:
+        funcP = lowP
+        highP = lowP.domainP
+        lowP = lowP.targetP
+    # return 1/12*highP.k*highP.n*(2**(-2*(funcP.basebit*funcP.t)))+funcP.t*highP.k*highP.n*(lowP.α**2)
+    roundwidth = 2**(-funcP.basebit*funcP.t-1) * lowP.q
+    round_variance = roundwidth**2/12 - 1/12
+    round_expectation = -1./2
+    return (highP.k*highP.n+1)*((round_variance*highP.variance_key_coefficient+round_variance*highP.expectation_key_coefficient**2+round_expectation**2 * highP.variance_key_coefficient)+funcP.t*(lowP.α**2))
+
+def mrlweikscalc(lowP,highP):
+    res1 = lowP.l * (lowP.k + 1.) * lowP.n * (lowP.ℬ**2 + 2.) / 12. * lowP.α**2
+    roundwidth = 2**(-lowP.ℬbit*lowP.l) * lowP.q
+    round_variance = roundwidth**2/12 - 1/12
+    round_expectation = -1./2
+    res2 = (lowP.q**2-lowP.ℬ**(2*lowP.l)) / (24 * lowP.ℬ**(2*lowP.l)) * (1. + lowP.k * lowP.n * (highP.variance_key_coefficient + highP.expectation_key_coefficient**2)) + lowP.k * lowP.n/8 * highP.variance_key_coefficient  + 1 / 16. * (1. - lowP.k * lowP.n * highP.expectation_key_coefficient)**2; # Last Part seems to be integer representation specific.
+    return res1+lowP.n*res2
+
+def cmuxnoisecalc(P,α):
+    res1 = P.l * (P.k + 1.) * P.n * (P.ℬ**2 + 2.) / 12. * α**2
+    res2 = P.ℬ**2/2
+    res3 = (P.q**2-P.ℬ**(2*P.l)) / (24 * P.ℬ**(2*P.l)) * (1. + P.k * P.n * (P.variance_key_coefficient + P.expectation_key_coefficient**2))
+    res4 = P.k * P.n/8 * P.variance_key_coefficient
+    res5 = 1 / 16. * (1. - P.k * P.n * P.expectation_key_coefficient)**2; # Last Part seems to be integer representation specific.
+    return res1 + res2 + res3 + res4 + res5
+
+def brroundnoise(domainP,targetP):
+    roundwidth = domainP.q/(4*targetP.n)
+    round_variance = (2*roundwidth)**2/12 - 1/12
+    round_expectation = -1./2
+    return domainP.k*domainP.n*(round_variance*domainP.variance_key_coefficient+round_variance*domainP.expectation_key_coefficient**2+round_expectation**2 * domainP.variance_key_coefficient)
+    # return domainP.k*domainP.n*1/4*targetP.n*domainP.q
+
+def cbnoisecalc(brP,privksP):
+    assert(brP.targetP == privksP.domainP)
+    return brnoisecalc(brP)*((privksP.targetP.q/brP.targetP.q)**2)+privksnoisecalc(privksP)
+
+def annihilaterecursive(P,nbit,α):
+    if(nbit==0):
+        return α
+    else:
+        return 2*annihilaterecursive(P,nbit-1,α)+extpnoisecalc(P,P.α)
+
+def annihilatecalc(P,α):
+    return annihilaterecursive(P,P.nbit,α)
+
+def annihilatecbnoisecalc(domainP,targetP):
+    return brnoisecalc(domainP,targetP)+annihilatecalc(targetP,targetP.α)
+
+def romnoisecalc(brP,privksP,ROMaddress):
+    # return dataP.α**2+ROMaddress*cmuxnoisecalc(dataP,np.sqrt(cbnoisecalc(addressP,middleP,dataP,privksP)))+iksnoisecalc(addressP,dataP,ikP)
+    return privksP.targetP.α**2+ROMaddress*cmuxnoisecalc(privksP.targetP,np.sqrt(cbnoisecalc(brP,privksP)))
+
+def ramnoisecalc(brP,iksP,cbbrP,privksP,RAMaddress):
+    assert(cbbrP.targetP == privksP.domainP)
+    assert(brP.targetP == privksP.targetP)
+    assert(iksP.targetP == brP.domainP)
+    return brnoisecalc(brP)+RAMaddress*cmuxnoisecalc(privksP.targetP,np.sqrt(cbnoisecalc(cbbrP,privksP)))+iksnoisecalc(iksP)

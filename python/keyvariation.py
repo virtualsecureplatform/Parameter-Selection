@@ -4,6 +4,7 @@ import  numpy as np
 from scipy.special import erfc
 import gmpy2
 from gmpy2 import mpfr
+from noiseestimation.keyvariation import *
 
 gmpy2.get_context().precision=200
 
@@ -129,6 +130,8 @@ class lvl1param:
 class lvl10param:
     t = 4
     basebit = 3
+    domainP = lvl1param
+    targetP = lvl0param
 
 # class lvl2param:
 #     nbit = 11
@@ -209,86 +212,21 @@ class lvl21mrlweparam:
     variance_key_coefficient = lvl1param.variance_key_coefficient
     expectation_key_coefficient = lvl1param.expectation_key_coefficient
 
-def extpnoisecalc(P,α):
-    res1 = P.l * (P.k + 1.) * P.n * (P.ℬ**2 + 2.) / 12. * α**2
-    res2 = P.ℬ**2/2
-    res3 = (P.q**2-P.ℬ**(2*P.l)) / (24 * P.ℬ**(2*P.l)) * (1. + P.k * P.n * (P.variance_key_coefficient + P.expectation_key_coefficient**2))
-    res4 = P.k * P.n/8 * P.variance_key_coefficient
-    res5 = 1 / 16. * (1. - P.k * P.n * P.expectation_key_coefficient)**2; # Last Part seems to be integer representation specific.
-    return res1 + res2 + res3 + res4 + res5
-
-def brnoisecalc(lowP,highP):
-    return lowP.k * lowP.n * extpnoisecalc(highP,highP.α)
-
-def unrollbrnoisecalc(lowP,highP,m):
-    res1 = highP.l * (highP.k + 1.) * highP.n * (highP.ℬ**2 + 2.) / 12. * (2**m - 1)*(highP.α)**2
-    res2 = (highP.q**2-highP.ℬ**(2*highP.l)) / (24 * highP.ℬ**(2*highP.l)) * (1. + highP.k * highP.n * (lowP.variance_key_coefficient + lowP.expectation_key_coefficient**2)) + highP.k * highP.n/8 * lowP.variance_key_coefficient  + 1 / 16. * (1. - highP.k * highP.n * lowP.expectation_key_coefficient)**2; # Last Part seems to be integer representation specific.
-    return lowP.k * lowP.n/m * (res1+res2)
-
-def iksnoisecalc(lowP,highP,funcP):
-    # return 1/12*highP.k*highP.n*(2**(-2*(funcP.basebit*funcP.t)))+funcP.t*highP.k*highP.n*(lowP.α**2)
-    roundwidth = 2**(-funcP.basebit*funcP.t-1) * lowP.q
-    round_variance = (2*roundwidth)**2/12 - 1/12
-    round_expectation = -1./2
-    return highP.k*highP.n*((round_variance*highP.variance_key_coefficient+round_variance*highP.expectation_key_coefficient**2+round_expectation**2 * highP.variance_key_coefficient)+funcP.t*(lowP.α**2))
-
-def privksnoisecalc(lowP,highP,funcP):
-    # return 1/12*highP.k*highP.n*(2**(-2*(funcP.basebit*funcP.t)))+funcP.t*highP.k*highP.n*(lowP.α**2)
-    roundwidth = 2**(-funcP.basebit*funcP.t-1) * lowP.q
-    round_variance = roundwidth**2/12 - 1/12
-    round_expectation = -1./2
-    return (highP.k*highP.n+1)*((round_variance*highP.variance_key_coefficient+round_variance*highP.expectation_key_coefficient**2+round_expectation**2 * highP.variance_key_coefficient)+funcP.t*(lowP.α**2))
-
-def mrlweikscalc(lowP,highP):
-    res1 = lowP.l * (lowP.k + 1.) * lowP.n * (lowP.ℬ**2 + 2.) / 12. * lowP.α**2
-    roundwidth = 2**(-lowP.ℬbit*lowP.l) * lowP.q
-    round_variance = roundwidth**2/12 - 1/12
-    round_expectation = -1./2
-    res2 = (lowP.q**2-lowP.ℬ**(2*lowP.l)) / (24 * lowP.ℬ**(2*lowP.l)) * (1. + lowP.k * lowP.n * (highP.variance_key_coefficient + highP.expectation_key_coefficient**2)) + lowP.k * lowP.n/8 * highP.variance_key_coefficient  + 1 / 16. * (1. - lowP.k * lowP.n * highP.expectation_key_coefficient)**2; # Last Part seems to be integer representation specific.
-    return res1+lowP.n*res2
-
-def cmuxnoisecalc(P,α):
-    res1 = P.l * (P.k + 1.) * P.n * (P.ℬ**2 + 2.) / 12. * α**2
-    res2 = P.ℬ**2/2
-    res3 = (P.q**2-P.ℬ**(2*P.l)) / (24 * P.ℬ**(2*P.l)) * (1. + P.k * P.n * (P.variance_key_coefficient + P.expectation_key_coefficient**2))
-    res4 = P.k * P.n/8 * P.variance_key_coefficient
-    res5 = 1 / 16. * (1. - P.k * P.n * P.expectation_key_coefficient)**2; # Last Part seems to be integer representation specific.
-    return res1 + res2 + res3 + res4 + res5
-
-def brroundnoise(domainP,targetP):
-    roundwidth = domainP.q/(4*targetP.n)
-    round_variance = (2*roundwidth)**2/12 - 1/12
-    round_expectation = -1./2
-    return domainP.k*domainP.n*(round_variance*domainP.variance_key_coefficient+round_variance*domainP.expectation_key_coefficient**2+round_expectation**2 * domainP.variance_key_coefficient)
-    # return domainP.k*domainP.n*1/4*targetP.n*domainP.q
-
-def cbnoisecalc(domainP,middleP,targetP,privksP):
-    return brnoisecalc(domainP,middleP)*((targetP.q/middleP.q)**2)+privksnoisecalc(targetP,middleP,privksP)
-
-def annihilaterecursive(P,nbit,α):
-    if(nbit==0):
-        return α
-    else:
-        return 2*annihilaterecursive(P,nbit-1,α)+extpnoisecalc(P,P.α)
-
-def annihilatecalc(P,α):
-    return annihilaterecursive(P,P.nbit,α)
-
-def annihilatecbnoisecalc(domainP,targetP):
-    return brnoisecalc(domainP,targetP)+annihilatecalc(targetP,targetP.α)
-
-def romnoisecalc(addressP,dataP,middleP,ikP,privksP,ROMaddress):
-    # return dataP.α**2+ROMaddress*cmuxnoisecalc(dataP,np.sqrt(cbnoisecalc(addressP,middleP,dataP,privksP)))+iksnoisecalc(addressP,dataP,ikP)
-    return dataP.α**2+ROMaddress*cmuxnoisecalc(dataP,np.sqrt(cbnoisecalc(addressP,middleP,dataP,privksP)))
+class lvl01param:
+    domainP = lvl0param
+    targetP = lvl1param
+class lvl02param:
+    domainP = lvl0param
+    targetP = lvl2param
 
 print("Gate")
 print("BR noise")
-brnoise = brnoisecalc(lvl0param,lvl1param)
+brnoise = brnoisecalc(lvl01param)
 print(brnoise)
 print(np.sqrt(brnoise)/lvl1param.q)
 print(erfc((lvl1param.q/8)/np.sqrt(2*2*brnoise)))
 
-iksnoise = iksnoisecalc(lvl0param,lvl1param,lvl10param)
+iksnoise = iksnoisecalc(lvl10param)
 print("IKS noise")
 print(iksnoise)
 print(np.sqrt(iksnoise)/lvl0param.q)
@@ -314,12 +252,12 @@ print(erfc((lvl0param.q/16)/np.sqrt(2*(iksnoise+brnoise))))
 
 print("lvl02 Gate")
 print("BR noise")
-brnoise = brnoisecalc(lvl0param,lvl2param)
+brnoise = brnoisecalc(lvl02param)
 print(brnoise)
 print(np.sqrt(brnoise)/lvl2param.q)
 print(erfc((lvl2param.q/16)/np.sqrt(2*brnoise)))
 
-iksnoise = iksnoisecalc(lvl0param,lvl2param,lvl20param)
+iksnoise = iksnoisecalc(lvl20param)
 print("IKS noise")
 print(iksnoise)
 print(np.sqrt(iksnoise)/lvl0param.q)
@@ -330,13 +268,13 @@ print(brnoise*(lvl0param.q/lvl2param.q)**2)
 print(erfc((lvl0param.q/16)/np.sqrt(2*(iksnoise+brnoise*(lvl0param.q/lvl2param.q)**2))))
 
 print("BRlvl02")
-brnoise = brnoisecalc(lvl0param,lvl2param)
+brnoise = brnoisecalc(lvl02param)
 print(brnoise)
 print(np.sqrt(brnoise)/lvl2param.q)
 print(erfc((lvl2param.q/16)/np.sqrt(2*brnoise)))
 brnoise *= ((lvl1param.q/lvl2param.q)**2)
 
-privksnoise = privksnoisecalc(lvl1param,lvl2param,lvl21param)
+privksnoise = privksnoisecalc(lvl21param)
 print("PrivIKS noise")
 print(privksnoise)
 print(np.sqrt(privksnoise)/lvl1param.q)
@@ -344,8 +282,8 @@ print(erfc((lvl1param.q/16)/np.sqrt(2*privksnoise)))
 
 print("CB")
 
-print(np.sqrt(cbnoisecalc(lvl0param,lvl2param,lvl1param,lvl21param))/lvl1param.q)
-print(erfc((lvl1param.q/16)/np.sqrt(2*(cbnoisecalc(lvl0param,lvl2param,lvl1param,lvl21param)))))
+print(np.sqrt(cbnoisecalc(lvl02param,lvl21param))/lvl1param.q)
+print(erfc((lvl1param.q/16)/np.sqrt(2*(cbnoisecalc(lvl02param,lvl21param)))))
 
 print("MRLWE IKS noise")
 mrlweiks = mrlweikscalc(lvl21mrlweparam,lvl2param)
@@ -353,19 +291,19 @@ print(mrlweiks)
 print(privksnoise)
 print(erfc((lvl0param.q/16)/np.sqrt(2*mrlweiks)))
 
-print(brnoise+privksnoise-cbnoisecalc(lvl0param,lvl2param,lvl1param,lvl21param))
+print(brnoise+privksnoise-cbnoisecalc(lvl02param,lvl21param))
 
 ROMaddress = 10 # 4 word block
 print("TFHE ROM CMUX noise")
-romnoise = romnoisecalc(lvl0param,lvl1param,lvl2param,lvl10param,lvl21param,ROMaddress)
+romnoise = romnoisecalc(lvl02param,lvl21param,ROMaddress)
 print(romnoise)
 print(np.sqrt(romnoise)/lvl1param.q)
 print("TFHE ROM error prob")
 print(erfc(lvl1param.q/(4*np.sqrt(2*romnoise))))
 
-brnoise = brnoisecalc(lvl0param,lvl1param)
+brnoise = brnoisecalc(lvl01param)
 
-privksnoise = privksnoisecalc(lvl1param,lvl1param,lvl11param)
+privksnoise = privksnoisecalc(lvl11param)
 print("PrivIKS lvl11 noise")
 print(privksnoise)
 print(np.sqrt(privksnoise)/lvl1param.q)
@@ -378,7 +316,7 @@ extpnoise = extpnoisecalc(lvl1param,np.sqrt(privksnoise+brnoise))#+brnoisecalc(l
 print(erfc((lvl1param.q/16)/np.sqrt(2*(extpnoise))))
 
 print("Annihilate CB lvl22")
-brnoise = brnoisecalc(lvl0param,lvl2param)
+brnoise = brnoisecalc(lvl02param)
 annihilatenoise = annihilatecalc(lvl2param,brnoise)
 print(np.sqrt(annihilatenoise)/lvl2param.q)
 annihilatecbnoise = annihilatenoise + extpnoisecalc(lvl2param,lvl2param.α)
@@ -389,7 +327,7 @@ def annihilateromnoisecalc(addressP,dataP,ROMaddress):
     return dataP.α**2+ROMaddress*cmuxnoisecalc(dataP,np.sqrt(annihilatecbnoisecalc(addressP,dataP)))
 
 print("TFHE ROM CMUX noise lvl22")
-romnoise = romnoisecalc(lvl0param,lvl2param,lvl2param,lvl20param,lvl22param,ROMaddress)
+romnoise = romnoisecalc(lvl02param,lvl22param,ROMaddress)
 print(romnoise)
 print(np.sqrt(romnoise)/lvl2param.q)
 print("TFHE ROM error prob lvl22")
@@ -406,11 +344,8 @@ print(erfc(lvl2param.q/(4*np.sqrt(2*romnoise))))
 RAMaddress = 7
 RAMwordbit = 8
 
-def ramnoisecalc(addressP,dataP,middleP,ikP,privksP,RAMaddress):
-    return brnoisecalc(addressP,dataP)+RAMaddress*cmuxnoisecalc(dataP,np.sqrt(cbnoisecalc(addressP,middleP,dataP,privksP)))+iksnoisecalc(addressP,dataP,ikP)
-
 print("RAM Read Noise")
-rnoise = ramnoisecalc(lvl0param,lvl1param,lvl2param,lvl10param,lvl21param,RAMaddress)
+rnoise = ramnoisecalc(lvl01param,lvl10param,lvl02param,lvl21param,RAMaddress)
 print(rnoise)
 print("RAM Read error prob")
 print(erfc(1/(16*np.sqrt(2*rnoise))))
@@ -419,12 +354,12 @@ print(1-(1-mpfr(erfc(1/(16*np.sqrt(2*rnoise)))))**(3000*RAMwordbit))
 
 print("multi-bit LUT")
 print("BR noise")
-brnoise = brnoisecalc(lvl0param,lvl2param)
+brnoise = brnoisecalc(lvl02param)
 print(brnoise)
 print(np.sqrt(brnoise)/lvl2param.q)
 print(erfc((lvl2param.q/64)/np.sqrt(2*brnoise)))
 
-iksnoise = iksnoisecalc(lvl0param,lvl2param,lvl20param)
+iksnoise = iksnoisecalc(lvl20param)
 print("IKS noise")
 print(iksnoise)
 print(np.sqrt(iksnoise)/lvl2param.q)
