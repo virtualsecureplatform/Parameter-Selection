@@ -26,6 +26,7 @@ class lvl0param:
   k = 1
   q = 2**32
   α = 0.000_092_511_997_467_675_6 * q
+  σ = α**2
   # binary
   variance_key_coefficient = 1./4
   expectation_key_coefficient = 1./2
@@ -77,9 +78,13 @@ class lvl1param:
     n = 2**nbit
     k = 2
     l = 2
+    lₐ = 2
     ℬbit = 8
+    ℬₐbit = 8
     ℬ = 2**ℬbit
+    ℬₐ = 2**ℬₐbit
     α = 0.0000000342338787018369 * q
+    σ = α**2
     # α = 2*2/4
     # ternary
     variance_key_coefficient = 2./3
@@ -133,19 +138,23 @@ class lvl10param:
     domainP = lvl1param
     targetP = lvl0param
 
-# class lvl2param:
-#     nbit = 11
-#     k = 1
-#     n = 2**nbit
-#     q = 2**64
-#     l = 3
-#     ℬbit = 9
-#     ℬ = 2**ℬbit
-#     α =  q * 2**-47
-#     ε = 1/(2*(ℬ**l))
-#     β = ℬ/2
-#     variance_key_coefficient = 1./4
-#     expectation_key_coefficient = 1./2
+class lvl2param:
+    nbit = 11
+    k = 1
+    n = 2**nbit
+    q = 2**64
+    l = 4
+    lₐ = 4
+    ℬbit = 9
+    ℬₐbit = 9
+    ℬ = 2**ℬbit
+    ℬₐ = 2**ℬₐbit
+    α =  q * 2**-51
+    σ = α**2
+    ε = 1/(2*(ℬ**l))
+    β = ℬ/2
+    variance_key_coefficient = 2./3
+    expectation_key_coefficient = 0.
 
 # class lvl2param:
 #     nbit = 9
@@ -161,19 +170,23 @@ class lvl10param:
 #     variance_key_coefficient = 1./4
 #     expectation_key_coefficient = 1./2
 
-class lvl2param:
-    nbit = 9
-    k = 3
-    n = 2**nbit
-    q = 2**64
-    l = 3
-    ℬbit = 9
-    ℬ = 2**ℬbit
-    α = 2**-38 * q
-    ε = 1/(2*(ℬ**l))
-    β = ℬ/2
-    variance_key_coefficient = 2./3
-    expectation_key_coefficient = 0.
+# class lvl2param:
+#     nbit = 9
+#     k = 3
+#     n = 2**nbit
+#     q = 2**64
+#     l = 3
+#     lₐ = 3
+#     ℬbit = 9
+#     ℬₐbit = 9
+#     ℬ = 2**ℬbit
+#     ℬₐ = 2**ℬₐbit
+#     α = 2**-38 * q
+#     σ = α**2
+#     ε = 1/(2*(ℬ**l))
+#     β = ℬ/2
+#     variance_key_coefficient = 2./3
+#     expectation_key_coefficient = 0.
 
 class lvl11param:
     t = 5
@@ -293,7 +306,7 @@ print(erfc((lvl0param.q/16)/np.sqrt(2*mrlweiks)))
 
 print(brnoise+privksnoise-cbnoisecalc(lvl02param,lvl21param))
 
-ROMaddress = 10 # 4 word block
+ROMaddress = 7 # 4 word block
 print("TFHE ROM CMUX noise")
 romnoise = romnoisecalc(lvl02param,lvl21param,ROMaddress)
 print(romnoise)
@@ -312,19 +325,15 @@ print(erfc((lvl1param.q/16)/np.sqrt(2*privksnoise)))
 print("CBlvl01")
 print(erfc((lvl1param.q/16)/np.sqrt(2*(privksnoise+brnoise))))
 print("CBlvl01 extp")
-extpnoise = extpnoisecalc(lvl1param,np.sqrt(privksnoise+brnoise))#+brnoisecalc(lvl0param,lvl1param)
+extpnoise = extpnoisecalc(lvl1param,privksnoise+brnoise,0,1,0)#+brnoisecalc(lvl0param,lvl1param)
 print(erfc((lvl1param.q/16)/np.sqrt(2*(extpnoise))))
 
 print("Annihilate CB lvl22")
 brnoise = brnoisecalc(lvl02param)
 annihilatenoise = annihilatecalc(lvl2param,brnoise)
 print(np.sqrt(annihilatenoise)/lvl2param.q)
-annihilatecbnoise = annihilatenoise + extpnoisecalc(lvl2param,lvl2param.α)
+annihilatecbnoise = extpnoisecalc(lvl2param,lvl2param.σ,annihilatenoise,lvl2param.expectation_key_coefficient,lvl2param.variance_key_coefficient)
 print(erfc((lvl2param.q/16)/np.sqrt(2*(annihilatecbnoise))))
-
-def annihilateromnoisecalc(addressP,dataP,ROMaddress):
-    # return dataP.α**2+ROMaddress*cmuxnoisecalc(dataP,np.sqrt(cbnoisecalc(addressP,middleP,dataP,privksP)))+iksnoisecalc(addressP,dataP,ikP)
-    return dataP.α**2+ROMaddress*cmuxnoisecalc(dataP,np.sqrt(annihilatecbnoisecalc(addressP,dataP)))
 
 print("TFHE ROM CMUX noise lvl22")
 romnoise = romnoisecalc(lvl02param,lvl22param,ROMaddress)
@@ -335,7 +344,7 @@ print(erfc(lvl2param.q/(4*np.sqrt(2*romnoise))))
 
 print("TFHE ROM Annihilate CMUX noise lvl22")
 ROMaddress = 3
-romnoise = annihilateromnoisecalc(lvl0param,lvl2param,ROMaddress)
+romnoise = annihilateromnoisecalc(lvl02param,ROMaddress)
 print(romnoise)
 print(np.sqrt(romnoise)/lvl2param.q)
 print("TFHE Annihilate ROM error prob lvl22")
