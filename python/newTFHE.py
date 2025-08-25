@@ -48,28 +48,28 @@ estimator = importlib.import_module(".estimator","lattice-estimator")
 #     Xe=estimator.nd.DiscreteGaussian(stddev=2 ** (32-17.6)),
 #     tag="TFHE586",
 # )
-# param = estimator.lwe_parameters.LWEParameters(
-#     n=760,
-#     q=2 ** 32,
-#     Xs=estimator.nd.UniformMod(2),
-#     # Xe=estimator.nd.DiscreteGaussian(stddev= 2 ** 7),
-#     Xe=estimator.nd.DiscreteGaussian(stddev= 2 ** (32-17)),
-#     tag="TFHE760",
-# )
 param = estimator.lwe_parameters.LWEParameters(
-    n=1024,
-    # q= 5**4*2**16+1,
-   #  q= 3**4*2**16+1,
+    n=760,
     q=2 ** 32,
-   #  q=2 ** 25,
-    Xs=estimator.nd.UniformMod(3),
+    Xs=estimator.nd.UniformMod(2),
     # Xe=estimator.nd.DiscreteGaussian(stddev= 2 ** 7),
-    # Xe=estimator.nd.DiscreteGaussian(stddev= 4.2),
-   #  Xe=estimator.nd.CenteredBinomial(2),
-    # Xe=estimator.nd.DiscreteGaussian(stddev= 2*4/4),
-    Xe=estimator.nd.DiscreteGaussian(stddev= 0.000_000_034_233_878_701_836_9 * 2 ** 32),
-    tag="TFHE1024",
+    Xe=estimator.nd.DiscreteGaussian(stddev= 2 ** (32-17)),
+    tag="TFHE760",
 )
+# param = estimator.lwe_parameters.LWEParameters(
+#     n=1024,
+#     # q= 5**4*2**16+1,
+#    #  q= 3**4*2**16+1,
+#     q=2 ** 32,
+#    #  q=2 ** 25,
+#     Xs=estimator.nd.UniformMod(3),
+#     # Xe=estimator.nd.DiscreteGaussian(stddev= 2 ** 7),
+#     # Xe=estimator.nd.DiscreteGaussian(stddev= 4.2),
+#    #  Xe=estimator.nd.CenteredBinomial(2),
+#     # Xe=estimator.nd.DiscreteGaussian(stddev= 2*4/4),
+#     Xe=estimator.nd.DiscreteGaussian(stddev= 0.000_000_034_233_878_701_836_9 * 2 ** 32),
+#     tag="TFHE1024",
+# )
 # param = estimator.lwe_parameters.LWEParameters(
 #     n=768,
 #     q= (2 ** 16 + 1)*(2 **8 +1),

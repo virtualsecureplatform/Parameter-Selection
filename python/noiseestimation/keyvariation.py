@@ -1,4 +1,5 @@
 import  numpy as np
+
 # https://eprint.iacr.org/2021/729
 def extpnoisecalc(P,α,β,exp,var):
     # Step 1
@@ -6,10 +7,12 @@ def extpnoisecalc(P,α,β,exp,var):
     # res2 = P.ℬ**2/2
     # Step 2
 
-    trgswvar = β+(P.q**2-P.ℬ**(2*P.l)) / (12 * P.ℬ**(2*P.l)) * (1. + P.k * P.n * (P.variance_key_coefficient + P.expectation_key_coefficient**2)) + P.k * P.n/4 * P.variance_key_coefficient
-    squareexp = 1 / 4. * (1. - P.k * P.n * P.expectation_key_coefficient)**2; 
+    noncevar = (P.q**2-P.ℬₐ**(2*P.lₐ)) / (12 * P.ℬₐ**(2*P.lₐ)) * (P.k * P.n * (P.variance_key_coefficient + P.expectation_key_coefficient**2)) + P.k * P.n/4 * P.variance_key_coefficient
+    nonnoncevar = (P.q**2-P.ℬ**(2*P.l)) / (12 * P.ℬ**(2*P.l))
+    trgswvar = β+noncevar+nonnoncevar
+    squareexp = 1 / 4. * (1. - P.k * P.n * P.expectation_key_coefficient)**2
     # Last Part seems to be integer representation specific.
-    return res1 + (var+exp**2)*trgswvar + exp**2*squareexp
+    return res1 + (var+exp**2)*trgswvar + var*squareexp
 
 def brnoisecalc(lowP,highP = None):
     if highP is None:
@@ -66,18 +69,31 @@ def cbnoisecalc(brP,privksP):
     assert(brP.targetP == privksP.domainP)
     return brnoisecalc(brP)*((privksP.targetP.q/brP.targetP.q)**2)+privksnoisecalc(privksP)
 
+# https://eprint.iacr.org/2021/729
+def autoextpnoiseccalc(P):
+    # Step 1
+    res1 = (P.lₐ * P.k * P.n * (P.ℬₐ**2 + 2.) / 12) * P.σ
+    # res2 = P.ℬ**2/2
+    # Step 2
+
+    noncevar = (P.q**2-P.ℬₐ**(2*P.lₐ)) / (12 * P.ℬₐ**(2*P.lₐ)) * (P.k * P.n * (P.variance_key_coefficient + P.expectation_key_coefficient**2)) + P.k * P.n/4 * P.variance_key_coefficient
+    trgswvar = noncevar
+    squareexp = 1 / 4. * (- P.k * P.n * P.expectation_key_coefficient)**2
+    # Last Part seems to be integer representation specific.
+    return res1 + (P.variance_key_coefficient+P.expectation_key_coefficient**2)*trgswvar + P.variance_key_coefficient*squareexp
+
 def annihilaterecursive(P,nbit,α):
     if(nbit==0):
         return α
     else:
-        prev = annihilaterecursive(P,nbit-1,α)
-        return prev+extpnoisecalc(P,P.σ,prev,P.n*P.expectation_key_coefficient,P.n*P.variance_key_coefficient) # Our algorithm divides the ciphertext in each loop
+        # return extpnoisecalc(P,P.σ,annihilaterecursive(P,nbit-1,α),P.expectation_key_coefficient,P.variance_key_coefficient) # Our algorithm divides the ciphertext in each loop
+        return annihilaterecursive(P,nbit-1,α) + autoextpnoiseccalc(P)# Our algorithm divides the ciphertext in each loop
 
 def annihilatecalc(P,α):
     return annihilaterecursive(P,P.nbit,α)
 
 def annihilatecbnoisecalc(domainP,targetP):
-    return brnoisecalc(domainP,targetP)+annihilatecalc(targetP,targetP.α)
+    return annihilatecalc(targetP,brnoisecalc(domainP,targetP))
 
 def romnoisecalc(brP,privksP,ROMaddress):
     # return dataP.α**2+ROMaddress*cmuxnoisecalc(dataP,np.sqrt(cbnoisecalc(addressP,middleP,dataP,privksP)))+iksnoisecalc(addressP,dataP,ikP)

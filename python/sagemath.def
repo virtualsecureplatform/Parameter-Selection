@@ -1,5 +1,5 @@
 BootStrap: docker
-From: ubuntu:24.04
+From: ubuntu:latest
 
 %post
 	apt-get update
