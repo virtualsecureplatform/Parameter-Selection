@@ -14,11 +14,11 @@ def extpnoisecalc(P,α,β,exp,var):
     # Last Part seems to be integer representation specific.
     return res1 + (var+exp**2)*trgswvar + var*squareexp
 
-def brnoisecalc(lowP,highP = None):
+def brnoisecalc(lowP,highP = None, σ = 0):
     if highP is None:
         highP = lowP.targetP
         lowP = lowP.domainP
-    return lowP.k * lowP.n * extpnoisecalc(highP,highP.σ,0,lowP.expectation_key_coefficient,lowP.variance_key_coefficient)
+    return lowP.k * lowP.n * extpnoisecalc(highP,highP.σ,σ,lowP.expectation_key_coefficient,lowP.variance_key_coefficient)
 
 def unrollbrnoisecalc(lowP,highP,m):
     res1 = highP.l * (highP.k + 1.) * highP.n * (highP.ℬ**2 + 2.) / 12. * (2**m - 1)*(highP.α)**2
@@ -59,6 +59,9 @@ def cmuxnoisecalc(P,α,β,γ,exp,var):
     return extpnoisecalc(P,α,max(β,γ),exp,var)
 
 def brroundnoise(domainP,targetP):
+    if targetP == None:
+        targetP = domainP.targetP
+        domainP = domainP.domainP
     roundwidth = domainP.q/(4*targetP.n)
     round_variance = (2*roundwidth)**2/12 - 1/12
     round_expectation = -1./2
