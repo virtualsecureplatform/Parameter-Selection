@@ -4,7 +4,6 @@ import  numpy as np
 def extpnoisecalc(P,α,β,exp,var):
     # Step 1
     res1 = (P.lₐ * P.k * P.n * (P.ℬₐ**2 + 2.) / 12. + P.l * P.n * (P.ℬ**2 + 2.) / 12.) * α
-    # res2 = P.ℬ**2/2
     # Step 2
 
     noncevar = (P.q**2-P.ℬₐ**(2*P.lₐ)) / (12 * P.ℬₐ**(2*P.lₐ)) * (P.k * P.n * (P.variance_key_coefficient + P.expectation_key_coefficient**2)) + P.k * P.n/4 * P.variance_key_coefficient
@@ -32,7 +31,7 @@ def iksnoisecalc(lowP,highP=None,funcP=None):
         lowP = lowP.targetP
     # return 1/12*highP.k*highP.n*(2**(-2*(funcP.basebit*funcP.t)))+funcP.t*highP.k*highP.n*(lowP.α**2)
     roundwidth = 2**(-funcP.basebit*funcP.t-1) * lowP.q
-    round_variance = (2*roundwidth)**2/12 - 1/12
+    round_variance = (lowP.q**2-2**(funcP.basebit*funcP.t+1))/(12*2**(2*funcP.basebit*funcP.t+1))
     round_expectation = -1./2
     return highP.k*highP.n*((round_variance*highP.variance_key_coefficient+round_variance*highP.expectation_key_coefficient**2+round_expectation**2 * highP.variance_key_coefficient)+funcP.t*(lowP.α**2))
 
@@ -58,11 +57,11 @@ def mrlweikscalc(lowP,highP):
 def cmuxnoisecalc(P,α,β,γ,exp,var):
     return extpnoisecalc(P,α,max(β,γ),exp,var)
 
-def brroundnoise(domainP,targetP):
+def brroundnoise(domainP,targetP,ϑ=0):
     if targetP == None:
         targetP = domainP.targetP
         domainP = domainP.domainP
-    roundwidth = domainP.q/(4*targetP.n)
+    roundwidth = domainP.q/(4*(targetP.n/2**ϑ))
     round_variance = (2*roundwidth)**2/12 - 1/12
     round_expectation = -1./2
     return domainP.k*domainP.n*(round_variance*domainP.variance_key_coefficient+round_variance*domainP.expectation_key_coefficient**2+round_expectation**2 * domainP.variance_key_coefficient)

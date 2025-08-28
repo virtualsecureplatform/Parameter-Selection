@@ -71,6 +71,12 @@ print(privksnoise)
 print(np.sqrt(privksnoise)/lvl1param.q)
 print(erfc((lvl1param.q/16)/np.sqrt(2*privksnoise)))
 
+print("CB round noise")
+roundnoise = brroundnoise(lvl0param,lvl2param,ϑ=np.ceil(np.log2(lvl2param.l)))
+print(roundnoise)
+print(np.sqrt(roundnoise)/lvl0param.q)
+print(erfc((lvl0param.q/4)/np.sqrt(2*(roundnoise+iksnoise+2*brnoise*(lvl0param.q/lvl2param.q)**2))))
+
 print("CB")
 
 print(np.sqrt(cbnoisecalc(lvl02param,lvl21param))/lvl1param.q)
