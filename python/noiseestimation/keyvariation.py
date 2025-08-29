@@ -13,6 +13,7 @@ def extpnoisecalc(P,α,β,exp,var):
     # Last Part seems to be integer representation specific.
     return res1 + (var+exp**2)*trgswvar + var*squareexp
 
+# https://eprint.iacr.org/2025/809
 def brnoisecalc(lowP,highP = None, σ = 0):
     if highP is None:
         highP = lowP.targetP
@@ -57,15 +58,15 @@ def mrlweikscalc(lowP,highP):
 def cmuxnoisecalc(P,α,β,γ,exp,var):
     return extpnoisecalc(P,α,max(β,γ),exp,var)
 
-def brroundnoise(domainP,targetP,ϑ=0):
+def brroundnoise(domainP,targetP=None,ϑ=0):
     if targetP == None:
         targetP = domainP.targetP
         domainP = domainP.domainP
     roundwidth = domainP.q/(4*(targetP.n/2**ϑ))
     round_variance = (2*roundwidth)**2/12 - 1/12
     round_expectation = -1./2
-    return domainP.k*domainP.n*(round_variance*domainP.variance_key_coefficient+round_variance*domainP.expectation_key_coefficient**2+round_expectation**2 * domainP.variance_key_coefficient)
-    # return domainP.k*domainP.n*1/4*targetP.n*domainP.q
+    # return domainP.k*domainP.n*(round_variance*domainP.variance_key_coefficient+round_variance*domainP.expectation_key_coefficient**2+round_expectation**2 * domainP.variance_key_coefficient)
+    return round_variance*(domainP.k*domainP.n*domainP.variance_key_coefficient+1)
 
 def cbnoisecalc(brP,privksP):
     assert(brP.targetP == privksP.domainP)
