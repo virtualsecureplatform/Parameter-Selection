@@ -18,7 +18,10 @@ def brnoisecalc(lowP,highP = None, σ = 0):
     if highP is None:
         highP = lowP.targetP
         lowP = lowP.domainP
-    return lowP.k * lowP.n * extpnoisecalc(highP,highP.σ,σ,lowP.expectation_key_coefficient,lowP.variance_key_coefficient)
+    acc = σ
+    for i in range(lowP.k*lowP.n):
+        acc = cmuxnoisecalc(highP,highP.σ,acc,acc,lowP.expectation_key_coefficient,lowP.variance_key_coefficient)
+    return np.float64(acc)
 
 def unrollbrnoisecalc(lowP,highP,m):
     res1 = highP.l * (highP.k + 1.) * highP.n * (highP.ℬ**2 + 2.) / 12. * (2**m - 1)*(highP.α)**2
@@ -55,8 +58,23 @@ def mrlweikscalc(lowP,highP):
     res2 = (lowP.q**2-lowP.ℬ**(2*lowP.l)) / (24 * lowP.ℬ**(2*lowP.l)) * (1. + lowP.k * lowP.n * (highP.variance_key_coefficient + highP.expectation_key_coefficient**2)) + lowP.k * lowP.n/8 * highP.variance_key_coefficient  + 1 / 16. * (1. - lowP.k * lowP.n * highP.expectation_key_coefficient)**2; # Last Part seems to be integer representation specific.
     return res1+lowP.n*res2
 
+# In CMUX, max(β,γ) must be retain since one of the input is selected.
 def cmuxnoisecalc(P,α,β,γ,exp,var):
-    return extpnoisecalc(P,α,max(β,γ),exp,var)
+    # must be binominal distribution
+    assert(abs(exp)<=1)
+    assert(abs(var)<=1/2.)
+    # Step 1
+    res1 = (P.lₐ * P.k * P.n * (P.ℬₐ**2 + 2.) / 12. + P.l * P.n * (P.ℬ**2 + 2.) / 12.) * α
+    # Step 2
+
+    noncevar = (P.q**2-P.ℬₐ**(2*P.lₐ)) / (12 * P.ℬₐ**(2*P.lₐ)) * (P.k * P.n * (P.variance_key_coefficient + P.expectation_key_coefficient**2)) + P.k * P.n/4 * P.variance_key_coefficient
+    nonnoncevar = (P.q**2-P.ℬ**(2*P.l)) / (12 * P.ℬ**(2*P.l))
+    trgswvar = noncevar+nonnoncevar
+    squareexp = 1 / 4. * (1. - P.k * P.n * P.expectation_key_coefficient)**2
+    # Last Part seems to be integer representation specific.
+    return res1 + (var+exp**2)*trgswvar + var*squareexp + max(β,γ)
+
+    
 
 def brroundnoise(domainP,targetP=None,ϑ=0):
     if targetP == None:

@@ -8,7 +8,8 @@ from noiseestimation.keyvariation import *
 
 gmpy2.get_context().precision=200
 
-from noiseestimation.params.λ128bit import *
+# from noiseestimation.params.λ128bit import *
+from noiseestimation.params.concrete import *
 
 print("Gate")
 print("BR noise")
@@ -23,14 +24,16 @@ print(iksnoise)
 print(np.sqrt(iksnoise)/lvl0param.q)
 print(erfc((lvl0param.q/8)/np.sqrt(2*iksnoise)))
 
-print("Gate Error")
-print(erfc((lvl0param.q/8)/np.sqrt(2*(iksnoise+2*brnoise*((lvl0param.q/lvl1param.q)**2)))))
-
 print("BR Round Noise")
 roundnoise = brroundnoise(lvl0param,lvl1param)
 print(roundnoise)
 print(np.sqrt(roundnoise)/lvl0param.q)
-print(erfc((lvl0param.q/8)/np.sqrt(2*(roundnoise+iksnoise+2*brnoise*(lvl0param.q/lvl1param.q)**2))))
+print(erfc((lvl0param.q/8)/np.sqrt(2*roundnoise)))
+
+print("Gate Error")
+gatenoise = (roundnoise+iksnoise+2*brnoise*(lvl0param.q/lvl1param.q)**2)
+print(np.sqrt(gatenoise)/lvl0param.q)
+print(erfc((lvl0param.q/8)/np.sqrt(2*gatenoise)))
 
 print("m = 2 BR noise")
 brnoise = unrollbrnoisecalc(lvl0param,lvl1param,2)

@@ -9,14 +9,17 @@ class lvl0param:
   expectation_key_coefficient = 1./2
 
 class lvl1param:
-    nbit = 10
+    nbit = 9
     q = 2**32
+    # q = 5**4*2**16+1
+    # q = 3**4*2**16+1
+    # q = 2**25
     n = 2**nbit
-    k = 1
-    l = 2
-    lₐ = l
-    ℬbit = 8
-    ℬₐbit = ℬbit
+    k = 2
+    l = 1
+    lₐ = 2
+    ℬbit = 10
+    ℬₐbit = 8
     ℬ = 2**ℬbit
     ℬₐ = 2**ℬₐbit
     α = 0.0000000342338787018369 * q
