@@ -21,14 +21,13 @@ class lvl1param:
     ℬₐ = 2**ℬₐbit
     α = 0.0000000342338787018369 * q
     σ = α**2
-    # α = 2*2/4
     # ternary
     variance_key_coefficient = 2./3
     expectation_key_coefficient = 0
 
 class lvl2param:
     nbit = 11
-    k = 1
+    k = 1   
     n = 2**nbit
     q = 2**64
     l = 4
@@ -39,10 +38,24 @@ class lvl2param:
     ℬₐ = 2**ℬₐbit
     α =  q * 2**-51
     σ = α**2
-    ε = 1/(2*(ℬ**l))
-    β = ℬ/2
     variance_key_coefficient = 2./3
     expectation_key_coefficient = 0.
+
+class annihilatelvl2param:
+    nbit = lvl2param.nbit
+    k = lvl2param.k
+    n = lvl2param.n
+    q = lvl2param.q
+    l = 5
+    lₐ = 5
+    ℬbit = 8
+    ℬₐbit = 8
+    ℬ = 2**ℬbit
+    ℬₐ = 2**ℬₐbit
+    α = lvl2param.α
+    σ = lvl2param.σ
+    variance_key_coefficient = lvl2param.variance_key_coefficient
+    expectation_key_coefficient = lvl2param.expectation_key_coefficient
 
 class lvl10param:
     t = 4

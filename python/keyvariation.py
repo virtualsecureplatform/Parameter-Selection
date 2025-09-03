@@ -8,8 +8,8 @@ from noiseestimation.keyvariation import *
 
 gmpy2.get_context().precision=200
 
-# from noiseestimation.params.λ128bit import *
-from noiseestimation.params.concrete import *
+from noiseestimation.params.λ128bit import *
+# from noiseestimation.params.concrete import *
 
 print("Gate")
 print("BR noise")
@@ -130,7 +130,7 @@ print("TFHE ROM error prob lvl22")
 print(erfc(lvl2param.q/(4*np.sqrt(2*romnoise))))
 
 print("TFHE ROM Annihilate CMUX noise lvl22")
-romnoise = annihilateromnoisecalc(lvl02param,ROMaddress)
+romnoise = annihilateromnoisecalc(lvl02param,annihilatelvl2param,ROMaddress)
 print(romnoise)
 print(np.sqrt(romnoise)/lvl2param.q)
 print("TFHE Annihilate ROM error prob lvl22")

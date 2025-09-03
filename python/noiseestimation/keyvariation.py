@@ -108,13 +108,20 @@ def annihilaterecursive(P,nbit,α):
         return α
     else:
         # return extpnoisecalc(P,P.σ,annihilaterecursive(P,nbit-1,α),P.expectation_key_coefficient,P.variance_key_coefficient) # Our algorithm divides the ciphertext in each loop
-        return annihilaterecursive(P,nbit-1,α) + autoextpnoiseccalc(P)# Our algorithm divides the ciphertext in each loop
+        return annihilaterecursive(P,nbit-1,α) + P.k*autoextpnoiseccalc(P)# Our algorithm divides the ciphertext in each loop
 
 def annihilatecalc(P,α):
     return annihilaterecursive(P,P.nbit,α)
 
-def annihilatecbnoisecalc(domainP,targetP):
-    return annihilatecalc(targetP,brnoisecalc(domainP,targetP))
+# https://eprint.iacr.org/2024/1318
+def annihilatecbnoisecalc(domainP,targetP,ahP=None):
+    if ahP == None:
+        ahP = targetP
+        targetP = domainP.targetP
+        domainP = domainP.domainP
+    return extpnoisecalc(ahP,targetP.σ,annihilatecalc(ahP,brnoisecalc(domainP,targetP)),targetP.n*targetP.expectation_key_coefficient,targetP.n*targetP.variance_key_coefficient)
+    # the brnoise will be annihilated except for the constant term
+    return (targetP.variance_key_coefficient+targetP.expectation_key_coefficient**2)*brnoisecalc(domainP,targetP)+extpnoisecalc(ahP,targetP.σ,annihilatecalc(ahP,0),targetP.n*targetP.expectation_key_coefficient,targetP.n*targetP.variance_key_coefficient)
 
 def romnoisecalc(brP,privksP,ROMaddress):
     # return dataP.α**2+ROMaddress*cmuxnoisecalc(dataP,np.sqrt(cbnoisecalc(addressP,middleP,dataP,privksP)))+iksnoisecalc(addressP,dataP,ikP)
@@ -123,18 +130,31 @@ def romnoisecalc(brP,privksP,ROMaddress):
         σ = cmuxnoisecalc(privksP.targetP,cbnoisecalc(brP,privksP),σ,σ,1,0)
     return σ
 
-def annihilateromnoisecalc(brP,ROMaddress):
+def annihilateromnoisecalc(brP,ahP,ROMaddress):
     # return dataP.α**2+ROMaddress*cmuxnoisecalc(dataP,np.sqrt(cbnoisecalc(addressP,middleP,dataP,privksP)))+iksnoisecalc(addressP,dataP,ikP)
     σ = brP.targetP.α**2
     for i in range(ROMaddress):
-        σ = cmuxnoisecalc(brP.targetP,annihilatecbnoisecalc(brP.domainP,brP.targetP),σ,σ,1,0)
+        σ = cmuxnoisecalc(brP.targetP,annihilatecbnoisecalc(brP.domainP,brP.targetP,ahP),σ,σ,1,0)
     return σ
 
-def ramnoisecalc(brP,iksP,cbbrP,privksP,RAMaddress):
+def ramnoisecalc(brP,iksP,cbbrP,privksP,RAMaddress,σ=None):
     assert(cbbrP.targetP == privksP.domainP)
     assert(brP.targetP == privksP.targetP)
     assert(iksP.targetP == brP.domainP)
-    σ  = brnoisecalc(brP)
+    if σ == None:
+        σ  = brnoisecalc(brP)
     for i in range(RAMaddress):
         σ = cmuxnoisecalc(privksP.targetP,cbnoisecalc(cbbrP,privksP),σ,σ,1,0)
     return σ+iksnoisecalc(iksP)
+
+def annihilateramnoisecalc(brP,iksP,ahP,RAMaddress,σ=None):
+    assert(iksP.targetP == brP.domainP)
+    if σ == None:
+        σ  = brnoisecalc(brP)
+    for i in range(RAMaddress):
+        σ = cmuxnoisecalc(brP.targetP,annihilatecbnoisecalc(brP,ahP),σ,σ,1,0)
+    return σ+iksnoisecalc(iksP)
+
+from scipy.special import erfc
+def erfccalc(P,intereval,σ):
+    return erfc((P.q/intereval)/np.sqrt(2*σ))
