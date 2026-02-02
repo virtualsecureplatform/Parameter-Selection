@@ -36,10 +36,41 @@ class lvl2param:
     ℬₐbit = 9
     ℬ = 2**ℬbit
     ℬₐ = 2**ℬₐbit
+    # Double Decomposition (TFHEpp DD / bivariate) parameters (trivial here)
+    l̅ = 1
+    l̅ₐ = 1
+    B̅gbit = 0
+    B̅gₐbit = 0
     α =  q * 2**-51
     σ = α**2
     variance_key_coefficient = 2./3
     expectation_key_coefficient = 0.
+
+class lvl3param:
+    # Matches TFHEpp 128bit.hpp lvl3param (128-bit torus + non-trivial DD).
+    nbit = 12
+    k = 1
+    n = 2**nbit
+    q = 2**128
+    # Primary (TRGSW) decomposition
+    l = 2
+    lₐ = 2
+    ℬbit = 16
+    ℬₐbit = 16
+    ℬ = 2**ℬbit
+    ℬₐ = 2**ℬₐbit
+    # Double Decomposition (auxiliary) parameters
+    # TFHEpp constraint comment: l*ℬbit + (l̅-1)*B̅gbit <= 128
+    l̅ = 4
+    l̅ₐ = 4
+    B̅gbit = 32
+    B̅gₐbit = 32
+    # Fresh noise (TFHEpp uses α normalized; python stores α*q and σ=α^2)
+    α = q * 2**-105
+    σ = α**2
+    # Secret distribution in TFHEpp is uniform over {-1, 0, +1} (key_value_min=-1, max=+1).
+    variance_key_coefficient = 2.0/3.0
+    expectation_key_coefficient = 0.0
 
 class annihilatelvl2param:
     nbit = lvl2param.nbit
@@ -106,3 +137,7 @@ class lvl01param:
 class lvl02param:
     domainP = lvl0param
     targetP = lvl2param
+
+class lvl03param:
+    domainP = lvl0param
+    targetP = lvl3param

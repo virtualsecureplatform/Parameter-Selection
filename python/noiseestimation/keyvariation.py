@@ -1,13 +1,53 @@
 import  numpy as np
 
+# Helpers for Double Decomposition (TFHEpp "DD"/bivariate) parameters.
+# If a parameter set does not define DD fields, we treat it as "no DD".
+def _dd_levels(P, nonce: bool) -> int:
+    return int(getattr(P, "l̅ₐ" if nonce else "l̅", 1))
+
+def _dd_basebit(P, nonce: bool) -> int:
+    return int(getattr(P, "B̅gₐbit" if nonce else "B̅gbit", 0))
+
+def _qbit_from_q(q: int) -> int:
+    # q is expected to be a power of two in all parameter sets used here.
+    return int(q).bit_length() - 1
+
+def _decomp_round_variance_pow2(q: int, basebit: int, levels: int, lbar: int, bbarbit: int) -> float:
+    """
+    Rounding variance for approximate gadget decomposition of a torus integer of width log2(q),
+    when keeping `levels*basebit + (lbar-1)*bbarbit` most significant bits.
+
+    This matches TFHEpp's DD constraint comment (e.g. 128-bit lvl3param uses:
+      levels*basebit + (lbar-1)*bbarbit = 128).
+    For lbar==1, the DD term disappears.
+    """
+    qbit = _qbit_from_q(q)
+    covered_bits = int(levels) * int(basebit) + max(0, int(lbar) - 1) * int(bbarbit)
+    remaining_bits = qbit - covered_bits
+    if remaining_bits <= 0:
+        return 0.0
+    roundwidth = float(2 ** remaining_bits)
+    return roundwidth * roundwidth / 12.0 - 1.0 / 12.0
+
 # https://eprint.iacr.org/2021/729
 def extpnoisecalc(P,α,β,exp,var):
+    lbar = _dd_levels(P, nonce=False)
+    lbara = _dd_levels(P, nonce=True)
     # Step 1
-    res1 = (P.lₐ * P.k * P.n * (P.ℬₐ**2 + 2.) / 12. + P.l * P.n * (P.ℬ**2 + 2.) / 12.) * α
+    res1 = ((P.lₐ * lbara) * P.k * P.n * (P.ℬₐ**2 + 2.) / 12. +
+            (P.l * lbar) * P.n * (P.ℬ**2 + 2.) / 12.) * α
     # Step 2
 
-    noncevar = (P.q**2-P.ℬₐ**(2*P.lₐ)) / (12 * P.ℬₐ**(2*P.lₐ)) * (P.k * P.n * (P.variance_key_coefficient + P.expectation_key_coefficient**2)) + P.k * P.n/4 * P.variance_key_coefficient
-    nonnoncevar = (P.q**2-P.ℬ**(2*P.l)) / (12 * P.ℬ**(2*P.l))
+    nonce_roundvar = _decomp_round_variance_pow2(
+        P.q, int(P.ℬₐbit), int(P.lₐ), lbara, _dd_basebit(P, nonce=True)
+    )
+    nonnonce_roundvar = _decomp_round_variance_pow2(
+        P.q, int(P.ℬbit), int(P.l), lbar, _dd_basebit(P, nonce=False)
+    )
+    noncevar = nonce_roundvar * (
+        P.k * P.n * (P.variance_key_coefficient + P.expectation_key_coefficient**2)
+    ) + P.k * P.n/4 * P.variance_key_coefficient
+    nonnoncevar = nonnonce_roundvar
     trgswvar = β+noncevar+nonnoncevar
     squareexp = 1 / 4. * (1. - P.k * P.n * P.expectation_key_coefficient)**2
     # Last Part seems to be integer representation specific.
@@ -63,12 +103,21 @@ def cmuxnoisecalc(P,α,β,γ,exp,var):
     # must be binominal distribution
     assert(abs(exp)<=1)
     assert(abs(var)<=1/2.)
+    lbar = _dd_levels(P, nonce=False)
+    lbara = _dd_levels(P, nonce=True)
     # Step 1
-    res1 = (P.lₐ * P.k * P.n * (P.ℬₐ**2 + 2.) / 12. + P.l * P.n * (P.ℬ**2 + 2.) / 12.) * α
+    res1 = ((P.lₐ * lbara) * P.k * P.n * (P.ℬₐ**2 + 2.) / 12. +
+            (P.l * lbar) * P.n * (P.ℬ**2 + 2.) / 12.) * α
     # Step 2
 
-    noncevar = (P.q**2-P.ℬₐ**(2*P.lₐ)) / (12 * P.ℬₐ**(2*P.lₐ)) * (P.k * P.n * (P.variance_key_coefficient + P.expectation_key_coefficient**2)) + P.k * P.n/4 * P.variance_key_coefficient
-    nonnoncevar = (P.q**2-P.ℬ**(2*P.l)) / (12 * P.ℬ**(2*P.l))
+    nonce_roundvar = _decomp_round_variance_pow2(
+        P.q, int(P.ℬₐbit), int(P.lₐ), lbara, _dd_basebit(P, nonce=True)
+    )
+    nonnonce_roundvar = _decomp_round_variance_pow2(
+        P.q, int(P.ℬbit), int(P.l), lbar, _dd_basebit(P, nonce=False)
+    )
+    noncevar = nonce_roundvar * (P.k * P.n * (P.variance_key_coefficient + P.expectation_key_coefficient**2)) + P.k * P.n/4 * P.variance_key_coefficient
+    nonnoncevar = nonnonce_roundvar
     trgswvar = noncevar+nonnoncevar
     squareexp = 1 / 4. * (1. - P.k * P.n * P.expectation_key_coefficient)**2
     # Last Part seems to be integer representation specific.
