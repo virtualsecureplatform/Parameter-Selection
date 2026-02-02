@@ -47,24 +47,27 @@ class lvl2param:
     expectation_key_coefficient = 0.
 
 class lvl3param:
-    # Matches TFHEpp 128bit.hpp lvl3param (128-bit torus + non-trivial DD).
+    # Proposed lvl3 parameter set (128-bit torus + DD/bivariate representation).
     nbit = 12
     k = 1
     n = 2**nbit
     q = 2**128
     # Primary (TRGSW) decomposition
-    l = 2
-    lₐ = 2
-    ℬbit = 16
-    ℬₐbit = 16
+    # Chosen so that approximation noise is meaningfully below lvl02:
+    # keep_bits = l*ℬbit = 4*19 = 76 (std/q ≈ 2^-68 in this estimator).
+    l = 4
+    lₐ = 4
+    ℬbit = 19
+    ℬₐbit = 19
     ℬ = 2**ℬbit
     ℬₐ = 2**ℬₐbit
     # Double Decomposition (auxiliary) parameters
-    # TFHEpp constraint comment: l*ℬbit + (l̅-1)*B̅gbit <= 128
-    l̅ = 4
-    l̅ₐ = 4
-    B̅gbit = 32
-    B̅gₐbit = 32
+    # Conservative full-limb cover: l̅ * B̅gbit = 128 (and same for nonce part).
+    # Chosen to satisfy FFT safety constraint: ℬbit + B̅gbit + nbit + 3 < 53.
+    l̅ = 8
+    l̅ₐ = 8
+    B̅gbit = 16
+    B̅gₐbit = 16
     # Fresh noise (TFHEpp uses α normalized; python stores α*q and σ=α^2)
     α = q * 2**-105
     σ = α**2

@@ -24,53 +24,68 @@ def _qbit_from_q(q: int) -> int:
     # q is expected to be a power of two in all parameter sets used here.
     return int(q).bit_length() - 1
 
-def _decomp_round_variance_pow2(q: int, basebit: int, levels: int, lbar: int, bbarbit: int) -> float:
+def _decomp_round_variance_pow2(q: int, basebit: int, levels: int, lbar: int = 1, bbarbit: int = 0) -> float:
     """
     Rounding variance for approximate gadget decomposition of a torus integer of width log2(q),
-    when keeping the most significant bits represented by the (possibly double) decomposition.
+    when keeping the most significant `levels*basebit` bits.
 
-    Important: TFHEpp's DD decomposition (see `../TFHEpp/include/trgsw.hpp`) extracts bit windows
-    at positions `width - (i+1)*basebit - j*bbarbit`. For the DD representation to be “contiguous”
-    (no gaps between windows), one needs `bbarbit == levels*basebit`. This is exactly the case for
-    TFHEpp's 128-bit `lvl3param`: `levels=2`, `basebit=16`, `bbarbit=32`.
+    Notes on TFHEpp Double Decomposition (DD):
+    - In TFHEpp's current DD ExternalProduct (see `../TFHEpp/include/trgsw.hpp`), the *input*
+      polynomial is decomposed using the primary `(l, Bgbit)` only; auxiliary `(l̅, B̅gbit)` is
+      used to store TRGSW rows in "limbs" and then recombined.
+    - Therefore, DD does not increase the number of kept bits in the *input* decomposition, and
+      the rounding variance here depends only on `(levels, basebit)`.
 
-    If `lbar>1` but `bbarbit != levels*basebit`, the decomposition windows have gaps; the simple
-    “keep X most significant bits” rounding model does not apply. Here we conservatively ignore DD
-    (treat as if only the primary `levels*basebit` bits are kept), which prevents unrealistically
-    optimistic noise estimates for invalid DD parameter combinations.
+    The parameters `lbar`/`bbarbit` are accepted for backward compatibility but ignored.
     """
     qbit = _qbit_from_q(q)
     levels = int(levels)
     basebit = int(basebit)
-    lbar = int(lbar)
-    bbarbit = int(bbarbit)
-
-    if lbar <= 1:
-        kept_bits = levels * basebit
-    else:
-        kept_bits = levels * basebit * lbar if bbarbit == levels * basebit else levels * basebit
-
+    kept_bits = levels * basebit
     remaining_bits = qbit - kept_bits
     if remaining_bits <= 0:
         return 0.0
     roundwidth = float(2 ** remaining_bits)
     return roundwidth * roundwidth / 12.0 - 1.0 / 12.0
 
+def _trlwe_base_round_variance_pow2(q: int, basebit: int, levels: int) -> float:
+    """
+    Rounding variance for representing a torus integer (width log2(q)) using `levels` digits in
+    base `2^basebit` (i.e., keeping `levels*basebit` most significant bits).
+
+    This is used to model truncation when TFHEpp stores TRGSW rows using auxiliary DD limbs
+    (`TRLWEBaseBbarDecompose*` in `../TFHEpp/include/trgsw.hpp`).
+    """
+    qbit = _qbit_from_q(q)
+    basebit = int(basebit)
+    levels = int(levels)
+    kept_bits = levels * basebit
+    if kept_bits > qbit:
+        raise ValueError(f"invalid limb cover: levels*basebit={kept_bits} exceeds qbit={qbit}")
+    remaining_bits = qbit - kept_bits
+    if remaining_bits == 0:
+        return 0.0
+    roundwidth = float(2 ** remaining_bits)
+    return roundwidth * roundwidth / 12.0 - 1.0 / 12.0
+
 # https://eprint.iacr.org/2021/729
 def extpnoisecalc(P,α,β,exp,var):
+    # Step 1
     lbar = _dd_levels(P, nonce=False)
     lbara = _dd_levels(P, nonce=True)
-    # Step 1
-    res1 = ((P.lₐ * lbara) * P.k * P.n * (P.ℬₐ**2 + 2.) / 12. +
-            (P.l * lbar) * P.n * (P.ℬ**2 + 2.) / 12.) * α
+    bbarbit = _dd_basebit(P, nonce=False)
+    bbarabit = _dd_basebit(P, nonce=True)
+    # DD stores TRGSW rows by decomposing TRLWE rows in base B̅g; this can introduce truncation
+    # unless the limbs fully cover q's bit-width. Model it as additional TRGSW row noise.
+    dd_rowvar_nonce = _trlwe_base_round_variance_pow2(P.q, bbarabit, lbara) if lbara > 1 else 0.0
+    dd_rowvar_main = _trlwe_base_round_variance_pow2(P.q, bbarbit, lbar) if lbar > 1 else 0.0
+    res1 = (P.lₐ * P.k * P.n * (P.ℬₐ**2 + 2.) / 12.) * (α + dd_rowvar_nonce) + (
+        P.l * P.n * (P.ℬ**2 + 2.) / 12.
+    ) * (α + dd_rowvar_main)
     # Step 2
 
-    nonce_roundvar = _decomp_round_variance_pow2(
-        P.q, int(P.ℬₐbit), int(P.lₐ), lbara, _dd_basebit(P, nonce=True)
-    )
-    nonnonce_roundvar = _decomp_round_variance_pow2(
-        P.q, int(P.ℬbit), int(P.l), lbar, _dd_basebit(P, nonce=False)
-    )
+    nonce_roundvar = _decomp_round_variance_pow2(P.q, int(P.ℬₐbit), int(P.lₐ))
+    nonnonce_roundvar = _decomp_round_variance_pow2(P.q, int(P.ℬbit), int(P.l))
     noncevar = nonce_roundvar * (
         P.k * P.n * (P.variance_key_coefficient + P.expectation_key_coefficient**2)
     ) + P.k * P.n/4 * P.variance_key_coefficient
@@ -133,16 +148,17 @@ def cmuxnoisecalc(P,α,β,γ,exp,var):
     lbar = _dd_levels(P, nonce=False)
     lbara = _dd_levels(P, nonce=True)
     # Step 1
-    res1 = ((P.lₐ * lbara) * P.k * P.n * (P.ℬₐ**2 + 2.) / 12. +
-            (P.l * lbar) * P.n * (P.ℬ**2 + 2.) / 12.) * α
+    bbarbit = _dd_basebit(P, nonce=False)
+    bbarabit = _dd_basebit(P, nonce=True)
+    dd_rowvar_nonce = _trlwe_base_round_variance_pow2(P.q, bbarabit, lbara) if lbara > 1 else 0.0
+    dd_rowvar_main = _trlwe_base_round_variance_pow2(P.q, bbarbit, lbar) if lbar > 1 else 0.0
+    res1 = (P.lₐ * P.k * P.n * (P.ℬₐ**2 + 2.) / 12.) * (α + dd_rowvar_nonce) + (
+        P.l * P.n * (P.ℬ**2 + 2.) / 12.
+    ) * (α + dd_rowvar_main)
     # Step 2
 
-    nonce_roundvar = _decomp_round_variance_pow2(
-        P.q, int(P.ℬₐbit), int(P.lₐ), lbara, _dd_basebit(P, nonce=True)
-    )
-    nonnonce_roundvar = _decomp_round_variance_pow2(
-        P.q, int(P.ℬbit), int(P.l), lbar, _dd_basebit(P, nonce=False)
-    )
+    nonce_roundvar = _decomp_round_variance_pow2(P.q, int(P.ℬₐbit), int(P.lₐ))
+    nonnonce_roundvar = _decomp_round_variance_pow2(P.q, int(P.ℬbit), int(P.l))
     noncevar = nonce_roundvar * (P.k * P.n * (P.variance_key_coefficient + P.expectation_key_coefficient**2)) + P.k * P.n/4 * P.variance_key_coefficient
     nonnoncevar = nonnonce_roundvar
     trgswvar = noncevar+nonnoncevar
