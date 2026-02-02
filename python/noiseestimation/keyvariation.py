@@ -2,11 +2,23 @@ import  numpy as np
 
 # Helpers for Double Decomposition (TFHEpp "DD"/bivariate) parameters.
 # If a parameter set does not define DD fields, we treat it as "no DD".
+def _get_first_attr(obj, names, default):
+    for name in names:
+        if hasattr(obj, name):
+            return getattr(obj, name)
+    return default
+
 def _dd_levels(P, nonce: bool) -> int:
-    return int(getattr(P, "l̅ₐ" if nonce else "l̅", 1))
+    if nonce:
+        # Identifier normalization (PEP 3131 / NFKC) can turn `l̅ₐ` into `l̅a`.
+        return int(_get_first_attr(P, ["l̅ₐ", "l̅a"], 1))
+    return int(_get_first_attr(P, ["l̅"], 1))
 
 def _dd_basebit(P, nonce: bool) -> int:
-    return int(getattr(P, "B̅gₐbit" if nonce else "B̅gbit", 0))
+    if nonce:
+        # Identifier normalization can turn `B̅gₐbit` into `B̅gabit`.
+        return int(_get_first_attr(P, ["B̅gₐbit", "B̅gabit"], 0))
+    return int(_get_first_attr(P, ["B̅gbit"], 0))
 
 def _qbit_from_q(q: int) -> int:
     # q is expected to be a power of two in all parameter sets used here.
