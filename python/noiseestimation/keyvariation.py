@@ -27,15 +27,30 @@ def _qbit_from_q(q: int) -> int:
 def _decomp_round_variance_pow2(q: int, basebit: int, levels: int, lbar: int, bbarbit: int) -> float:
     """
     Rounding variance for approximate gadget decomposition of a torus integer of width log2(q),
-    when keeping `levels*basebit + (lbar-1)*bbarbit` most significant bits.
+    when keeping the most significant bits represented by the (possibly double) decomposition.
 
-    This matches TFHEpp's DD constraint comment (e.g. 128-bit lvl3param uses:
-      levels*basebit + (lbar-1)*bbarbit = 128).
-    For lbar==1, the DD term disappears.
+    Important: TFHEpp's DD decomposition (see `../TFHEpp/include/trgsw.hpp`) extracts bit windows
+    at positions `width - (i+1)*basebit - j*bbarbit`. For the DD representation to be “contiguous”
+    (no gaps between windows), one needs `bbarbit == levels*basebit`. This is exactly the case for
+    TFHEpp's 128-bit `lvl3param`: `levels=2`, `basebit=16`, `bbarbit=32`.
+
+    If `lbar>1` but `bbarbit != levels*basebit`, the decomposition windows have gaps; the simple
+    “keep X most significant bits” rounding model does not apply. Here we conservatively ignore DD
+    (treat as if only the primary `levels*basebit` bits are kept), which prevents unrealistically
+    optimistic noise estimates for invalid DD parameter combinations.
     """
     qbit = _qbit_from_q(q)
-    covered_bits = int(levels) * int(basebit) + max(0, int(lbar) - 1) * int(bbarbit)
-    remaining_bits = qbit - covered_bits
+    levels = int(levels)
+    basebit = int(basebit)
+    lbar = int(lbar)
+    bbarbit = int(bbarbit)
+
+    if lbar <= 1:
+        kept_bits = levels * basebit
+    else:
+        kept_bits = levels * basebit * lbar if bbarbit == levels * basebit else levels * basebit
+
+    remaining_bits = qbit - kept_bits
     if remaining_bits <= 0:
         return 0.0
     roundwidth = float(2 ** remaining_bits)
