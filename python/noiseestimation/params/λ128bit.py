@@ -54,11 +54,11 @@ class lvl3param:
     q = 2**128
     # Primary (TRGSW) decomposition
     # Chosen so that approximation noise is meaningfully below lvl02:
-    # keep_bits = l*ℬbit = 4*19 = 76 (std/q ≈ 2^-68 in this estimator).
+    # keep_bits = l*ℬbit = 4*21 = 84 (std/q ≈ 2^-74 in this estimator).
     l = 4
     lₐ = 4
-    ℬbit = 19
-    ℬₐbit = 19
+    ℬbit = 21
+    ℬₐbit = 21
     ℬ = 2**ℬbit
     ℬₐ = 2**ℬₐbit
     # Double Decomposition (auxiliary) parameters
