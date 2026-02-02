@@ -96,14 +96,21 @@ estimator = importlib.import_module(".estimator","lattice-estimator")
 #    # Xe=estimator.nd.CenteredBinomial(3),
 #    tag="TFHE1536",
 # )
+# param = estimator.lwe_parameters.LWEParameters(
+#    n=2048,
+#    q=2 ** 64,
+# #    q=2 ** 48,
+#    Xs=estimator.nd.UniformMod(3),
+#    Xe=estimator.nd.DiscreteGaussian(stddev=2**(64-51)),
+# #    Xe=estimator.nd.CenteredBinomial(3),
+#    tag="TFHE2048",
+# )
 param = estimator.lwe_parameters.LWEParameters(
-   n=2048,
-   q=2 ** 64,
-#    q=2 ** 48,
+   n=4096,
+   q=2 ** 128,
    Xs=estimator.nd.UniformMod(3),
-   Xe=estimator.nd.DiscreteGaussian(stddev=2**(64-51)),
-#    Xe=estimator.nd.CenteredBinomial(3),
-   tag="TFHE2048",
+   Xe=estimator.nd.DiscreteGaussian(stddev=2**(128-105)),
+   tag="TFHE4096",
 )
 print(param.n)
 r = estimator.LWE.estimate(param,red_cost_model = estimator.RC.BDGL16)
