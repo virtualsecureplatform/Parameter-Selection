@@ -1,6 +1,65 @@
 # Parameter-Selection
 To determine TFHE's parameter, run lwe-estimator.
 
+## Running the Python scripts
+
+The scripts under `python/` require SageMath and the lattice-estimator. An Apptainer (Singularity) container definition is provided for a reproducible environment.
+
+### Prerequisites
+
+- [Apptainer](https://apptainer.org/) (or Singularity) installed on your system
+- Git submodules initialized:
+  ```bash
+  git submodule update --init --recursive
+  ```
+
+### Building the container
+
+A pre-built `python/sagemath.sif` may already be present. To rebuild:
+
+```bash
+apptainer build python/sagemath.sif python/sagemath.def
+```
+
+### Running scripts
+
+**Noise estimation scripts** (run from `python/`):
+
+```bash
+cd python
+apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/TFHEnoise.py
+apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/TFHEint.py
+apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/TFHElvl21.py
+apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/TFHElvl22.py
+apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/manyLUT.py
+apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/shortlwe.py
+apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/DirectPDF.py
+apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/CCbound.py
+apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/ConcreteCCbound.py
+```
+
+**Lattice security estimation scripts** (run from `python/`):
+
+```bash
+cd python
+apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/newTFHE.py
+apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/TFHE586.py
+apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/verify128bit.py
+```
+
+**Parameter search** (run from the repository root):
+
+```bash
+apptainer exec --bind "$(pwd):/work" python/sagemath.sif sage -python /work/python/noiseestimation/search_lvl03param.py
+```
+
+**Geometric-LWE-Estimator scripts** (run from `python/`; note the `cwd` must be set inside the submodule for sage's relative `load()` paths to resolve):
+
+```bash
+cd python
+apptainer exec --bind "$(pwd):/work" sagemath.sif bash -c "cd /work/Geometric-LWE-Estimator/section_5_1 && sage /work/leakylwr.sage.py"
+```
+
 ## Notation correspondence (TFHEpp ↔ Python ↔ papers)
 
 This repo keeps two “views” of parameters:

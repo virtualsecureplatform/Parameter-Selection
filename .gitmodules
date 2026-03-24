@@ -1,3 +1,6 @@
 [submodule "python/lattice-estimator"]
 	path = python/lattice-estimator
 	url = https://github.com/malb/lattice-estimator.git
+[submodule "python/Geometric-LWE-Estimator"]
+	path = python/Geometric-LWE-Estimator
+	url = https://github.com/hunterkipt/Geometric-LWE-Estimator.git
