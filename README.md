@@ -36,6 +36,7 @@ apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/shortlwe.py
 apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/DirectPDF.py
 apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/CCbound.py
 apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/ConcreteCCbound.py
+apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/BFVnoise.py --preset tfhepp-lvl3simd-boot --B 15 --qbits-range 128:256:32
 ```
 
 **Lattice security estimation scripts** (run from `python/`):
@@ -52,6 +53,27 @@ apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/v
 ```bash
 apptainer exec --bind "$(pwd):/work" python/sagemath.sif sage -python /work/python/noiseestimation/search_lvl03param.py
 ```
+
+**BFV average-case noise estimation** can also run with normal Python when
+SciPy is installed:
+
+```bash
+python3 python/BFVnoise.py --preset tfhepp-lvl3simd-boot --B 15 --qbits-range 128:256:32
+python3 python/BFVnoise.py --preset tfhepp-lvl3simd-boot --B-range 1:15 --scalar-mode unsigned-average
+```
+
+`BFVnoise.py` implements the invariant-noise variance formulas from `600.pdf`
+("Improving and Automating BFV Parameters Selection: An Average-Case Approach").
+The default TFHEpp bootstrap preset estimates the final digit-removal
+`PolyEval` over `PrimePower2Param`, so its plaintext modulus is
+`114689^2`.  The default digit-removal degree is `4*B+1`, matching
+`GetLowestDigitRemovalPolynomialOverRange(p, B)`.
+
+Current limitations: the estimator uses the paper's independent-ciphertext
+average-case multiplication model.  Evaluating a high-degree polynomial in one
+ciphertext reuses dependent powers, and TFHEpp's double-decomposition
+relinearization is only approximated by the paper's key-switching variants.
+Treat the output as screening data until the dependent-circuit model is added.
 
 **Geometric-LWE-Estimator scripts** (run from `python/`; note the `cwd` must be set inside the submodule for sage's relative `load()` paths to resolve):
 
@@ -88,6 +110,9 @@ The table below summarizes the intended correspondence and meaning.
 | Key switching base (bits) | `basebit` | `basebit` | `log2(β_ks)` | KS base is `2^{basebit}` |
 | Secret key distribution range | `key_value_min/max` | (via coefficients below) | (depends) | TFHEpp samples secrets uniformly in `[min,max]` |
 | Secret key mean/variance | (derived) | `expectation_key_coefficient`, `variance_key_coefficient` | `μ_s`, `σ_s^2` | Used by the estimator when modeling key-dependent noise terms |
+| BFV plaintext modulus | `plain_modulus` | `t` | `t` | For BFV bootstrap finalization, `PrimePower2Param` uses `t = p^2 = 114689^2` |
+| BFV ciphertext modulus bits | `std::numeric_limits<T>::digits` | `q_bits` | `log2(q)` | TFHEpp `lvl3simdparam` uses 128-bit torus coefficients |
+| BFV digit-error bound | `bfv_bootstrap_digit_error_bound` | `B` | `B` | Defines the bounded low digit removed by the final BFV bootstrap polynomial |
 
 ## References
 
