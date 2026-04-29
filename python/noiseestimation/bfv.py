@@ -361,6 +361,13 @@ def log2_correctness_threshold(d: float) -> float:
     return -math.log2(8.0 * d * d)
 
 
+def noise_budget_log2(log2_variance: float, d: float = 6.0) -> float:
+    """SEAL/OpenFHE-style budget estimate: -log2(2 * D * sqrt(2V))."""
+    if log2_variance == NEG_INF:
+        return float("inf")
+    return -1.5 - math.log2(d) - 0.5 * log2_variance
+
+
 def failure_log2_from_variance(n: int, log2_variance: float) -> float:
     if log2_variance == NEG_INF:
         return NEG_INF

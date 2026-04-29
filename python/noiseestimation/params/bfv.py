@@ -41,6 +41,31 @@ def paper_u3(
     )
 
 
+def openfhe_paper(
+    *,
+    nbit: int = 13,
+    q_bits: int = 60,
+    t: int = 65_537,
+    error_std: float = 3.19,
+) -> BFVParams:
+    """OpenFHE-style BFV parameters used in 600.pdf validation tables."""
+    params = paper_u3(nbit=nbit, q_bits=q_bits, t=t, error_std=error_std)
+    return BFVParams(
+        nbit=params.nbit,
+        t=params.t,
+        q_bits=params.q_bits,
+        secret_variance=params.secret_variance,
+        encryption_u_variance=params.encryption_u_variance,
+        error_log2_std=params.error_log2_std,
+        key_switch="hybrid-rns",
+        rns_digits=4,
+        hybrid_omega=4,
+        fresh="public",
+        correction_fit=params.correction_fit,
+        tag="openfhe-paper",
+    )
+
+
 def tfhepp_lvl3simd_base(
     *,
     q_bits: int = TFHEPP_LVL3SIMD_Q_BITS,
@@ -84,6 +109,7 @@ def tfhepp_lvl3simd_boot(
 
 
 PRESETS = {
+    "openfhe-paper": openfhe_paper,
     "paper-u3": paper_u3,
     "tfhepp-lvl3simd-base": tfhepp_lvl3simd_base,
     "tfhepp-lvl3simd-boot": tfhepp_lvl3simd_boot,

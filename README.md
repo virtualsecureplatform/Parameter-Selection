@@ -37,6 +37,7 @@ apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/DirectPDF.p
 apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/CCbound.py
 apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/ConcreteCCbound.py
 apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/BFVnoise.py --preset tfhepp-lvl3simd-boot --B 15 --qbits-range 128:256:32
+apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/BFVvalidate.py
 ```
 
 **Lattice security estimation scripts** (run from `python/`):
@@ -60,6 +61,7 @@ SciPy is installed:
 ```bash
 python3 python/BFVnoise.py --preset tfhepp-lvl3simd-boot --B 15 --qbits-range 128:256:32
 python3 python/BFVnoise.py --preset tfhepp-lvl3simd-boot --B-range 1:15 --scalar-mode unsigned-average
+python3 python/BFVvalidate.py
 ```
 
 `BFVnoise.py` implements the invariant-noise variance formulas from `600.pdf`
@@ -74,6 +76,12 @@ average-case multiplication model.  Evaluating a high-degree polynomial in one
 ciphertext reuses dependent powers, and TFHEpp's double-decomposition
 relinearization is only approximated by the paper's key-switching variants.
 Treat the output as screening data until the dependent-circuit model is added.
+
+`BFVvalidate.py` reproduces the OpenFHE-based validation parameters from
+`600.pdf` Table 7: `t=65537`, `sigma=3.19`, `chi_s=chi_u=U3`, Hybrid key
+switching, HPSPOVERQ multiplication, and `log2(q) ~= 60` for encryption/addition
+or `log2(q) ~= 120` for one multiplication.  It checks the paper's average-case
+"our" column, not the experimental OpenFHE samples.
 
 **Geometric-LWE-Estimator scripts** (run from `python/`; note the `cwd` must be set inside the submodule for sage's relative `load()` paths to resolve):
 

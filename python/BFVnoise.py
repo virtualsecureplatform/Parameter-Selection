@@ -153,6 +153,13 @@ def make_params(args: argparse.Namespace, q_bits: int) -> BFVParams:
             t=args.plain_modulus if args.plain_modulus is not None else 65_537,
             error_std=args.error_std if args.error_std is not None else 3.19,
         )
+    elif args.preset == "openfhe-paper":
+        params = factory(
+            nbit=args.nbit if args.nbit is not None else 13,
+            q_bits=q_bits,
+            t=args.plain_modulus if args.plain_modulus is not None else 65_537,
+            error_std=args.error_std if args.error_std is not None else 3.19,
+        )
     else:
         params = factory(q_bits=q_bits, alpha_log2=args.alpha_log2)
 
