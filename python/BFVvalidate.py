@@ -12,12 +12,24 @@ _REPO_ROOT = _SCRIPT_DIR.parent
 sys.path[:0] = [str(_REPO_ROOT), str(_SCRIPT_DIR)]
 
 try:
-    from python.noiseestimation.bfv import fresh, mul, noise_budget_log2
+    from python.noiseestimation.bfv import (
+        add_many,
+        fresh,
+        mul,
+        mul_dependent,
+        noise_budget_log2,
+    )
     from python.noiseestimation.params.bfv import openfhe_paper
 except ModuleNotFoundError as exc:
     if exc.name != "python":
         raise
-    from noiseestimation.bfv import fresh, mul, noise_budget_log2
+    from noiseestimation.bfv import (
+        add_many,
+        fresh,
+        mul,
+        mul_dependent,
+        noise_budget_log2,
+    )
     from noiseestimation.params.bfv import openfhe_paper
 
 
@@ -36,6 +48,20 @@ TABLE7_EXPECTED = {
         "label": "Multiplication",
         "q_bits": 120,
         "expected": {12: 65.0, 13: 63.6, 14: 62.1, 15: 60.5},
+    },
+}
+
+
+TABLE10_EXPECTED = {
+    "add-same": {
+        "label": "Same Addition",
+        "q_bits": 60,
+        "expected": {12: 31.0, 13: 30.5, 14: 30.0, 15: 29.5},
+    },
+    "mul-same": {
+        "label": "Same Multiplication",
+        "q_bits": 120,
+        "expected": {12: 64.5, 13: 63.1, 14: 61.6, 15: 60.0},
     },
 }
 
@@ -62,6 +88,10 @@ def estimate_budget(op: str, nbit: int, q_bits: int) -> float:
         state = clean.add(clean)
     elif op == "mul":
         state = mul(clean, clean, params)
+    elif op == "add-same":
+        state = add_many([clean, clean], dependent=True, label="same-add")
+    elif op == "mul-same":
+        state = mul_dependent(clean, clean, params)
     else:
         raise ValueError(f"unsupported operation: {op}")
     return noise_budget_log2(state.log2_variance, d=6.0)
@@ -89,10 +119,23 @@ def main() -> int:
                 f"{'OK' if passed else 'FAIL'}"
             )
 
+    print("\nDependent-input checks from 600.pdf Table 10")
+    for op, spec in TABLE10_EXPECTED.items():
+        for nbit, expected in spec["expected"].items():
+            estimated = estimate_budget(op, nbit, spec["q_bits"])
+            delta = estimated - expected
+            passed = abs(delta) <= args.tolerance
+            ok = ok and passed
+            print(
+                f"{spec['label']:<19} {nbit:4d} {spec['q_bits']:7d} "
+                f"{estimated:10.2f} {expected:6.1f} {delta:7.2f} "
+                f"{'OK' if passed else 'FAIL'}"
+            )
+
     if ok:
-        print(f"\nPASS: all Table 7 checks within {args.tolerance:.2f} bits")
+        print(f"\nPASS: all Table 7/10 checks within {args.tolerance:.2f} bits")
         return 0
-    print(f"\nFAIL: at least one Table 7 check exceeded {args.tolerance:.2f} bits")
+    print(f"\nFAIL: at least one Table 7/10 check exceeded {args.tolerance:.2f} bits")
     return 1
 
 

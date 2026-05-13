@@ -16,6 +16,9 @@ except ModuleNotFoundError as exc:
 TFHEPP_LVL3SIMD_P = 114_689
 TFHEPP_LVL3SIMD_Q_BITS = 128
 TFHEPP_LVL3SIMD_ALPHA_LOG2 = -105.0
+TFHEPP_LVL5_P = 786_433
+TFHEPP_LVL5_Q_BITS = 448
+TFHEPP_LVL5_ALPHA_LOG2 = -425.0
 
 
 def paper_u3(
@@ -108,9 +111,53 @@ def tfhepp_lvl3simd_boot(
     )
 
 
+def tfhepp_lvl5_base(
+    *,
+    q_bits: int = TFHEPP_LVL5_Q_BITS,
+    alpha_log2: float = TFHEPP_LVL5_ALPHA_LOG2,
+) -> BFVParams:
+    """TFHEpp lvl5param multi-limb BFV scaffold, plaintext modulus p=786433."""
+    return BFVParams(
+        nbit=14,
+        t=TFHEPP_LVL5_P,
+        q_bits=q_bits,
+        secret_variance=2.0 / 3.0,
+        encryption_u_variance=2.0 / 3.0,
+        error_log2_std=q_bits + alpha_log2,
+        key_switch="hybrid-rns",
+        rns_digits=4,
+        hybrid_omega=28,
+        fresh="symmetric",
+        tag="tfhepp-lvl5-base",
+    )
+
+
+def tfhepp_lvl5_boot(
+    *,
+    q_bits: int = TFHEPP_LVL5_Q_BITS,
+    alpha_log2: float = TFHEPP_LVL5_ALPHA_LOG2,
+) -> BFVParams:
+    """TFHEpp lvl5param BFV bootstrap PrimePower2Param, plaintext modulus p^2."""
+    return BFVParams(
+        nbit=14,
+        t=TFHEPP_LVL5_P * TFHEPP_LVL5_P,
+        q_bits=q_bits,
+        secret_variance=2.0 / 3.0,
+        encryption_u_variance=2.0 / 3.0,
+        error_log2_std=q_bits + alpha_log2,
+        key_switch="hybrid-rns",
+        rns_digits=4,
+        hybrid_omega=28,
+        fresh="symmetric",
+        tag="tfhepp-lvl5-boot",
+    )
+
+
 PRESETS = {
     "openfhe-paper": openfhe_paper,
     "paper-u3": paper_u3,
     "tfhepp-lvl3simd-base": tfhepp_lvl3simd_base,
     "tfhepp-lvl3simd-boot": tfhepp_lvl3simd_boot,
+    "tfhepp-lvl5-base": tfhepp_lvl5_base,
+    "tfhepp-lvl5-boot": tfhepp_lvl5_boot,
 }

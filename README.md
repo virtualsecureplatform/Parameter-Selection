@@ -59,8 +59,9 @@ apptainer exec --bind "$(pwd):/work" python/sagemath.sif sage -python /work/pyth
 SciPy is installed:
 
 ```bash
-python3 python/BFVnoise.py --preset tfhepp-lvl3simd-boot --B 15 --qbits-range 128:256:32
-python3 python/BFVnoise.py --preset tfhepp-lvl3simd-boot --B-range 1:15 --scalar-mode unsigned-average
+python3 python/BFVnoise.py --preset tfhepp-lvl3simd-boot --B 15 --qbits-range 128:512:64 --error-std 3.19
+python3 python/BFVnoise.py --preset tfhepp-lvl3simd-boot --B-range 1:15
+python3 python/BFVnoise.py --preset tfhepp-lvl5-boot --B 15
 python3 python/BFVvalidate.py
 ```
 
@@ -68,20 +69,26 @@ python3 python/BFVvalidate.py
 ("Improving and Automating BFV Parameters Selection: An Average-Case Approach").
 The default TFHEpp bootstrap preset estimates the final digit-removal
 `PolyEval` over `PrimePower2Param`, so its plaintext modulus is
-`114689^2`.  The default digit-removal degree is `4*B+1`, matching
-`GetLowestDigitRemovalPolynomialOverRange(p, B)`.
+`114689^2`.  By default, `BFVnoise.py` builds the same bounded
+digit-removal polynomial as `GetLowestDigitRemovalPolynomialOverRange(p, B)`
+and evaluates its actual degree and scalar coefficients.  Use
+`--poly-source degree` to run a degree-only sweep.
 
-Current limitations: the estimator uses the paper's independent-ciphertext
-average-case multiplication model.  Evaluating a high-degree polynomial in one
-ciphertext reuses dependent powers, and TFHEpp's double-decomposition
-relinearization is only approximated by the paper's key-switching variants.
-Treat the output as screening data until the dependent-circuit model is added.
+For `PolyEval`, the default `--circuit-model dependent` applies the Section 7
+dependent-ciphertext bounds from `600.pdf`.  As in the paper's identical-input
+examples, this omits the unknown `Var((nu*nu')|i)` term.  TFHEpp's
+double-decomposition relinearization is still approximated by the paper's
+key-switching variants, so treat the output as screening data.
+
+The TFHEpp presets use TFHE-style normalized fresh noise by default, so changing
+`--qbits` alone keeps the normalized error fixed.  Use `--error-std` when you
+want the BFV paper's fixed absolute error model for ciphertext-modulus sweeps.
 
 `BFVvalidate.py` reproduces the OpenFHE-based validation parameters from
-`600.pdf` Table 7: `t=65537`, `sigma=3.19`, `chi_s=chi_u=U3`, Hybrid key
-switching, HPSPOVERQ multiplication, and `log2(q) ~= 60` for encryption/addition
-or `log2(q) ~= 120` for one multiplication.  It checks the paper's average-case
-"our" column, not the experimental OpenFHE samples.
+`600.pdf` Tables 7 and 10: `t=65537`, `sigma=3.19`, `chi_s=chi_u=U3`, Hybrid
+key switching, HPSPOVERQ multiplication, and `log2(q) ~= 60` for
+encryption/addition or `log2(q) ~= 120` for one multiplication.  It checks the
+paper's average-case "our" column, not the experimental OpenFHE samples.
 
 **Geometric-LWE-Estimator scripts** (run from `python/`; note the `cwd` must be set inside the submodule for sage's relative `load()` paths to resolve):
 

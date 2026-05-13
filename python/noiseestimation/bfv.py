@@ -9,17 +9,16 @@ This module implements the formulas from `600.pdf`:
     Approach", 2024.
 
 The estimator works in log2-space so large candidate moduli such as 2^900 do
-not overflow Python floats.  The formulas are the independent-ciphertext model
-from Sections 4 and 5 of the paper.  Polynomial evaluation of one ciphertext is
-not independent; use the output as an optimistic screening estimate until a
-dependent-circuit model is added.
+not overflow Python floats.  It includes the independent-ciphertext formulas
+from Sections 4 and 5 of the paper and the dependent-input covariance bounds
+from Section 7.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
 import math
-from typing import Iterable
+from typing import Iterable, Sequence
 
 from scipy.special import erfc, erfcinv
 
@@ -38,6 +37,14 @@ def log2_add(*xs: float) -> float:
 
 def log2_sum(xs: Iterable[float]) -> float:
     return log2_add(*list(xs))
+
+
+def log2_sum_sqrt(xs: Iterable[float]) -> float:
+    """Return log2((sum(sqrt(2**x) for x in xs))**2)."""
+    finite = [x for x in xs if x != NEG_INF]
+    if not finite:
+        return NEG_INF
+    return 2.0 * log2_sum(0.5 * x for x in finite)
 
 
 @dataclass(frozen=True)
@@ -123,6 +130,24 @@ class NoiseState:
         )
 
 
+def add_many(states: Sequence[NoiseState], *, dependent: bool, label: str) -> NoiseState:
+    states = [state for state in states if state.log2_variance != NEG_INF]
+    if not states:
+        return NoiseState(NEG_INF, 0, label)
+    degree = max(state.degree for state in states)
+    if dependent:
+        return NoiseState(
+            log2_sum_sqrt(state.log2_variance for state in states),
+            degree,
+            label,
+        )
+    return NoiseState(
+        log2_sum(state.log2_variance for state in states),
+        degree,
+        label,
+    )
+
+
 def fresh(params: BFVParams) -> NoiseState:
     """Fresh encryption variance, Proposition 3 or symmetric BFV variant."""
     log_t2_over_q2 = 2.0 * math.log2(params.t) - 2.0 * params.q_bits
@@ -166,6 +191,26 @@ def scalar_mul_centered_average(
     """Average scalar multiplication by centered coefficients modulo t."""
     factor_log2 = math.log2(params.t * params.t - 1.0) - math.log2(12.0)
     return NoiseState(state.log2_variance + factor_log2, state.degree, label)
+
+
+def scalar_mul_exact(
+    state: NoiseState,
+    scalar: int,
+    params: BFVParams,
+    *,
+    centered: bool,
+    label: str = "scalar-exact",
+) -> NoiseState:
+    scalar %= params.t
+    if centered and scalar > params.t // 2:
+        scalar -= params.t
+    if scalar == 0 or state.log2_variance == NEG_INF:
+        return NoiseState(NEG_INF, state.degree, label)
+    return NoiseState(
+        state.log2_variance + 2.0 * math.log2(abs(scalar)),
+        state.degree,
+        label,
+    )
 
 
 def mod_switch(state: NoiseState, params: BFVParams, q_prime_bits: int | None = None) -> NoiseState:
@@ -235,6 +280,28 @@ def mul(lhs: NoiseState, rhs: NoiseState, params: BFVParams, relin: bool = True)
     return key_switch(out, params) if relin else out
 
 
+def mul_dependent(
+    lhs: NoiseState, rhs: NoiseState, params: BFVParams, relin: bool = True
+) -> NoiseState:
+    """
+    Dependent-ciphertext multiplication estimate, Proposition 8.
+
+    This implements the Section 7 bound without the Var((nu*nu')|i) term, the
+    same approximation used by the paper for identical-input circuit examples.
+    """
+    c = (
+        2.0 * math.log2(params.t)
+        + 2.0 * math.log2(params.n)
+        + math.log2(params.secret_variance)
+        - math.log2(12.0)
+    )
+    lhs_term = lhs.log2_variance + params.fit.log2_value(lhs.degree + 1)
+    rhs_term = rhs.log2_variance + params.fit.log2_value(rhs.degree + 1)
+    inner = log2_sum_sqrt([lhs_term, rhs_term])
+    out = NoiseState(c + inner, lhs.degree + rhs.degree, "dep-mul")
+    return key_switch(out, params) if relin else out
+
+
 def floor_pow2(x: int) -> int:
     p = 1
     while 2 * p <= x:
@@ -266,9 +333,16 @@ def estimate_polyeval_bsgs(
     params: BFVParams,
     *,
     scalar_mode: str = "none",
+    circuit_model: str = "independent",
+    coeffs: Sequence[int] | None = None,
 ) -> NoiseState:
     """
     Estimate TFHEpp's baby-step/giant-step PolyEval shape.
+
+    `circuit_model=independent` uses Theorem 1 from 600.pdf.  `dependent` uses
+    the Section 7 covariance bounds, which better matches polynomial evaluation
+    in one ciphertext.  As in the paper's dependent-circuit examples, it omits
+    the unknown Var((nu*nu')|i) term.
 
     `scalar_mode=none` ignores cleartext coefficient amplification.  This is
     useful for first-pass depth/noise-budget screening of high-degree digit
@@ -279,15 +353,44 @@ def estimate_polyeval_bsgs(
     polynomial coefficients are centered before scalar multiplication.
     `poly-average` applies Proposition 4, modeling multiplication by a random
     plaintext polynomial rather than a scalar coefficient.
+
+    `unsigned-exact` and `centered-exact` use the actual coefficient supplied
+    in `coeffs`; when `coeffs` is not supplied they fall back to the respective
+    average scalar model.
     """
+    if coeffs is not None:
+        coeff_values = [int(c) % params.t for c in coeffs]
+        while len(coeff_values) > 1 and coeff_values[-1] == 0:
+            coeff_values.pop()
+        degree = len(coeff_values) - 1
+    else:
+        coeff_values = [1] * (degree + 1)
+
     if degree <= 0:
         return NoiseState(NEG_INF, 0, "constant")
     if scalar_mode == "average":
         scalar_mode = "unsigned-average"
-    if scalar_mode not in {"none", "unsigned-average", "centered-average", "poly-average"}:
+    if scalar_mode not in {
+        "none",
+        "unsigned-average",
+        "centered-average",
+        "poly-average",
+        "unsigned-exact",
+        "centered-exact",
+    }:
         raise ValueError(
-            "scalar_mode must be 'none', 'unsigned-average', 'centered-average', or 'poly-average'"
+            "scalar_mode must be 'none', 'unsigned-average', 'centered-average', "
+            "'poly-average', 'unsigned-exact', or 'centered-exact'"
         )
+    if circuit_model not in {"independent", "dependent"}:
+        raise ValueError("circuit_model must be 'independent' or 'dependent'")
+
+    dependent = circuit_model == "dependent"
+
+    def mul_op(lhs: NoiseState, rhs: NoiseState) -> NoiseState:
+        if dependent:
+            return mul_dependent(lhs, rhs, params)
+        return mul(lhs, rhs, params)
 
     k, m = find_bsgs_params(degree)
 
@@ -303,49 +406,67 @@ def estimate_polyeval_bsgs(
     for i in range(2, k + 1):
         a = floor_pow2(i - 1)
         b = i - a
-        baby[i] = mul(baby_state(a), baby_state(b), params)
+        baby[i] = mul_op(baby_state(a), baby_state(b))
 
     giant: list[NoiseState] = []
     if m > 0:
         giant.append(baby_state(k))
         for j in range(1, m):
-            giant.append(mul(giant[j - 1], giant[j - 1], params))
+            giant.append(mul_op(giant[j - 1], giant[j - 1]))
 
-    def scale_term(term: NoiseState) -> NoiseState:
+    def scale_term(term: NoiseState, scalar: int | None) -> NoiseState:
+        if scalar_mode == "unsigned-exact" and scalar is not None:
+            return scalar_mul_exact(term, scalar, params, centered=False)
+        if scalar_mode == "centered-exact" and scalar is not None:
+            return scalar_mul_exact(term, scalar, params, centered=True)
         if scalar_mode == "unsigned-average":
             return scalar_mul_unsigned_average(term, params)
+        if scalar_mode == "unsigned-exact":
+            return scalar_mul_unsigned_average(term, params)
         if scalar_mode == "centered-average":
+            return scalar_mul_centered_average(term, params)
+        if scalar_mode == "centered-exact":
             return scalar_mul_centered_average(term, params)
         if scalar_mode == "poly-average":
             return const_mul(term, params)
         return term
 
-    def eval_recursive(length: int, level: int) -> NoiseState:
+    def eval_recursive(values: Sequence[int], level: int) -> tuple[NoiseState, int | None]:
+        length = len(values)
         if length <= 1:
-            return NoiseState(NEG_INF, 0, "constant")
+            constant = values[0] % params.t if values else 0
+            return NoiseState(NEG_INF, 0, "constant"), constant
         if level == 0:
-            terms = [scale_term(baby_state(i)) for i in range(1, min(length, k + 1))]
+            terms = [
+                scale_term(baby_state(i), values[i] if coeffs is not None else None)
+                for i in range(1, min(length, k + 1))
+                if values[i] != 0
+            ]
             if not terms:
-                return NoiseState(NEG_INF, 0, "constant")
-            return NoiseState(
-                log2_sum(t.log2_variance for t in terms),
-                max(t.degree for t in terms),
-                "baby-sum",
-            )
+                return NoiseState(NEG_INF, 0, "constant"), values[0] % params.t
+            return add_many(terms, dependent=dependent, label="baby-sum"), None
 
         split = k
         for _ in range(level - 1):
             split *= 2
         split = min(split, length)
 
-        lower = eval_recursive(split, level - 1)
+        lower, lower_constant = eval_recursive(values[:split], level - 1)
         if split >= length:
-            return lower
-        upper = eval_recursive(length - split, level - 1)
-        prod = mul(upper, giant[level - 1], params)
-        return lower.add(prod, "recursive-sum")
+            return lower, lower_constant
+        upper, upper_constant = eval_recursive(values[split:], level - 1)
+        if upper_constant is None:
+            prod = mul_op(upper, giant[level - 1])
+        elif upper_constant == 0:
+            prod = NoiseState(NEG_INF, 0, "constant")
+        else:
+            prod = scale_term(giant[level - 1], upper_constant)
+        state = add_many([lower, prod], dependent=dependent, label="recursive-sum")
+        constant = lower_constant if prod.log2_variance == NEG_INF else None
+        return state, constant
 
-    return eval_recursive(degree + 1, m)
+    state, _ = eval_recursive(coeff_values, m)
+    return state
 
 
 def correctness_d_for_failure(n: int, failure_log2: float) -> float:
