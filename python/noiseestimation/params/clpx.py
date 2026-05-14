@@ -133,6 +133,27 @@ class lvl02param:
     targetP = lvl2param
 
 
+class SS2CLPXlvl2param(lvl2param):
+    plain_modulus = 2
+
+
+class SS2CLPXlvl02param:
+    domainP = lvl0param
+    targetP = SS2CLPXlvl2param
+
+
+class SS2CLPXlvlh2param:
+    domainP = lvlhalfparam
+    targetP = SS2CLPXlvl2param
+
+
+class SS2CLPXlvl22param:
+    t = lvl22param.t
+    basebit = lvl22param.basebit
+    domainP = SS2CLPXlvl2param
+    targetP = SS2CLPXlvl2param
+
+
 class lvlh1param:
     domainP = lvlhalfparam
     targetP = lvl1param
@@ -141,4 +162,3 @@ class lvlh1param:
 class lvlh2param:
     domainP = lvlhalfparam
     targetP = lvl2param
-

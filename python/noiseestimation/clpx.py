@@ -237,6 +237,7 @@ def estimate_tlwes_to_clpx(
     validbit: int = 8,
     num_multi: int = 4,
     shift: int = 0,
+    w: int | None = None,
     iksP=default_params.lvl10param,
     bkP=default_params.lvl02param,
     sskP=default_params.lvl22param,
@@ -256,17 +257,23 @@ def estimate_tlwes_to_clpx(
     pbs_var = pbs_variance(bkP)
 
     target_bits = q_bits(bkP.targetP)
-    temp_count = validbit + target_bits - 1
+    truncation_bits = target_bits if w is None else int(w)
+    if truncation_bits <= 0:
+        raise ValueError("w must be positive")
+    if truncation_bits > target_bits:
+        raise ValueError("w cannot exceed the target torus bit width")
+
+    temp_count = validbit + truncation_bits - 1
     temp_vars = [0.0 for _ in range(temp_count)]
     term_counts = [0 for _ in range(temp_count)]
     step = num_multi * (shift + 1)
 
     for input_index in range(validbit):
-        for j in range(target_bits - 1, -1, -step):
+        for j in range(truncation_bits - 1, -1, -step):
             for lane in range(num_multi):
                 for small_shift in range(shift + 1):
                     bit_index = j - lane * (shift + 1) - small_shift
-                    if 0 <= bit_index < target_bits:
+                    if 0 <= bit_index < truncation_bits:
                         out_index = input_index + bit_index
                         temp_vars[out_index] += shift_variance(pbs_var, small_shift)
                         term_counts[out_index] += 1
@@ -444,15 +451,55 @@ def clpx_multiply_value_variance(
     return (message_term + relin_term) * norm_scale
 
 
+def paper_clpx_multiplication_variance(
+    lhs_coefficient_variance: float,
+    rhs_coefficient_variance: float,
+    lhs_nonzero_terms: int,
+    rhs_nonzero_terms: int,
+    *,
+    P=default_params.SS2CLPXlvl2param,
+) -> float:
+    """Equation (44) from Nagai et al. for CLPX multiplication noise."""
+    b = float(P.plain_modulus)
+    common = 6.0 * P.n + 3.0 * math.sqrt(P.n)
+    lhs_factor = ((b + 1.0) * lhs_nonzero_terms + common) ** 2
+    rhs_factor = ((b + 1.0) * rhs_nonzero_terms + common) ** 2
+    return (
+        lhs_factor * rhs_coefficient_variance
+        + rhs_factor * lhs_coefficient_variance
+    )
+
+
+def paper_clpx_fixed_noise_threshold(
+    *,
+    P=default_params.SS2CLPXlvl2param,
+    w: int = 20,
+) -> float:
+    """Equations (45)-(47) from Nagai et al."""
+    b = float(P.plain_modulus)
+    a1 = (b + 1.0) * math.sqrt(3.0 * P.n) * (
+        1.0 + 2.0 * math.sqrt(3.0 * P.n) + 12.0 * P.n
+    )
+    a2 = 6.0 * math.sqrt(3.0) * (b + 1.0) * P.n * P.alpha * (w + 1.0) * b
+    return P.q / 2.0 - a1 - a2
+
+
 def estimate_clpx_multiplication_depth(
     *,
     initial_coefficient_variance: float | None = None,
     validbit: int = 8,
+    num_multi: int = 4,
+    shift: int = 0,
+    w: int | None = None,
     max_multiplications: int = 16,
     chain: str = "fresh",
     P=default_params.lvl2param,
+    iksP=default_params.lvl10param,
+    bkP=default_params.lvl02param,
+    sskP=default_params.lvl22param,
     message_bound: float | None = None,
     d: float = 6.0,
+    model: str = "tfhepp",
 ) -> CLPXMultiplicationEstimate:
     if max_multiplications < 0:
         raise ValueError("max_multiplications must be non-negative")
@@ -460,10 +507,18 @@ def estimate_clpx_multiplication_depth(
         raise ValueError("chain must be 'fresh' or 'square'")
     if d <= 0:
         raise ValueError("d must be positive")
+    if model not in {"tfhepp", "paper"}:
+        raise ValueError("model must be 'tfhepp' or 'paper'")
 
     if initial_coefficient_variance is None:
         initial_coefficient_variance = estimate_tlwes_to_clpx(
-            validbit=validbit
+            validbit=validbit,
+            num_multi=num_multi,
+            shift=shift,
+            w=w,
+            iksP=iksP,
+            bkP=bkP,
+            sskP=sskP,
         ).packed_variance
     if message_bound is None:
         message_bound = float(P.plain_modulus - 1)
@@ -472,6 +527,77 @@ def estimate_clpx_multiplication_depth(
     fft_round_var = 1.0 / 12.0
     coeff_to_value = 1.0 + float(P.plain_modulus) ** 2
     initial_value_var = coeff_to_value * initial_coefficient_variance
+
+    if model == "paper":
+        threshold = paper_clpx_fixed_noise_threshold(
+            P=P,
+            w=w if w is not None else q_bits(P),
+        )
+        current_coeff_var = initial_coefficient_variance
+        fresh_coeff_var = initial_coefficient_variance
+        current_nonzero_terms = validbit
+        fresh_nonzero_terms = validbit
+        steps: list[CLPXMultiplicationStep] = []
+        supported = 0
+        for count in range(0, max_multiplications + 1):
+            output_variance = (
+                (float(P.plain_modulus) + 1.0) ** 2 * current_coeff_var
+            )
+            margin = (
+                2.0 * math.log2(threshold) - math.log2(output_variance)
+                if threshold > 0 and output_variance > 0
+                else float("-inf")
+            )
+            log2_fail = (
+                _failure_log2(threshold, output_variance, count=1)
+                if threshold > 0
+                else 0.0
+            )
+            status = "OK" if log2_fail <= -64.0 else "FAIL"
+            if status == "OK":
+                supported = count
+            steps.append(
+                CLPXMultiplicationStep(
+                    multiplication_count=count,
+                    coefficient_variance=current_coeff_var,
+                    digit_value_variance=output_variance,
+                    margin_bits=margin,
+                    log2_failure=log2_fail,
+                    status=status,
+                )
+            )
+            if count == max_multiplications:
+                break
+            rhs_coeff_var = (
+                fresh_coeff_var if chain == "fresh" else current_coeff_var
+            )
+            rhs_nonzero_terms = (
+                fresh_nonzero_terms if chain == "fresh" else current_nonzero_terms
+            )
+            current_coeff_var = paper_clpx_multiplication_variance(
+                current_coeff_var,
+                rhs_coeff_var,
+                current_nonzero_terms,
+                rhs_nonzero_terms,
+                P=P,
+            )
+            current_nonzero_terms += rhs_nonzero_terms
+
+        return CLPXMultiplicationEstimate(
+            initial_coefficient_variance=initial_coefficient_variance,
+            initial_digit_value_variance=(
+                (float(P.plain_modulus) + 1.0) ** 2
+                * initial_coefficient_variance
+            ),
+            relin_coefficient_variance=relin_var,
+            fft_round_coefficient_variance=fft_round_var,
+            message_bound=message_bound,
+            chain=chain,
+            d=d,
+            steps=steps,
+            supported_multiplications=supported,
+        )
+
     current_value_var = initial_value_var
     fresh_value_var = initial_value_var
     steps: list[CLPXMultiplicationStep] = []

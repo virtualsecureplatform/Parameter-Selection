@@ -70,9 +70,9 @@ SciPy is installed:
 
 ```bash
 python3 python/CLPXnoise.py
-python3 python/CLPXnoise.py --direction tlwes-to-clpx --validbit 8 --num-multi 4 --shift 0
+python3 python/CLPXnoise.py --direction tlwes-to-clpx --paper-ss2clpx --validbit 8
 python3 python/CLPXnoise.py --direction clpx-to-tlwes --validbit 8 --numdigit 4 --basebit 2
-python3 python/CLPXnoise.py --direction multiplication --validbit 8 --max-mults 80 --mult-chain square
+python3 python/CLPXnoise.py --direction switched-multiplication --paper-ss2clpx --validbit 8 --max-mults 8 --mult-chain square
 python3 python/CLPXnoise.py --direction all --validbit 8 --max-mults 16
 ```
 
@@ -88,15 +88,19 @@ largest internal PBS-input variance and a bin margin, because CLPX digit
 extraction can fail semantically even when the final refreshed TLWE noise is
 small.
 
-The `--direction multiplication` mode is an approximate depth screen for
-`CLPXMult` (`TRLWEMultWithoutRelinerizationCLPX + Relinearization`).  It starts
-from the estimated `TLWES2CLPXIKS` output noise unless `--input-log2-var` is
-provided, models CLPX digit errors in normalized units, and assumes plaintext
-digit values stay bounded by `--message-bound` (default `plain_modulus-1`).
-Use `--mult-chain fresh` for repeatedly multiplying by a fresh switched CLPX
-ciphertext, or `--mult-chain square` for repeated squaring.  This mode does not
-model application-level plaintext growth, so choose `--message-bound` to match
-the circuit being screened.
+The `--direction switched-multiplication` mode is an approximate depth screen
+for `CLPXMult` (`TRLWEMultWithoutRelinerizationCLPX + Relinearization`) using
+the estimated `TLWES2CLPXIKS` output noise as the initial CLPX noise, with the
+same `--validbit`, `--num-multi`, `--shift`/`--shiftnum`, and `--w` arguments,
+unless `--input-log2-var` is provided.  The older `--direction multiplication`
+spelling is kept as an alias.  Use `--paper-ss2clpx` for the Nagai et al.
+setting implemented by TFHEpp's `SS2CLPX.hpp`: CLPX base `b=2`, `Lutnum=4`,
+`shiftnum=5` (TFHEpp template `shift=4`), and `w=20`.  In this mode the
+post-switch multiplication estimate uses Equations (44)-(48) from the paper and
+reports one supported multiplication for the 8-bit default before the next
+CLPX-to-TFHE switch.  Without `--paper-ss2clpx`, the estimator keeps the older
+TFHEpp default CLPX path (`plain_modulus=8`) and treats multiplication as a
+bounded-digit screening model rather than the paper's direct post-switch path.
 
 `BFVnoise.py` implements the invariant-noise variance formulas from `600.pdf`
 ("Improving and Automating BFV Parameters Selection: An Average-Case Approach").
