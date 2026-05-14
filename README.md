@@ -65,6 +65,39 @@ python3 python/BFVnoise.py --preset tfhepp-lvl5-boot --B 15
 python3 python/BFVvalidate.py
 ```
 
+**CLPX scheme-switch noise estimation** can be run with normal Python when
+SciPy is installed:
+
+```bash
+python3 python/CLPXnoise.py
+python3 python/CLPXnoise.py --direction tlwes-to-clpx --validbit 8 --num-multi 4 --shift 0
+python3 python/CLPXnoise.py --direction clpx-to-tlwes --validbit 8 --numdigit 4 --basebit 2
+python3 python/CLPXnoise.py --direction multiplication --validbit 8 --max-mults 80 --mult-chain square
+python3 python/CLPXnoise.py --direction all --validbit 8 --max-mults 16
+```
+
+`CLPXnoise.py` follows the TFHEpp operation sequence in
+`../TFHEpp/include/bfv-clpx.hpp` for `TLWES2CLPXIKS` and
+`CLPX2TLWESIKSanybit`.  It composes the existing TFHE bootstrapping,
+identity-key-switching, and annihilate-packing formulas from
+`python/noiseestimation/keyvariation.py`.  The default CLPX preset in
+`python/noiseestimation/params/clpx.py` mirrors the local TFHEpp default
+`include/params/128bit.hpp` CLPX test path.  Programmable bootstrapping is
+modeled as refreshing the output encryption noise; the script also reports the
+largest internal PBS-input variance and a bin margin, because CLPX digit
+extraction can fail semantically even when the final refreshed TLWE noise is
+small.
+
+The `--direction multiplication` mode is an approximate depth screen for
+`CLPXMult` (`TRLWEMultWithoutRelinerizationCLPX + Relinearization`).  It starts
+from the estimated `TLWES2CLPXIKS` output noise unless `--input-log2-var` is
+provided, models CLPX digit errors in normalized units, and assumes plaintext
+digit values stay bounded by `--message-bound` (default `plain_modulus-1`).
+Use `--mult-chain fresh` for repeatedly multiplying by a fresh switched CLPX
+ciphertext, or `--mult-chain square` for repeated squaring.  This mode does not
+model application-level plaintext growth, so choose `--message-bound` to match
+the circuit being screened.
+
 `BFVnoise.py` implements the invariant-noise variance formulas from `600.pdf`
 ("Improving and Automating BFV Parameters Selection: An Average-Case Approach").
 The default TFHEpp bootstrap preset estimates the final digit-removal
