@@ -1,5 +1,5 @@
 #!/bin/python3
-"""Check TFHEpp lvl6 CKKS security for the 1152-bit bootstrap modulus."""
+"""Check TFHEpp lvl6 CKKS security for the 1108-bit bootstrap modulus."""
 
 import importlib
 import math
@@ -19,7 +19,7 @@ except ModuleNotFoundError as exc:
 
 TARGET_BITS = 128.0
 N = 32768
-LOG_Q = 1152
+LOG_Q = 1108
 ALPHA_LOG2 = -850
 NOISE_STDDEV_LOG2 = LOG_Q + ALPHA_LOG2
 
