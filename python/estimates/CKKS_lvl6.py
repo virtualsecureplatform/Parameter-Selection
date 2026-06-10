@@ -1,5 +1,5 @@
 #!/bin/python3
-"""Check TFHEpp lvl6 CKKS security for the 1108-bit bootstrap modulus."""
+"""Check TFHEpp lvl6 CKKS security for the 896-bit bootstrap modulus."""
 
 import importlib
 import math
@@ -19,8 +19,8 @@ except ModuleNotFoundError as exc:
 
 TARGET_BITS = 128.0
 N = 32768
-LOG_Q = 1108
-ALPHA_LOG2 = -850
+LOG_Q = 896
+ALPHA_LOG2 = -886
 NOISE_STDDEV_LOG2 = LOG_Q + ALPHA_LOG2
 
 
@@ -55,15 +55,24 @@ def check_param(label, xs):
         print(f"  {name}: {bits:.3f} bits", flush=True)
 
     print(f"  weakest: {weakest:.3f} bits", flush=True)
-    if weakest < TARGET_BITS:
-        raise SystemExit(
-            f"{label} is below target: {weakest:.3f} < {TARGET_BITS:.1f}"
-        )
+    return weakest
 
 
 def main():
-    check_param("dense-ternary", estimator.nd.UniformMod(3))
-    check_param("sparse-H16", estimator.nd.SparseTernary(8, 8, n=N))
+    failures = []
+    for label, xs in [
+        ("dense-ternary", estimator.nd.UniformMod(3)),
+        ("sparse-H16", estimator.nd.SparseTernary(8, 8, n=N)),
+    ]:
+        weakest = check_param(label, xs)
+        if weakest < TARGET_BITS:
+            failures.append((label, weakest))
+    if failures:
+        details = ", ".join(
+            f"{label}: {weakest:.3f} < {TARGET_BITS:.1f}"
+            for label, weakest in failures
+        )
+        raise SystemExit(f"Below target: {details}")
     print("Passed", flush=True)
 
 
