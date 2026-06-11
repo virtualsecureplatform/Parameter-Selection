@@ -20,7 +20,7 @@ except ModuleNotFoundError as exc:
 TARGET_BITS = 128.0
 N = 32768
 LOG_Q = 896
-ALPHA_LOG2 = -886
+ALPHA_LOG2 = -872
 NOISE_STDDEV_LOG2 = LOG_Q + ALPHA_LOG2
 
 
