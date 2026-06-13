@@ -47,7 +47,11 @@ cd python
 apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/newTFHE.py
 apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/TFHE586.py
 apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/verify128bit.py
+apptainer exec --no-home --pwd /work --env DOT_SAGE=/tmp/.sage --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/TFHEprus_secure_128.py
 ```
+
+The `--no-home --env DOT_SAGE=/tmp/.sage` form avoids Sage trying to create
+`~/.sage` on read-only container paths in rootless Apptainer environments.
 
 **Parameter search** (run from the repository root):
 
