@@ -53,6 +53,18 @@ apptainer exec --no-home --pwd /work --env DOT_SAGE=/tmp/.sage --bind "$(pwd):/w
 The `--no-home --env DOT_SAGE=/tmp/.sage` form avoids Sage trying to create
 `~/.sage` on read-only container paths in rootless Apptainer environments.
 
+**Block-binary key estimates** from ePrint 2023/958:
+
+```bash
+cd python
+apptainer exec --no-home --pwd /work --env DOT_SAGE=/tmp/.sage --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/block_binary.py paper-table --quiet
+apptainer exec --no-home --pwd /work --env DOT_SAGE=/tmp/.sage --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/block_binary.py search --profile tfhe636 --lwe-only --target 128
+```
+
+`paper-table` prints the paper's Table 1 values next to the locally computed
+wrapper estimates.  `--lwe-only` skips the TRLWE-as-LWE side and is the mode to
+use when searching for the TLWE dimension at a fixed TLWE noise size.
+
 **Parameter search** (run from the repository root):
 
 ```bash

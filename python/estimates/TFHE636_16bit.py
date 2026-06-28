@@ -7,10 +7,8 @@ estimator = importlib.import_module(".estimator","lattice-estimator")
 param = estimator.lwe_parameters.LWEParameters(
     n=636,
     q=2 ** 16,
-    Xs=estimator.nd.UniformMod(2),
-#    Xe=estimator.nd.DiscreteGaussian(stddev=3.2),
-    # Xe=estimator.nd.DiscreteGaussian(stddev=0.000_092_511_997_467_675_6 * 2 ** 16),
-    Xe=estimator.nd.CenteredBinomial(40),
+    Xs=estimator.nd.Binary,
+    Xe=estimator.nd.DiscreteGaussian(stddev=0.000_092_511_997_467_675_6 * 2 ** 16),
     tag="TFHE636-16bit",
 )
 print(param.n)

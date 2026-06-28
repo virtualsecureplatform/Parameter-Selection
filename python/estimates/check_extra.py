@@ -40,7 +40,7 @@ TARGET = 128
 print("=" * 70, flush=True)
 print("n=636, q=2^15: binary search for min eta >= 128-bit", flush=True)
 print("=" * 70, flush=True)
-n, Xs, log2q = 636, estimator.nd.UniformMod(2), 15
+n, Xs, log2q = 636, estimator.nd.Binary, 15
 lo, hi = 1, 64
 
 sec_hi = estimate_security(n, Xs, log2q, hi)

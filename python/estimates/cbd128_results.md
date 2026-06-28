@@ -2,7 +2,7 @@
 
 Cost model: BDGL16
 
-## n=636, Xs=UniformMod(2)
+## n=636, Xs=Binary
 
 | q     | min eta | security (bits) |
 |-------|--------:|----------------:|

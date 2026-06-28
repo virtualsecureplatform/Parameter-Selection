@@ -14,7 +14,7 @@ params = [
     estimator.lwe_parameters.LWEParameters(
         n=2048,
         q=GOLDILOCKS_Q,
-        Xs=estimator.nd.UniformMod(2),
+        Xs=estimator.nd.Binary,
         Xe=estimator.nd.DiscreteGaussian(stddev=TFHEPRUS_STDDEV),
         tag="TFHEprus-secure-128-input-binary",
     ),

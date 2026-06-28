@@ -4,7 +4,7 @@ estimator = importlib.import_module(".estimator","lattice-estimator")
 # param = estimator.lwe_parameters.LWEParameters(
 #     n=128*3,
 #     q=2 ** 8,
-#     Xs=estimator.nd.UniformMod(2),
+#     Xs=estimator.nd.Binary,
 #    #  Xe=estimator.nd.DiscreteGaussian(stddev=2 ** (16-10.5)),
 #     Xe=estimator.nd.CenteredBinomial(24),
 #     # m = 384,
@@ -13,7 +13,7 @@ estimator = importlib.import_module(".estimator","lattice-estimator")
 # param = estimator.lwe_parameters.LWEParameters(
 #     n=636,
 #     q=2 ** 16,
-#     Xs=estimator.nd.UniformMod(2),
+#     Xs=estimator.nd.Binary,
 # #    Xe=estimator.nd.DiscreteGaussian(stddev=3.2),
 #     # Xe=estimator.nd.DiscreteGaussian(stddev=0.000_092_511_997_467_675_6 * 2 ** 16),
 #     Xe=estimator.nd.CenteredBinomial(40),
@@ -23,35 +23,35 @@ estimator = importlib.import_module(".estimator","lattice-estimator")
 # param = estimator.lwe_parameters.LWEParameters(
 #     n=586,
 #     q=2 ** 32,
-#     Xs=estimator.nd.UniformMod(2),
+#     Xs=estimator.nd.Binary,
 #     Xe=estimator.nd.DiscreteGaussian(stddev=0.000_092_511_997_467_675_6 * 2 ** 32),
 #     tag="TFHE586",
 # )
 # param = estimator.lwe_parameters.LWEParameters(
 #    n=636,
 #    q=2 ** 32,
-#    Xs=estimator.nd.UniformMod(2),
+#    Xs=estimator.nd.Binary,
 #    Xe=estimator.nd.DiscreteGaussian(stddev=0.000_092_511_997_467_675_6 * 2 ** 32),
 #    tag="TFHE636",
 # )
 # param = estimator.lwe_parameters.LWEParameters(
 #    n=640,
 #    q=2 ** 32,
-#    Xs=estimator.nd.UniformMod(2),
+#    Xs=estimator.nd.Binary,
 #    Xe=estimator.nd.DiscreteGaussian(stddev=0.000_092_511_997_467_675_6 * 2 ** 32),
 #    tag="TFHE640",
 # )
 # param = estimator.lwe_parameters.LWEParameters(
 #     n=777,
 #     q=2 ** 32,
-#     Xs=estimator.nd.UniformMod(2),
+#     Xs=estimator.nd.Binary,
 #     Xe=estimator.nd.DiscreteGaussian(stddev=2 ** (32-17.6)),
 #     tag="TFHE586",
 # )
 # param = estimator.lwe_parameters.LWEParameters(
 #     n=760,
 #     q=2 ** 32,
-#     Xs=estimator.nd.UniformMod(2),
+#     Xs=estimator.nd.Binary,
 #     # Xe=estimator.nd.DiscreteGaussian(stddev= 2 ** 7),
 #     Xe=estimator.nd.DiscreteGaussian(stddev= 2 ** (32-17)),
 #     tag="TFHE760",

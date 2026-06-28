@@ -39,7 +39,7 @@ TARGET = 128
 # n=636: q around 2^16 (original TFHE636-16bit used q=2^16, CBD(40))
 # n=1024: q around 2^32 (original TFHE1024 used q=2^32, Gaussian stddev=2^7)
 configs = [
-    (636,  estimator.nd.UniformMod(2), [12, 14, 16, 18, 20]),
+    (636,  estimator.nd.Binary, [12, 14, 16, 18, 20]),
     (1024, estimator.nd.UniformMod(3), [16, 20, 24, 28, 32]),
 ]
 

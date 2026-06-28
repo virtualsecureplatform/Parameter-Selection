@@ -7,7 +7,7 @@ estimator = importlib.import_module(".estimator","lattice-estimator")
 param = estimator.lwe_parameters.LWEParameters(
     n=128*3,
     q=2 ** 8,
-    Xs=estimator.nd.UniformMod(2),
+    Xs=estimator.nd.Binary,
    #  Xe=estimator.nd.DiscreteGaussian(stddev=2 ** (16-10.5)),
     Xe=estimator.nd.CenteredBinomial(24),
     # m = 384,
