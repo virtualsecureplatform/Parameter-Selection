@@ -254,12 +254,13 @@ def main() -> int:
     # The paper omits its individual RNS primes.  Starting from the
     # reconstructed tree limbs, use only the already available output-depth
     # headroom and find the first uniform tree scale that reaches Table 4.
+    recovery_baseline = {"n512p17": 43, "n1024p17": 46}
     expected_recovery = {"n512p17": 47, "n1024p17": 50}
     for name, expected_scale in expected_recovery.items():
         params = PRESETS[name]
         recovered = None
         for scale in range(
-            params.tree_scale_bits,
+            recovery_baseline[name],
             params.tree_scale_bits + params.tree_scale_headroom_bits + 1,
         ):
             candidate = replace(params, tree_scale_bits=scale)

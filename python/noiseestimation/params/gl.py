@@ -51,14 +51,19 @@ N512P17 = GLNoiseParams(
     stc_bits=37,
     x_scale_bits=18,
     w_scale_bits=19,
-    tree_scale_bits=43,
+    # Four wide primary rows mirror the paper's dnum=4 partition count while
+    # the independently decomposed evaluation-key rows remain signed 16-bit
+    # data.  This is a TFHEpp DD mapping; dnum itself describes the paper's RNS
+    # basis, not an 85-bit gadget base.  A 49-bit tree scale gives a useful
+    # margin over the paper's reported 14.94-bit precision.
+    tree_scale_bits=49,
     outside_multiplicative_depth=1,
     outside_scale_bits=37,
     dnum=4,
     theta=8,
     window_width=576,
     masked_column_count=1504,
-    primary_bit=19,
+    primary_bit=85,
     bbar_bit=16,
     storage_bits=448,
     security_limit_log_pq=430,
