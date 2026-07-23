@@ -3,7 +3,10 @@ To determine TFHE's parameter, run lwe-estimator.
 
 ## Running the Python scripts
 
-The scripts under `python/` require SageMath and the lattice-estimator. An Apptainer (Singularity) container definition is provided for a reproducible environment.
+Most legacy scripts under `python/` require SageMath and the lattice-estimator.
+The newer BFV, CLPX, and GL noise estimators also run with ordinary Python.
+An Apptainer (Singularity) container definition is provided for a reproducible
+Sage environment.
 
 ### Prerequisites
 
@@ -80,6 +83,67 @@ python3 python/BFVnoise.py --preset tfhepp-lvl3simd-boot --B-range 1:15
 python3 python/BFVnoise.py --preset tfhepp-lvl5-boot --B 15
 python3 python/BFVvalidate.py
 ```
+
+**GL-SHIP Double-Decomposition noise estimation** uses only the Python
+standard library:
+
+```bash
+python3 python/GLnoise.py
+python3 python/GLnoise.py --preset n512p17 --stages
+python3 python/GLnoise.py --preset n1024p17 --model correlated
+python3 python/GLnoise.py --optimize-tree-scale
+python3 python/GLnoise.py --preset n512p17 --arithmetic legacy --json
+python3 python/GLnoise.py --preset n512p17 --target-precision 12 --strict
+python3 python/GLvalidate.py
+```
+
+`GLnoise.py` expands the GL paper's abstract `epsilon_HE` term for TFHEpp's
+coefficient-domain implementation. It tracks fresh and grouped-StC phase
+noise, dense-to-sparse switching, encrypted masked columns, X-only HMux,
+the five-level balanced product tree, output conjugation, two Gaussian
+channels, and the final Y reconstruction. Double Decomposition is modeled
+with active primary digits, exact Bbar limbs, evaluation-key error, and
+modulus-down rounding. The default fused-DD mode follows the same operation
+boundaries as hybrid RNS: masked candidates remain under `P*Q` until the one
+ModDown in Equation (15), each HMux stage accumulates its body/mask and radix
+branches before one ModDown, and product-tree nodes relinearize at their input
+modulus before rescaling the resulting two-component ciphertext. DD replaces
+the decomposition and recomposition representation, not this algorithm.
+
+`--arithmetic legacy` reproduces the former TFHEpp path, which performed a
+ModDown for every candidate and HMux switch and rescaled all four product
+tensor components before relinearization. Its rescale floor is
+`r00 + (r01+r10)s + r11*s^2`; the fused path has the ordinary `r0+r1*s`
+floor. `--masked-moddown` remains available as a single-boundary diagnostic.
+The `independent` model is an average-case variance sum; `correlated` is a
+worst-aligned sensitivity screen.
+
+The paper's precision experiment samples each real and imaginary input slot
+uniformly from `[-1,1]`. The estimator propagates the corresponding GL
+coefficient variance through grouped StC instead of assigning magnitude one
+independently to every polynomial coefficient. Full-bootstrap sine and
+initial-encoding errors use the same distribution; the direct half-bootstrap
+continues to report a deterministic bounded-message sine error.
+
+The three presets copy `Q`, `P`, StC size, gap, sparse-secret, and window data
+from ePrint 2026/811 and copy TFHEpp's DD base/storage widths. The paper does
+not publish the complete per-prime schedule, so q0 and product-tree scales are
+reconstructed from the matched ePrint 2025/784 SHIP profiles and remain CLI
+overrides. The output includes torus-storage, 128-bit security-ceiling,
+phase-wrap, outside-depth, and precision margins. `--optimize-tree-scale`
+spends only the already available output-depth headroom and selects the first
+uniform tree scale that reaches the requested precision. With fused DD, the
+reconstructed `n512p17` and `n1024p17` profiles reach the paper's 14.94- and
+15.88-bit measurements at 47- and 50-bit tree scales, respectively, without
+increasing `Q` or `P`. The reconstructed `n256p17` schedule remains below
+target even at its maximum feasible 26-bit tree scale and is deliberately
+reported as unresolved rather than production-ready.
+
+This is a conservative parameter screen, not an RLWE security estimate or a
+correctness proof. The default precision target is the paper's measured
+hybrid-RNS result; a `BELOW TARGET` result means that the selected DD schedule
+does not reproduce that precision, not that DD intrinsically needs a larger
+ring or that the paper's RNS measurement is wrong.
 
 **CLPX scheme-switch noise estimation** can be run with normal Python when
 SciPy is installed:
@@ -190,3 +254,6 @@ The noise estimator (`python/noiseestimation/keyvariation.py`) is based on the f
 - Thomas de Ruijter, Jan-Pieter D'Anvers, and Ingrid Verbauwhede, "Don't be mean: Reducing Approximation Noise in TFHE through Mean Compensation," IACR ePrint 2025/809. https://eprint.iacr.org/2025/809
 - Ruida Wang, Jincheol Ha, Xuan Shen, Xianhui Lu, Chunling Chen, Kunpeng Wang, and Jooyoung Lee, "Refined TFHE Leveled Homomorphic Evaluation and Its Application," IACR ePrint 2024/1318. https://eprint.iacr.org/2024/1318
 - Mariya Georgieva Belorgey, Sergiu Carpov, Nicolas Gama, Sandra Guasch, and Dimitar Jetchev, "Revisiting Key Decomposition Techniques for FHE: Simpler, Faster and More Generic," IACR ePrint 2023/771. https://eprint.iacr.org/2023/771
+- Craig Gentry and Yongwoo Lee, "Fully Homomorphic Encryption for Matrix Arithmetic," IACR ePrint 2025/1935. https://eprint.iacr.org/2025/1935
+- Jung Hee Cheon, Guillaume Hanrot, Jongmin Kim, and Damien Stehlé, "SHIP: A Shallow and Highly Parallelizable CKKS Bootstrapping Algorithm," IACR ePrint 2025/784. https://eprint.iacr.org/2025/784
+- Rostin Shokri and Nektarios Georgios Tsoutsos, "Low-Depth Bootstrapping for Matrix-Native FHE," IACR ePrint 2026/811. https://eprint.iacr.org/2026/811
