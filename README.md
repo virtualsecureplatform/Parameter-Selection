@@ -84,6 +84,21 @@ python3 python/BFVnoise.py --preset tfhepp-lvl5-boot --B 15
 python3 python/BFVvalidate.py
 ```
 
+**TFHEpp fixed-weight quadratic-KDM proof screen** uses exact rational
+arithmetic and ordinary Python:
+
+```bash
+python3 python/proof/lvl5boot_renyi.py --self-test
+python3 python/proof/lvl5boot_renyi.py --json
+```
+
+This checks the first necessary mean-energy margin of the equal-covariance
+Rényi certificate against the actual `lvl5bootparam` secret, noise, and 35
+pre-Double-Decomposition gadget rows. The current parameter fails that
+specific sufficient condition already at its top gadget row. The matching
+Lean module checks the exact obstruction arithmetic; see
+`python/proof/README.md` for the result and its encoding/posterior scope.
+
 **GL-SHIP Double-Decomposition noise estimation** uses only the Python
 standard library:
 
