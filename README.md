@@ -90,6 +90,8 @@ arithmetic and ordinary Python:
 ```bash
 python3 python/proof/lvl5boot_renyi.py --self-test
 python3 python/proof/lvl5boot_renyi.py --json
+python3 python/proof/lvl5boot_gaussian_cluster.py --self-test
+python3 python/proof/lvl5boot_gaussian_cluster.py --json
 ```
 
 This checks the first necessary mean-energy margin of the equal-covariance
@@ -98,6 +100,17 @@ pre-Double-Decomposition gadget rows. The current parameter fails that
 specific sufficient condition already at its top gadget row. The matching
 Lean module checks the exact obstruction arithmetic; see
 `python/proof/README.md` for the result and its encoding/posterior scope.
+
+The Gaussian-cluster follow-up source-binds the actual 640-bit TFHEpp
+parameters and evaluates a radius-two fixed-weight orbit cloud without
+enumeration. That cloud has `137.1463` bits of perfect-overlap capacity, but
+the uniform mask makes its expected nonidentity overlap smaller than
+`2^-466.85` in total. Markov gives `K <= 1+2^-128` except with probability
+below `2^-338`, so optimizing the Rényi order cannot produce a meaningful
+lossiness bound. For the implemented signed-`int64` noise channel, the same
+neighbors are support-disjoint except with probability below `2^-436`. The
+matching Lean module checks the finite arithmetic and support-separation
+theorem; details and precise scope are in `python/proof/README.md`.
 
 **GL-SHIP Double-Decomposition noise estimation** uses only the Python
 standard library:
