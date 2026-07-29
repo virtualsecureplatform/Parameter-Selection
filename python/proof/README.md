@@ -264,3 +264,49 @@ p_e^n * 2^-v * sum_w A_w * beta_e^w.
 
 No numerical IID mass is assigned to `std::normal_distribution`: the C++
 standard does not specify a portable exact PMF for that implementation path.
+
+## Exact Hasse/descriptor certificate evaluator
+
+`twosmith_exact_evaluator.py` implements the exact certificate interface from
+`sketch/twosmith_exact_parameter_note.tex`. It uses `Fraction` throughout and
+rejects JSON floating-point literals; probabilities must be integers or strings
+such as `"17/32"`.
+
+Run all deterministic cross-checks with:
+
+```bash
+python3 python/proof/twosmith_exact_evaluator.py --self-test
+python3 python/proof/test_twosmith_exact_evaluator.py
+```
+
+Every regular command consumes one JSON object and emits exact JSON:
+
+```bash
+python3 python/proof/twosmith_exact_evaluator.py error-table pmf.json
+python3 python/proof/twosmith_exact_evaluator.py local local.json
+python3 python/proof/twosmith_exact_evaluator.py secret-hist secrets.json
+python3 python/proof/twosmith_exact_evaluator.py ord polynomial.json
+python3 python/proof/twosmith_exact_evaluator.py descriptor descriptor.json
+python3 python/proof/twosmith_exact_evaluator.py aggregate histogram.json
+```
+
+The input roots are, respectively:
+
+```json
+{"K": 3, "pmf": {"-1": "1/4", "0": "1/2", "1": "1/4"}}
+{"n": 8, "e": 0, "v": 3, "p": "1", "p_next": "1/2"}
+{"n": 8, "w": 2, "valuations": [0, 1, 2, 3, 4, 5, 6, 7]}
+{"K": 4, "polynomial": [1, -1, 0, 0]}
+{"K": 4, "n": 4, "s": [1, 0, -1, 0], "t": [0, 1, 0, -1],
+ "z": 2, "f": 1, "g": [1, 1, 0, 0]}
+{"rows": [{"factors": {"0,0": "2"}}],
+ "histogram": [{"tuple": [[0, 0]], "weight": "1"}]}
+```
+
+The local command emits the exact Lucas recursion trace and both the exact
+Hasse factor and proved product upper bound. The secret command uses the dual
+kernel recursion and emits the two signed fixed-weight branches. The descriptor
+command performs negacyclic arithmetic modulo `2^K`, checks capped valuation
+addition for the complete multiplier, and records `(e,v)`. The aggregation
+command requires the full joint row tuple; it never manufactures a product of
+marginal histograms.
