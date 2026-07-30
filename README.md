@@ -103,8 +103,8 @@ Lean module checks the exact obstruction arithmetic; see
 
 **TFHEpp subset-key delayed-projection screen** source-binds the current word
 sizes, dimensions, and error widths, rejects the lifted invertible-minor solver
-by its exact noise budget, and checks the necessary capacity and row-norm
-conditions for genuinely short high-modulus preimages:
+by its exact noise budget, and evaluates the canonical-ternary second-moment
+failure bound for genuinely short high-modulus preimages:
 
 ```bash
 python3 python/proof/tfhe_subset_joint_screen.py --self-test
@@ -112,9 +112,10 @@ python3 python/proof/tfhe_short_preimage_screen.py --self-test
 python3 python/proof/tfhe_short_preimage_screen.py --json
 ```
 
-Passing the short-preimage screen is not a security certificate: random-matrix
-existence, efficient public recovery, and simultaneous covariance control
-remain research obligations.
+The screen now proves information-theoretic random-matrix existence for the
+complete target family and checks the disjoint-block Gram/noise budget. It is
+not a complete security certificate: efficient public recovery has an SIS
+barrier, and the exact finite C++ error-law comparison remains open.
 
 The Gaussian-cluster follow-up source-binds the actual 640-bit TFHEpp
 parameters and evaluates a radius-two fixed-weight orbit cloud without

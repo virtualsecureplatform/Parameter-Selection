@@ -422,13 +422,23 @@ python3 python/proof/tfhe_short_preimage_screen.py --self-test
 python3 python/proof/tfhe_short_preimage_screen.py --json
 ```
 
-The script computes the exact maximal integral row radius and the least source
-row counts for which all nonzero ternary coefficient vectors have enough
-cardinality to cover the suffix-only and full-secret target spaces, both with
-no slack and with a configurable multiplicity margin. For the current source,
-both candidate boxes pass this rowwise cardinality-and-noise screen. This is
-only a necessary feasibility result. A certificate still needs a
-high-probability random-matrix preimage theorem, a polynomial-time public
-inhomogeneous-SIS solver or a justified LWE trapdoor hybrid, simultaneous
-Gram-matrix control, the full-secret joint BRK/KSK reduction, and the finite
-table equality—or an explicit distance—for the concrete C++ error sampler.
+The script computes the exact maximal integral row radius and evaluates the
+canonical-ternary support-cluster second-moment bound
+
+```text
+(Q^d - 1)/N + (2^d - 1) H/N^2,
+N = (3^m - 1)/2,
+H = (5^m - 2*3^m + 1)/4.
+```
+
+It finds the least source-row block size meeting the requested failure both
+for one target and after the union bound over every KSK output. For the current
+source, the least all-target block sizes are 8044 (suffix-only) and 20764
+(full-secret); both fit the exact row-norm budget. Disjoint blocks therefore
+give an information-theoretic simultaneous Gram bound as well as existence.
+
+This does not yield an efficient simulator. Two related geometric-gadget
+preimages give a nonzero homogeneous SIS relation, so a generic polynomial-time
+public solver faces an explicit SIS barrier. The remaining practical proof
+needs such a solver or a justified LWE trapdoor hybrid, plus the finite-table
+equality—or an explicit distance—for the concrete C++ error sampler.
