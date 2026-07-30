@@ -310,3 +310,104 @@ command performs negacyclic arithmetic modulo `2^K`, checks capped valuation
 addition for the complete multiplier, and records `(e,v)`. The aggregation
 command requires the full joint row tuple; it never manufactures a product of
 marginal histograms.
+
+## TFHE subset-key joint-simulation screen
+
+`tfhe_subset_joint_screen.py` binds the centered-mixture joint BRK/KSK proof
+obligations to TFHEpp's default 128-bit TFHE parameters and subset-key source
+paths:
+
+```bash
+python3 python/proof/tfhe_subset_joint_screen.py --self-test
+python3 python/proof/tfhe_subset_joint_screen.py --json
+```
+
+The checker verifies the binary-prefix/IID-ternary-suffix sampler, the subset
+KSK dimensions, the top gadget scalar, the target error path, and the exact
+C++ `normal_distribution`-then-`dtot16` implementation. It also records SHA-256
+hashes of every source file used and reports whether a discovered CMake cache
+actually enables `USE_SUBSET_KEY`.
+
+For the current source parameters, the hidden suffix has dimension 394 and
+the KSK has 5516 ciphertext rows. Under the theorem's equal spherical
+source/target covariance, PSD correction forces every nonzero integral
+postprocessing row to be a signed selector and its residual to be zero. The
+interaction bound then holds exactly with interaction zero. A zero top-gadget
+row is not an alternative: its residual ternary variance exceeds the entire
+nominal target variance. If the reduction uses at most `2^127` source rows,
+the probability that any signed selector represents even one fixed target row
+of a uniform `ZMod (2^16)` matrix is at most `2^-6176`.
+
+Thus the current equal-covariance centered-mixture route does not certify the
+subset-key instance. This is a rejection of that sufficient proof route, not
+an insecurity result. Independently, the implemented rounded C++ normal law
+is not literally the continuous Gaussian used by the analytic pair-kernel
+identity; an exact finite-law theorem or an explicit approximation-distance
+charge remains necessary. The repository's detected build cache currently has
+`USE_SUBSET_KEY=OFF`, so the subset-key theorem is not the path taken by that
+particular build unless it is reconfigured.
+
+The same checker now evaluates the delayed-projection fallback. Instead of
+converting each source sample to the target word size before combining it, the
+simulator seeks a large-modulus relation
+
+```text
+L A = scale(G) + R
+```
+
+and converts only the final sum. The companion Lean theorem proves the exact
+rounded identity
+
+```text
+roundHigh(L(AZ + E)) = GZ + roundHigh(RZ + LE).
+```
+
+For the source-bound word sizes, the report computes the large-to-small scale,
+the source noise variance after continuous rescaling, and the resulting
+continuous source-only operator-norm ceiling. A nonzero residual consumes part
+of the same covariance budget. These values are proxy bookkeeping only: the
+checker does not identify the finite rounded error with a Gaussian density.
+
+The formal two-budget count says that primitive coefficient families `C_L`
+and residual families `C_R` solve one prescribed uniform row with probability
+at most
+
+```text
+|C_L| * |C_R| / |R|^suffix_dimension.
+```
+
+The image-aware Lean extension now treats arbitrary coefficient vectors. For
+each row it filters `C_R` to residuals for which `target + residual` belongs to
+the actual row-combination image, and divides only by that image cardinality.
+For a row `2^v u` over `ZMod (2^k)`, where `u` has a unit coordinate, the exact
+denominator is
+
+```text
+2^((k - v) * suffix_dimension).
+```
+
+The JSON field `valuation_strata` tabulates this entropy for every valuation.
+`implementation_lifted_gadget_strata` separately binds the target-word gadget
+shifts and digit multipliers in `subikskgen` to their valuations after the
+large-modulus lift. These gadget valuations describe the implementation's
+prescribed targets; they do not by themselves prove which valuation a short
+postprocessing row has. The formal development now supplies that second step
+automatically: every row over `ZMod (2^k)` on a nonempty finite index type is
+placed in its least bounded power-of-two stratum. In particular, the most
+divisible gadget rows have a much smaller denominator than the primitive
+screen, so using the primitive entropy for them would have been overly
+optimistic.
+
+The finite rounded-error plumbing is also formalized. The complete law of the
+secret, projected residual/source error, and independent correction is reduced
+to an explicit finite triple-convolution mass table. Pointwise equality of
+that table with the product of the secret and prescribed error tables is
+equivalent to exact independence; a total-variation version transports any
+nonzero approximation charge through gadget assembly.
+
+The automatic `2`-adic decomposition and finite convolution bridge are
+therefore closed, but the parameter is still not certified. A certificate
+must bound the compatible residual subset in every relevant stratum,
+construct an efficient public short-preimage solver, prove a simultaneous
+operator-norm bound for the full matrix, and instantiate the finite table
+equality—or an explicit distance—for the concrete C++ error sampler.
