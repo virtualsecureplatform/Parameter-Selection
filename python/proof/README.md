@@ -405,9 +405,30 @@ that table with the product of the secret and prescribed error tables is
 equivalent to exact independence; a total-variation version transports any
 nonzero approximation charge through gadget assembly.
 
-The automatic `2`-adic decomposition and finite convolution bridge are
-therefore closed, but the parameter is still not certified. A certificate
-must bound the compatible residual subset in every relevant stratum,
-construct an efficient public short-preimage solver, prove a simultaneous
-operator-norm bound for the full matrix, and instantiate the finite table
-equality—or an explicit distance—for the concrete C++ error sampler.
+The automatic `2`-adic decomposition, compatible centered-box count, exact
+invertible-minor construction, and finite convolution bridge are therefore
+closed. The exact parameter specialization also decides that particular
+solver: because it lifts every nonzero target-ring coefficient by the complete
+word scale, its minimum nonzero derived variance already exceeds the target
+variance. It cannot certify the current parameter.
+
+`tfhe_short_preimage_screen.py` checks the only remaining delayed-projection
+alternative identified here: a genuinely short high-modulus solution which
+uses surplus source rows and is not coefficientwise divisible by the word
+scale.
+
+```bash
+python3 python/proof/tfhe_short_preimage_screen.py --self-test
+python3 python/proof/tfhe_short_preimage_screen.py --json
+```
+
+The script computes the exact maximal integral row radius and the least source
+row counts for which all nonzero ternary coefficient vectors have enough
+cardinality to cover the suffix-only and full-secret target spaces, both with
+no slack and with a configurable multiplicity margin. For the current source,
+both candidate boxes pass this rowwise cardinality-and-noise screen. This is
+only a necessary feasibility result. A certificate still needs a
+high-probability random-matrix preimage theorem, a polynomial-time public
+inhomogeneous-SIS solver or a justified LWE trapdoor hybrid, simultaneous
+Gram-matrix control, the full-secret joint BRK/KSK reduction, and the finite
+table equality—or an explicit distance—for the concrete C++ error sampler.

@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import re
 from dataclasses import asdict, dataclass
 from fractions import Fraction
@@ -372,6 +373,15 @@ def analyse(root: Path, source_row_bound_bits: int = 127) -> dict[str, Any]:
     delayed_source_only_operator_norm_squared_ceiling = (
         nominal_variance / delayed_effective_source_variance
     )
+    delayed_source_only_operator_norm_integer_radius = math.isqrt(
+        delayed_source_only_operator_norm_squared_ceiling.numerator
+        // delayed_source_only_operator_norm_squared_ceiling.denominator
+    )
+    lifted_minor_minimum_high_modulus_norm = modulus_scale
+    lifted_minor_minimum_derived_variance = lvl1_integer_variance
+    lifted_minor_covariance_compatible = (
+        lifted_minor_minimum_derived_variance <= nominal_variance
+    )
     delayed_constraint_entropy_bits = (
         parameters.lvl1_torus_bits * parameters.suffix_dimension
     )
@@ -528,6 +538,17 @@ def analyse(root: Path, source_row_bound_bits: int = 127) -> dict[str, Any]:
                 "continuous_proxy_source_only_operator_norm_ceiling_decimal": str(
                     float(delayed_source_only_operator_norm_squared_ceiling) ** 0.5
                 ),
+                "exact_source_only_operator_norm_integer_radius": (
+                    delayed_source_only_operator_norm_integer_radius
+                ),
+                "next_integer_radius_exceeds_budget": (
+                    Fraction(
+                        lvl1_integer_variance
+                        * (delayed_source_only_operator_norm_integer_radius + 1) ** 2,
+                        modulus_scale * modulus_scale,
+                    )
+                    > nominal_variance
+                ),
                 "one_row_primitive_constraint_entropy_bits": (
                     delayed_constraint_entropy_bits
                 ),
@@ -544,17 +565,43 @@ def analyse(root: Path, source_row_bound_bits: int = 127) -> dict[str, Any]:
                 "nonprimitive_2adic_strata": (
                     "PASS_FORMAL_FIXED_AND_MIXED_POWER_OF_TWO_STRATUM_BOUNDS"
                 ),
-                "valuation_stratum_compatible_residual_counts": "OPEN",
+                "valuation_stratum_compatible_residual_counts": (
+                    "CLOSED_FOR_EXACT_SOLVER_BY_ZERO_RESIDUAL"
+                ),
                 "candidate_row_stratum_witnesses": (
                     "PASS_FORMAL_AUTOMATIC_LEAST_POWER_OF_TWO_STRATUM"
                 ),
-                "efficient_short_preimage_solver": "OPEN",
-                "full_matrix_operator_norm_control": "OPEN",
+                "invertible_minor_solver": (
+                    "PASS_FORMAL_EXACT_DISJOINT_BLOCK_SOLVER"
+                ),
+                "invertible_minor_minimum_high_modulus_norm": (
+                    lifted_minor_minimum_high_modulus_norm
+                ),
+                "invertible_minor_minimum_derived_variance": _fraction_json(
+                    lifted_minor_minimum_derived_variance
+                ),
+                "invertible_minor_covariance_compatible": (
+                    lifted_minor_covariance_compatible
+                ),
+                "invertible_minor_noise_budget": (
+                    "PASS"
+                    if lifted_minor_covariance_compatible
+                    else "FAIL_SOURCE_VARIANCE_ALREADY_EXCEEDS_TARGET"
+                ),
+                "full_matrix_operator_norm_control": (
+                    "PASS_FORMAL_FOR_INVERTIBLE_MINOR_SOLVER"
+                ),
+                "genuinely_short_high_modulus_preimage_solver": (
+                    "OPEN_RESEARCH_INHOMOGENEOUS_SIS"
+                ),
                 "exact_finite_joint_error_convolution": (
                     "PASS_FORMAL_EXACT_FINITE_MASS_TABLE_AND_TV_BRIDGE"
                 ),
                 "concrete_cpp_sampler_table_equality_or_distance": "OPEN",
-                "result": "NOT_YET_CERTIFIED_BUT_NOT_REJECTED_BY_SIGNED_SELECTOR_BOUND",
+                "result": (
+                    "FAIL_CURRENT_INVERTIBLE_MINOR_NOISE_BUDGET_"
+                    "SHORT_HIGH_MODULUS_PREIMAGE_OPEN"
+                ),
             },
         },
         "conclusion": {
@@ -564,18 +611,20 @@ def analyse(root: Path, source_row_bound_bits: int = 127) -> dict[str, Any]:
                 else "SUBSET_ROUTE_NOT_ACTIVE"
             ),
             "if_compiled_with_subset_key": (
-                "NOT_CERTIFIED_BY_CURRENT_EQUAL_COVARIANCE_CENTERED_MIXTURE_ROUTE"
+                "NOT_CERTIFIED_CURRENT_MINOR_SOLVER_FAILS_SHORT_PREIMAGE_OPEN"
             ),
             "reason": (
-                "PSD covariance forces exact signed-selector factorization, "
-                f"whose one-row success is at most 2^-{factorization_success_exponent}."
+                "The original covariance route forces signed selectors with one-row "
+                f"success at most 2^-{factorization_success_exponent}; the exact "
+                "invertible-minor delayed solver exists but its minimum nonzero derived "
+                "source variance already exceeds the target variance."
             ),
             "remaining_route": (
-                "Combine source rows at the 32-bit modulus, project once to 16 bits, "
-                "bound the compatible residual subsets in each automatic valuation stratum, "
-                "construct the efficient short-preimage solver with full operator-norm "
-                "control, and instantiate the finite mass-table equality or an explicit "
-                "distance for the concrete C++ sampler."
+                "Find a genuinely short 32-bit preimage L with L*A = 2^16*G "
+                f"and row norm at most {delayed_source_only_operator_norm_integer_radius}; "
+                "the proved invertible-minor solver instead lifts a nonzero target-ring row "
+                "and already exceeds the target covariance.  Then instantiate the finite "
+                "mass-table equality or an explicit distance for the concrete C++ sampler."
             ),
         },
     }
@@ -608,6 +657,20 @@ def self_test(root: Path) -> None:
         "denominator": "1",
         "decimal": "16384.0",
     }
+    assert (
+        checks["delayed_projection"][
+            "exact_source_only_operator_norm_integer_radius"
+        ]
+        == 3104
+    )
+    assert checks["delayed_projection"]["next_integer_radius_exceeds_budget"]
+    assert not checks["delayed_projection"][
+        "invertible_minor_covariance_compatible"
+    ]
+    assert (
+        checks["delayed_projection"]["invertible_minor_noise_budget"]
+        == "FAIL_SOURCE_VARIANCE_ALREADY_EXCEEDS_TARGET"
+    )
     assert (
         checks["delayed_projection"][
             "one_row_primitive_constraint_entropy_bits"
@@ -677,6 +740,14 @@ def _print_human(report: dict[str, Any]) -> None:
     print(
         "  delayed-projection route: "
         f"{checks['delayed_projection']['result']}"
+    )
+    print(
+        "  short high-modulus row radius: "
+        f"{checks['delayed_projection']['exact_source_only_operator_norm_integer_radius']}"
+    )
+    print(
+        "  invertible-minor noise budget: "
+        f"{checks['delayed_projection']['invertible_minor_noise_budget']}"
     )
     print(
         "  valuation-aware count: "

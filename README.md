@@ -101,6 +101,21 @@ specific sufficient condition already at its top gadget row. The matching
 Lean module checks the exact obstruction arithmetic; see
 `python/proof/README.md` for the result and its encoding/posterior scope.
 
+**TFHEpp subset-key delayed-projection screen** source-binds the current word
+sizes, dimensions, and error widths, rejects the lifted invertible-minor solver
+by its exact noise budget, and checks the necessary capacity and row-norm
+conditions for genuinely short high-modulus preimages:
+
+```bash
+python3 python/proof/tfhe_subset_joint_screen.py --self-test
+python3 python/proof/tfhe_short_preimage_screen.py --self-test
+python3 python/proof/tfhe_short_preimage_screen.py --json
+```
+
+Passing the short-preimage screen is not a security certificate: random-matrix
+existence, efficient public recovery, and simultaneous covariance control
+remain research obligations.
+
 The Gaussian-cluster follow-up source-binds the actual 640-bit TFHEpp
 parameters and evaluates a radius-two fixed-weight orbit cloud without
 enumeration. That cloud has `137.1463` bits of perfect-overlap capacity, but
