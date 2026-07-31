@@ -488,3 +488,47 @@ coefficients, gives about `2^49.8`. The suffix conversion is only a structured
 RLWE-as-LWE heuristic proxy, and none of these estimates is an insecurity
 theorem. They nevertheless fail the project's 128-bit parameter screen, so
 the current split is not certified by the correlated source-aligned theorem.
+
+## Correlated lvl02 candidate search
+
+The search excludes `lvlh2`: TFHEpp currently samples `lvlhalf` independently
+of `lvl2`, so that route is not an instance of the subset-prefix theorem.
+It would require a different two-key theorem or another secret sampler.
+
+The current 630-dimensional `lvl02` prefix remains below the adjusted
+security target even with a one-bit gadget base. The reproducible candidate
+screen therefore uses a balanced 1024/1024 split inside the existing
+2048-coefficient, 64-bit level-two ring:
+
+```bash
+python3 python/proof/tfhe_lvl02_correlated_candidate.py --self-test
+python3 python/proof/tfhe_lvl02_correlated_candidate.py --json
+```
+
+The selected gadget has 18 base-4 levels. It retains 36 decomposition bits,
+matching the default level-two profile, while lowering the complete
+worst-case factor-energy bound to 301989888. With fresh correction sigma
+`2^42` and threshold `2^60`, the exact Chernoff exponent is `1024/9` and the
+two-sided log-probability bound is about `-163.1` bits.
+
+The source-bound full estimator command is:
+
+```bash
+singularity exec --userns --cleanenv --no-home \
+  --env DOT_SAGE=/tmp/tfhe-source-aligned-sage \
+  --bind /path/to/lweprrof-workspace:/workspace \
+  --pwd /workspace/Parameter-Selection python/sagemath.sif \
+  sage -python \
+    python/estimates/tfhe_lvl02_correlated_candidate.py --mode full
+```
+
+With the vendored estimator and BDGL16 model, the minimum costs are about
+`2^139.3` for each required prefix-LWE problem, `2^146.9` for the conservative
+known-prefix suffix-RLWE-as-LWE proxy, and `2^213.1` for level-zero input TLWE
+when given the same deliberately large sample cap. All exceed the 131-bit
+per-term allocation used for the three factor-two reduction terms.
+
+This remains a modified-format candidate. The native TFHEpp evaluator does
+not generate or consume the widened correlated aligned KSK, and the finite
+sampler MGF, full bootstrap noise composition, and structured suffix-RLWE
+assumption remain proof obligations.
