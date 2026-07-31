@@ -442,3 +442,49 @@ preimages give a nonzero homogeneous SIS relation, so a generic polynomial-time
 public solver faces an explicit SIS barrier. The remaining practical proof
 needs such a solver or a justified LWE trapdoor hybrid, plus the finite-table
 equality—or an explicit distance—for the concrete C++ error sampler.
+
+## Correlated source-aligned TFHE screen
+
+`tfhe_source_aligned_screen.py` binds the modified correlated source-aligned
+BRK/KSK route to the current non-bundled TFHEpp source:
+
+```bash
+python3 python/proof/tfhe_source_aligned_screen.py --self-test
+python3 python/proof/tfhe_source_aligned_screen.py --json
+```
+
+It checks the source layout and computes 3780 BRK rows, 3870720 aligned scalar
+columns, centered digit radius 32, and complete factor-energy bound 3963617280.
+The correlated correctness identity cancels the complete reused BRK error. An
+independently sampled correction can therefore be analyzed after conditioning
+on the complete transcript-dependent factor, without a reachable-factor union
+bound. At the conservative `2^28` threshold, integer correction sigma 128 has
+two-sided subgaussian log-probability upper bound about `-799.4`; the largest
+integer sigma passing the isolated 128-bit component screen is 318.
+
+That calculation covers only the fresh correction term. The C++ finite sampler
+still needs an MGF certificate or an explicit comparison distance, and input
+noise, ordinary gadget-decomposition error, modulus switching, extraction, and
+decoding margins must be composed separately. More immediately, the current
+native subset KSK has 5516 rows and the audited headers contain no widened
+correlated aligned-KSK generator, so the modified target format is not the
+current implementation.
+
+The companion Sage script runs the required heuristic hardness proxies:
+
+```bash
+singularity exec --userns --cleanenv --no-home \
+  --env DOT_SAGE=/tmp/tfhe-source-aligned-sage \
+  --bind /path/to/lweprrof-workspace:/workspace \
+  --pwd /workspace/Parameter-Selection python/sagemath.sif \
+  sage -python python/estimates/tfhe_source_aligned.py --mode full
+```
+
+With the vendored lattice-estimator and BDGL16 cost model, the current prefix
+instance (`n=630`, `q=2^32`, `m=3870720`) has minimum estimated costs about
+`2^76.6` at sigma 128 and `2^80.4` at sigma 318. The known-prefix suffix-RLWE
+source, treated conservatively as ordinary LWE on 394 unknown ternary
+coefficients, gives about `2^49.8`. The suffix conversion is only a structured
+RLWE-as-LWE heuristic proxy, and none of these estimates is an insecurity
+theorem. They nevertheless fail the project's 128-bit parameter screen, so
+the current split is not certified by the correlated source-aligned theorem.
