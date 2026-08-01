@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Source-bound arithmetic screen for a correlated lvl02 candidate.
+"""Source-bound arithmetic screen for the parity-aligned lvl02 candidate.
 
 The candidate is intentionally a modified-format parameter profile.  It uses
 the exact correlated BRK/aligned-KSK error law proved in FormalProof4FHE; it is
-not executable through TFHEpp's native independent subset KSK.
+not executable through TFHEpp's native independent subset KSK.  Its suffix
+source is no longer a suffix-subspace assumption: the exact parity reduction
+identifies it with ordinary degree-1024 ternary RLWE using twice the BRK ring
+sample count.
 
 The screen binds the proposal to ``params/source_aligned_lvl02.hpp`` and
 computes every finite dimension and correctness exponent with integer or
@@ -49,6 +52,10 @@ class Candidate:
     @property
     def aligned_width(self) -> int:
         return self.brk_rows * self.ring_degree
+
+    @property
+    def suffix_rlwe_samples(self) -> int:
+        return 2 * self.brk_rows
 
     @property
     def digit_radius(self) -> int:
@@ -117,14 +124,29 @@ def _require(source: str, pattern: str, description: str) -> None:
         raise ValueError(f"candidate header does not bind {description}")
 
 
-def analyse(root: Path, failure_bits: int = 128) -> dict[str, Any]:
+def analyse(
+    root: Path,
+    failure_bits: int = 128,
+    formal_proof_root: Path | None = None,
+) -> dict[str, Any]:
     if failure_bits <= 0:
         raise ValueError("failure bits must be positive")
 
     header = root / "include/params/source_aligned_lvl02.hpp"
     key_header = root / "include/tfhe/key.hpp"
+    parity_header = root / "include/tfhe/sourcealignedlvl02.hpp"
+    trlwe_header = root / "include/tfhe/trlwe.hpp"
+    if formal_proof_root is None:
+        formal_proof_root = root.resolve().parent / "FormalProof4FHE"
+    parity_proof = (
+        formal_proof_root
+        / "FormalProof4FHE/TFHE/TFHEppCandidateLvl02ParitySecurity.lean"
+    )
     header_source = header.read_text(encoding="utf-8")
     key_source = key_header.read_text(encoding="utf-8")
+    parity_source = parity_header.read_text(encoding="utf-8")
+    trlwe_source = trlwe_header.read_text(encoding="utf-8")
+    parity_proof_source = parity_proof.read_text(encoding="utf-8")
     candidate = SELECTED
 
     bindings = {
@@ -135,6 +157,10 @@ def analyse(root: Path, failure_bits: int = 128) -> dict[str, Any]:
         "error_sigma": r"SourceAlignedLvl2Param[\s\S]*?error_sigma_log2\s*=\s*42\s*;",
         "binary_domain": r"SourceAlignedLvl0Param[\s\S]*?key_value_min\s*=\s*0\s*;",
         "ternary_target": r"SourceAlignedLvl2Param[\s\S]*?key_value_min\s*=\s*-1\s*;",
+        "paired_error_marker": (
+            r"SourceAlignedLvl2Param[\s\S]*?"
+            r"source_aligned_parity_error\s*=\s*true\s*;"
+        ),
     }
     for description, pattern in bindings.items():
         _require(header_source, pattern, description)
@@ -146,6 +172,34 @@ def analyse(root: Path, failure_bits: int = 128) -> dict[str, Any]:
             "std::get<Key<lvl0param>>(keys)[i]",
             "std::get<Key<lvl2param>>(keys)[i]",
             "std::get<Key<lvl1param>>(keys)[i]",
+        )
+    )
+    parity_key_law = all(
+        token in parity_source
+        for token in (
+            "sourceAlignedPrefixIndex",
+            "sourceAlignedSuffixIndex",
+            "sourceAlignedParityKeyGen",
+            "isSourceAlignedParityKeyPair",
+            "sourceAlignedBkfftGen",
+        )
+    )
+    parity_error_law = all(
+        token in trlwe_source
+        for token in (
+            "usesSourceAlignedParityError",
+            "sampleSourceAlignedParityErrorPair",
+            "joinSourceAlignedParityError",
+        )
+    )
+    exact_parity_reduction = all(
+        token in parity_proof_source
+        for token in (
+            "smallTernaryRLWEProblem",
+            "RLWE.problem (2 ^ 64) 1024 (2 * brkRowCount)",
+            "paritySuffixAdvantage_eq_smallTernaryRLWE",
+            "endpointAdvantage_le_smallRLWE_and_prefix",
+            "2 * epsilonRLWE + 4 * epsilonPrefix",
         )
     )
     all_headers = "\n".join(
@@ -170,8 +224,11 @@ def analyse(root: Path, failure_bits: int = 128) -> dict[str, Any]:
                 "claim about TFHEpp's native independent subset KSK."
             ),
             "tfhepp_root": str(root.resolve()),
+            "formal_proof_root": str(formal_proof_root.resolve()),
             "failure_target_bits": failure_bits,
-            "source_binding_ok": True,
+            "source_binding_ok": (
+                parity_key_law and parity_error_law and exact_parity_reduction
+            ),
             "lvlh2_exclusion": (
                 "The current lvlhalf key is sampled independently of lvl2, "
                 "so lvlh2 is not an instance of the subset-prefix theorem."
@@ -181,7 +238,17 @@ def analyse(root: Path, failure_bits: int = 128) -> dict[str, Any]:
             "candidate_header": str(header.relative_to(root)),
             "candidate_header_sha256": _sha256(header),
             "key_header_sha256": _sha256(key_header),
+            "parity_header": str(parity_header.relative_to(root)),
+            "parity_header_sha256": _sha256(parity_header),
+            "trlwe_header_sha256": _sha256(trlwe_header),
+            "parity_proof": str(parity_proof.relative_to(formal_proof_root)),
+            "parity_proof_sha256": _sha256(parity_proof),
             "default_subset_chain_lvl0_through_lvl1_to_lvl2": subset_chain,
+            "proof_aligned_parity_key_law_detected": parity_key_law,
+            "proof_aligned_paired_error_law_detected": parity_error_law,
+            "exact_ordinary_ternary_rlwe_reduction_detected": (
+                exact_parity_reduction
+            ),
             "native_correlated_aligned_ksk_detected": native_aligned_format,
             "candidate_registered_in_secret_key": False,
         },
@@ -190,6 +257,7 @@ def analyse(root: Path, failure_bits: int = 128) -> dict[str, Any]:
             "suffix_dimension": candidate.suffix_dimension,
             "rows_per_control": candidate.rows_per_control,
             "brk_rows": candidate.brk_rows,
+            "suffix_rlwe_samples": candidate.suffix_rlwe_samples,
             "aligned_width": candidate.aligned_width,
             "digit_radius": candidate.digit_radius,
             "factor_energy_bound": candidate.factor_energy_bound,
@@ -217,16 +285,23 @@ def analyse(root: Path, failure_bits: int = 128) -> dict[str, Any]:
                 "sigma": candidate.fresh_sigma,
                 "multiplicity": 2,
             },
-            "suffix_proxy": {
-                "kind": "known-prefix suffix-RLWE as ordinary-LWE proxy",
+            "suffix_ordinary_ternary_rlwe": {
+                "kind": "ordinary degree-1024 ternary RLWE",
                 "n": candidate.suffix_dimension,
+                "ring_degree": candidate.suffix_dimension,
+                "ring_rank": 1,
                 "q": 1 << candidate.torus_bits,
-                "m": candidate.aligned_width,
+                "m": candidate.suffix_rlwe_samples,
                 "sigma": candidate.fresh_sigma,
                 "multiplicity": 2,
+                "formal_reduction": (
+                    "Exact parity scalarization and odd-secret reduction to "
+                    "ordinary ternary RLWE."
+                ),
                 "warning": (
-                    "Scalarizing all rotations as ordinary LWE is a "
-                    "conservative heuristic proxy, not a reduction theorem."
+                    "The formal source reduction is exact.  Treating this "
+                    "RLWE instance as coefficient LWE in lattice-estimator "
+                    "is still heuristic attack evidence, not a theorem."
                 ),
             },
             "input_tlwe": {
@@ -250,37 +325,48 @@ def analyse(root: Path, failure_bits: int = 128) -> dict[str, Any]:
             "fresh_component_meets_requested_tail": (
                 _log2_two_sided_tail(exponent) <= -failure_bits
             ),
+            "proof_aligned_parity_key_law_implemented": parity_key_law,
+            "proof_aligned_paired_error_law_implemented": parity_error_law,
+            "exact_ordinary_ternary_rlwe_reduction_formalized": (
+                exact_parity_reduction
+            ),
             "modified_format_implemented": native_aligned_format,
         },
         "remaining_obligations": [
             "finite modular-Gaussian MGF certificate",
             "complete ordinary bootstrap rounding/noise composition",
-            "formal suffix-RLWE hardness assumption rather than its LWE proxy",
+            "ordinary ternary-RLWE hardness premise; estimator output is heuristic evidence",
             "widened correlated aligned-KSK generator and evaluator",
         ],
         "conclusion": {
             "arithmetic_correctness_candidate": True,
             "native_tfhepp_parameter_certified": False,
             "reason": (
-                "The isolated correction arithmetic passes, but security is "
-                "heuristic and the correlated aligned format is not implemented."
+                "The suffix is now exactly ordinary ternary RLWE and the "
+                "TFHEpp key/error samplers match the parity law.  The isolated "
+                "correction arithmetic passes, but the correlated aligned KSK "
+                "and complete correctness certificate remain absent."
             ),
         },
     }
 
 
-def self_test(root: Path) -> None:
-    report = analyse(root)
+def self_test(root: Path, formal_proof_root: Path | None = None) -> None:
+    report = analyse(root, formal_proof_root=formal_proof_root)
     candidate = report["candidate"]
     assert candidate["suffix_dimension"] == 1024
     assert candidate["rows_per_control"] == 36
     assert candidate["brk_rows"] == 36_864
+    assert candidate["suffix_rlwe_samples"] == 73_728
     assert candidate["aligned_width"] == 75_497_472
     assert candidate["digit_radius"] == 2
     assert candidate["factor_energy_bound"] == 301_989_888
     assert candidate["chernoff_exponent"]["numerator"] == 1024
     assert candidate["chernoff_exponent"]["denominator"] == 9
     assert report["checks"]["fresh_component_meets_requested_tail"]
+    assert report["checks"]["proof_aligned_parity_key_law_implemented"]
+    assert report["checks"]["proof_aligned_paired_error_law_implemented"]
+    assert report["checks"]["exact_ordinary_ternary_rlwe_reduction_formalized"]
     assert not report["checks"]["modified_format_implemented"]
 
 
@@ -298,14 +384,27 @@ def _print_human(report: dict[str, Any]) -> None:
         f"{candidate['decomposition_bits']} bits"
     )
     print(
-        "  BRK rows / aligned width / factor energy: "
-        f"{candidate['brk_rows']} / {candidate['aligned_width']} / "
+        "  BRK rows / suffix RLWE samples: "
+        f"{candidate['brk_rows']} / {candidate['suffix_rlwe_samples']}"
+    )
+    print(
+        "  aligned width / factor energy: "
+        f"{candidate['aligned_width']} / "
         f"{candidate['factor_energy_bound']}"
     )
     print(f"  fresh sigma: {candidate['fresh_sigma']}")
     print(
         "  fresh-component log2 failure bound: "
         f"{candidate['log2_two_sided_tail_upper_bound']:.3f}"
+    )
+    print(
+        "  proof-aligned key/error samplers: "
+        f"{report['checks']['proof_aligned_parity_key_law_implemented']} / "
+        f"{report['checks']['proof_aligned_paired_error_law_implemented']}"
+    )
+    print(
+        "  exact ordinary ternary-RLWE reduction: "
+        f"{report['checks']['exact_ordinary_ternary_rlwe_reduction_formalized']}"
     )
     print(
         "  native correlated format implemented: "
@@ -315,16 +414,24 @@ def _print_human(report: dict[str, Any]) -> None:
 
 def main() -> None:
     default_root = Path(__file__).resolve().parents[3] / "TFHEpp"
+    default_formal_proof_root = (
+        Path(__file__).resolve().parents[3] / "FormalProof4FHE"
+    )
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tfhepp-root", type=Path, default=default_root)
+    parser.add_argument(
+        "--formal-proof-root", type=Path, default=default_formal_proof_root
+    )
     parser.add_argument("--failure-bits", type=int, default=128)
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
 
     if args.self_test:
-        self_test(args.tfhepp_root)
-    report = analyse(args.tfhepp_root, args.failure_bits)
+        self_test(args.tfhepp_root, args.formal_proof_root)
+    report = analyse(
+        args.tfhepp_root, args.failure_bits, args.formal_proof_root
+    )
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=True))
     else:

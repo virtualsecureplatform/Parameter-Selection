@@ -497,8 +497,10 @@ It would require a different two-key theorem or another secret sampler.
 
 The current 630-dimensional `lvl02` prefix remains below the adjusted
 security target even with a one-bit gadget base. The reproducible candidate
-screen therefore uses a balanced 1024/1024 split inside the existing
-2048-coefficient, 64-bit level-two ring:
+screen therefore uses a balanced parity layout inside the existing
+2048-coefficient, 64-bit level-two ring. The binary lvl0 key occupies the even
+coefficients and an independently sampled centered-ternary degree-1024 key
+occupies the odd coefficients:
 
 ```bash
 python3 python/proof/tfhe_lvl02_correlated_candidate.py --self-test
@@ -511,6 +513,14 @@ worst-case factor-energy bound to 301989888. With fresh correction sigma
 `2^42` and threshold `2^60`, the exact Chernoff exponent is `1024/9` and the
 two-sided log-probability bound is about `-163.1` bits.
 
+The parity scalarization and odd-secret reduction now identify the complete
+suffix source exactly with ordinary degree-1024 centered-ternary RLWE using
+`2 * 36864 = 73728` ring samples. This removes the former suffix-subspace
+hardness premise and the obsolete 75497472-sample suffix proxy. The source
+screen also checks that TFHEpp implements the even/odd joint-key sampler and
+the paired half-ring error sampler. The two binary-prefix LWE terms retain
+dimension 1024 and 75497472 scalar samples.
+
 The source-bound full estimator command is:
 
 ```bash
@@ -522,13 +532,26 @@ singularity exec --userns --cleanenv --no-home \
     python/estimates/tfhe_lvl02_correlated_candidate.py --mode full
 ```
 
-With the vendored estimator and BDGL16 model, the minimum costs are about
-`2^139.3` for each required prefix-LWE problem, `2^146.9` for the conservative
-known-prefix suffix-RLWE-as-LWE proxy, and `2^213.1` for level-zero input TLWE
-when given the same deliberately large sample cap. All exceed the 131-bit
-per-term allocation used for the three factor-two reduction terms.
+With the vendored estimator and the full BDGL16 model, the minimum costs are
+about `2^139.3` for each required prefix-LWE problem, `2^146.9` for the
+coefficient-LWE attack proxy of the ordinary ternary-RLWE endpoint, and
+`2^213.1` for level-zero input TLWE when given the same deliberately large
+sample cap. All exceed the 131-bit per-term allocation used for the three
+factor-two reduction terms. The suffix attack optimizer uses only 1024 of the
+73728 available samples, so correcting the source sample count does not change
+its full-model minimum from the earlier run.
 
-This remains a modified-format candidate. The native TFHEpp evaluator does
-not generate or consume the widened correlated aligned KSK, and the finite
-sampler MGF, full bootstrap noise composition, and structured suffix-RLWE
-assumption remain proof obligations.
+`--mode rough` uses lattice-estimator's distinct ADPS16 Core-SVP/GSA model,
+not BDGL16, and gives approximately `2^111.1`, `2^118.6`, and `2^186.3` for
+the same three cases. The lattice-estimator documentation explicitly says
+that rough-mode numbers are not directly comparable with its full default
+API. Thus the candidate passes the project's designated full BDGL16 screen,
+but that conclusion is cost-model-dependent rather than a theorem.
+
+This remains a modified-format candidate. TFHEpp now samples the exact parity
+secret and error laws, but its evaluator still does not generate or consume
+the widened correlated aligned KSK. The finite-sampler MGF certificate and
+full bootstrap noise composition also remain proof obligations. Ordinary
+ternary-RLWE hardness is the standard computational premise at the exact
+suffix endpoint; the coefficient-LWE estimator calculation is only heuristic
+attack evidence for it.

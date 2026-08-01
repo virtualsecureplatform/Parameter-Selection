@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Full lattice-estimator screen for the correlated lvl02 candidate."""
+"""Lattice-estimator screen for the parity-aligned lvl02 candidate.
+
+The Lean reduction makes the suffix source ordinary ternary RLWE exactly.
+Because lattice-estimator consumes LWE instances, this script continues the
+project convention of using its coefficient-LWE image as heuristic attack
+evidence; that numerical image is not the formal security reduction.
+"""
 
 from __future__ import annotations
 
@@ -63,8 +69,8 @@ def run(mode: str) -> dict[str, Any]:
     cases = [
         _parameters("candidate-prefix", instances["prefix_first"], "binary"),
         _parameters(
-            "candidate-known-prefix-suffix-lwe-proxy",
-            instances["suffix_proxy"],
+            "candidate-ordinary-ternary-rlwe-lwe-attack-proxy",
+            instances["suffix_ordinary_ternary_rlwe"],
             "ternary",
         ),
         _parameters("candidate-input-tlwe", instances["input_tlwe"], "binary"),
@@ -73,12 +79,19 @@ def run(mode: str) -> dict[str, Any]:
     output = {
         "scope": {
             "mode": mode,
-            "cost_model": "BDGL16",
+            "cost_model": (
+                "ADPS16 Core-SVP with GSA (lattice-estimator rough mode)"
+                if mode == "rough"
+                else "BDGL16"
+            ),
             "individual_target_bits": 128,
             "reduction_adjusted_target_bits": 131,
             "warning": (
-                "Heuristic lattice-estimator costs.  The suffix calculation "
-                "forgets negacyclic structure and is not a formal reduction."
+                "Heuristic lattice-estimator costs.  The formal parity "
+                "reduction reaches ordinary ternary RLWE exactly; only its "
+                "coefficient-LWE numerical attack model is heuristic.  Rough "
+                "and full estimates use different reduction-cost models and "
+                "are not directly comparable."
             ),
         },
         "source_candidate": source["candidate"],
@@ -120,6 +133,8 @@ def main() -> None:
         print(json.dumps(result, indent=2, sort_keys=True))
     else:
         print("=" * 72)
+        print(f"mode: {result['scope']['mode']}")
+        print(f"cost model: {result['scope']['cost_model']}")
         for name, item in result["cases"].items():
             print(
                 f"{name}: min log2(rop)={item['minimum_rop_log2']:.3f}, "
