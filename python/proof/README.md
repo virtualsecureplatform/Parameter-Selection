@@ -509,9 +509,25 @@ python3 python/proof/tfhe_lvl02_correlated_candidate.py --json
 
 The selected gadget has 18 base-4 levels. It retains 36 decomposition bits,
 matching the default level-two profile, while lowering the complete
-worst-case factor-energy bound to 301989888. With fresh correction sigma
-`2^42` and threshold `2^60`, the exact Chernoff exponent is `1024/9` and the
-two-sided log-probability bound is about `-163.1` bits.
+worst-case factor-energy bound to 301989888. With conservative correction
+proxy sigma `2^42` and threshold `2^60`, the certified Chernoff exponent is
+`1024/9` and the two-sided log-probability bound is about `-163.1` bits.
+
+The proof-profile error is no longer sampled through the implementation-defined
+floating-point normal distribution. Each coefficient is exactly
+
+```text
+2^38 * (R_1 + ... + R_255) + (U - V),
+```
+
+for independent uniform signs `R_i` and independent uniform 32-bit integers
+`U,V`. Its exact variance is
+`255 * 2^76 + (2^64 - 1)/6`. The Lean finite-product proof gives the MGF proxy
+`255 * 2^76 + (2^64 - 1)/3 < 2^84`, then instantiates the spherical evaluator
+certificate and the transcript-adaptive tail theorem. The source screen binds
+those constants and theorem names to TFHEpp's integer decoder. Thus the
+historical `2^42` correctness proxy remains conservative; using the sharper
+proved proxy would change the isolated log-tail bound only slightly.
 
 The parity scalarization and odd-secret reduction now identify the complete
 suffix source exactly with ordinary degree-1024 centered-ternary RLWE using
@@ -533,13 +549,16 @@ singularity exec --userns --cleanenv --no-home \
 ```
 
 With the vendored estimator and the full BDGL16 model, the minimum costs are
-about `2^139.3` for each required prefix-LWE problem, `2^146.9` for the
+about `2^139.0` for each required prefix-LWE problem, `2^146.9` for the
 coefficient-LWE attack proxy of the ordinary ternary-RLWE endpoint, and
 `2^213.1` for level-zero input TLWE when given the same deliberately large
 sample cap. All exceed the 131-bit per-term allocation used for the three
 factor-two reduction terms. The suffix attack optimizer uses only 1024 of the
 73728 available samples, so correcting the source sample count does not change
-its full-model minimum from the earlier run.
+its full-model minimum from the earlier run. For the two proof-profile error
+instances, the estimator receives a discrete Gaussian with the exact finite
+law's standard deviation. This variance-matched substitution is heuristic and
+is not a hardness reduction for the finite law.
 
 `--mode rough` uses lattice-estimator's distinct ADPS16 Core-SVP/GSA model,
 not BDGL16, and gives approximately `2^111.1`, `2^118.6`, and `2^186.3` for
@@ -550,8 +569,10 @@ but that conclusion is cost-model-dependent rather than a theorem.
 
 This remains a modified-format candidate. TFHEpp now samples the exact parity
 secret and error laws, but its evaluator still does not generate or consume
-the widened correlated aligned KSK. The finite-sampler MGF certificate and
-full bootstrap noise composition also remain proof obligations. Ordinary
-ternary-RLWE hardness is the standard computational premise at the exact
-suffix endpoint; the coefficient-LWE estimator calculation is only heuristic
-attack evidence for it.
+the widened correlated aligned KSK. The finite-sampler MGF obligation is now
+discharged. Complete bootstrap rounding/noise composition remains proof work,
+and the configured CSPRNG is modeled as supplying ideal independent uniform
+bits. Ordinary ternary-RLWE hardness for this exact finite error law is the
+computational premise at the suffix endpoint; the variance-matched
+coefficient-LWE estimator calculation is only heuristic attack evidence for
+it.

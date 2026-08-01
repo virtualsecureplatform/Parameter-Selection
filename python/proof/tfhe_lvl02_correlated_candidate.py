@@ -36,6 +36,9 @@ class Candidate:
     gadget_basebit: int
     torus_bits: int
     fresh_sigma: int
+    finite_error_coarse_count: int
+    finite_error_coarse_scale_log2: int
+    finite_error_dither_bits: int
 
     @property
     def suffix_dimension(self) -> int:
@@ -81,6 +84,35 @@ class Candidate:
     def decomposition_bits(self) -> int:
         return self.gadget_levels * self.gadget_basebit
 
+    @property
+    def finite_error_variance(self) -> Fraction:
+        coarse = self.finite_error_coarse_count * (
+            1 << (2 * self.finite_error_coarse_scale_log2)
+        )
+        dither = Fraction(
+            (1 << (2 * self.finite_error_dither_bits)) - 1, 6
+        )
+        return Fraction(coarse) + dither
+
+    @property
+    def finite_error_stddev(self) -> float:
+        return math.sqrt(float(self.finite_error_variance))
+
+    @property
+    def finite_error_mgf_proxy(self) -> int:
+        coarse = self.finite_error_coarse_count * (
+            1 << (2 * self.finite_error_coarse_scale_log2)
+        )
+        dither = ((1 << (2 * self.finite_error_dither_bits)) - 1) // 3
+        return coarse + dither
+
+    @property
+    def finite_error_chernoff_exponent(self) -> Fraction:
+        return Fraction(
+            self.threshold**2,
+            2 * self.finite_error_mgf_proxy * self.factor_energy_bound,
+        )
+
 
 SELECTED = Candidate(
     prefix_dimension=1024,
@@ -90,6 +122,9 @@ SELECTED = Candidate(
     gadget_basebit=2,
     torus_bits=64,
     fresh_sigma=1 << 42,
+    finite_error_coarse_count=255,
+    finite_error_coarse_scale_log2=38,
+    finite_error_dither_bits=32,
 )
 
 
@@ -142,11 +177,21 @@ def analyse(
         formal_proof_root
         / "FormalProof4FHE/TFHE/TFHEppCandidateLvl02ParitySecurity.lean"
     )
+    finite_error_proof = (
+        formal_proof_root
+        / "FormalProof4FHE/TFHE/SourceAlignedProofErrorSampler.lean"
+    )
+    parameter_proof = (
+        formal_proof_root
+        / "FormalProof4FHE/TFHE/TFHEppSourceAlignedParameterScreen.lean"
+    )
     header_source = header.read_text(encoding="utf-8")
     key_source = key_header.read_text(encoding="utf-8")
     parity_source = parity_header.read_text(encoding="utf-8")
     trlwe_source = trlwe_header.read_text(encoding="utf-8")
     parity_proof_source = parity_proof.read_text(encoding="utf-8")
+    finite_error_proof_source = finite_error_proof.read_text(encoding="utf-8")
+    parameter_proof_source = parameter_proof.read_text(encoding="utf-8")
     candidate = SELECTED
 
     bindings = {
@@ -160,6 +205,19 @@ def analyse(
         "paired_error_marker": (
             r"SourceAlignedLvl2Param[\s\S]*?"
             r"source_aligned_parity_error\s*=\s*true\s*;"
+        ),
+        "finite_error_marker": (
+            r"SourceAlignedLvl2Param[\s\S]*?"
+            r"source_aligned_finite_error\s*=\s*true\s*;"
+        ),
+        "finite_error_coarse_count": (
+            r"source_aligned_error_coarse_count\s*=\s*255\s*;"
+        ),
+        "finite_error_coarse_scale": (
+            r"source_aligned_error_coarse_scale_log2\s*=\s*38\s*;"
+        ),
+        "finite_error_dither_bits": (
+            r"source_aligned_error_dither_bits\s*=\s*32\s*;"
         ),
     }
     for description, pattern in bindings.items():
@@ -192,6 +250,18 @@ def analyse(
             "joinSourceAlignedParityError",
         )
     )
+    finite_error_law = all(
+        token in trlwe_source
+        for token in (
+            "SourceAlignedProofErrorCoins",
+            "decodeSourceAlignedProofError",
+            "sampleSourceAlignedProofErrorCoins",
+            "sampleSourceAlignedProofError",
+            "std::popcount",
+            "dither_positive",
+            "dither_negative",
+        )
+    )
     exact_parity_reduction = all(
         token in parity_proof_source
         for token in (
@@ -200,6 +270,24 @@ def analyse(
             "paritySuffixAdvantage_eq_smallTernaryRLWE",
             "endpointAdvantage_le_smallRLWE_and_prefix",
             "2 * epsilonRLWE + 4 * epsilonPrefix",
+        )
+    )
+    exact_finite_mgf = all(
+        token in finite_error_proof_source
+        for token in (
+            "def coarseCount : ℕ := 255",
+            "def coarseScaleLog : ℕ := 38",
+            "def ditherBits : ℕ := 32",
+            "expectation_exp_decodeReal_le_two_pow",
+            "expectation_exp_dotProduct_noiseVector_le",
+            "sphericalCertificate",
+        )
+    ) and all(
+        token in parameter_proof_source
+        for token in (
+            "finiteSamplerCovariance_eq",
+            "finiteFreshNoiseCertificate",
+            "finiteSampler_adaptiveAbsTail",
         )
     )
     all_headers = "\n".join(
@@ -227,7 +315,11 @@ def analyse(
             "formal_proof_root": str(formal_proof_root.resolve()),
             "failure_target_bits": failure_bits,
             "source_binding_ok": (
-                parity_key_law and parity_error_law and exact_parity_reduction
+                parity_key_law
+                and parity_error_law
+                and finite_error_law
+                and exact_parity_reduction
+                and exact_finite_mgf
             ),
             "lvlh2_exclusion": (
                 "The current lvlhalf key is sampled independently of lvl2, "
@@ -243,9 +335,19 @@ def analyse(
             "trlwe_header_sha256": _sha256(trlwe_header),
             "parity_proof": str(parity_proof.relative_to(formal_proof_root)),
             "parity_proof_sha256": _sha256(parity_proof),
+            "finite_error_proof": str(
+                finite_error_proof.relative_to(formal_proof_root)
+            ),
+            "finite_error_proof_sha256": _sha256(finite_error_proof),
+            "parameter_proof": str(
+                parameter_proof.relative_to(formal_proof_root)
+            ),
+            "parameter_proof_sha256": _sha256(parameter_proof),
             "default_subset_chain_lvl0_through_lvl1_to_lvl2": subset_chain,
             "proof_aligned_parity_key_law_detected": parity_key_law,
             "proof_aligned_paired_error_law_detected": parity_error_law,
+            "exact_finite_error_decoder_detected": finite_error_law,
+            "exact_finite_error_mgf_certificate_detected": exact_finite_mgf,
             "exact_ordinary_ternary_rlwe_reduction_detected": (
                 exact_parity_reduction
             ),
@@ -267,6 +369,30 @@ def analyse(
             "fresh_sigma_ceiling_for_requested_tail": sigma_ceiling,
             "chernoff_exponent": _fraction(exponent),
             "log2_two_sided_tail_upper_bound": _log2_two_sided_tail(exponent),
+            "finite_error_law": {
+                "formula": "2^38 * sum_{j=1}^{255} R_j + (U - V)",
+                "coarse_count": candidate.finite_error_coarse_count,
+                "coarse_scale_log2": (
+                    candidate.finite_error_coarse_scale_log2
+                ),
+                "dither_bits": candidate.finite_error_dither_bits,
+                "variance": _fraction(candidate.finite_error_variance),
+                "standard_deviation": candidate.finite_error_stddev,
+                "proved_mgf_proxy": candidate.finite_error_mgf_proxy,
+                "configured_mgf_proxy": candidate.fresh_sigma**2,
+                "proved_proxy_below_configured": (
+                    candidate.finite_error_mgf_proxy
+                    <= candidate.fresh_sigma**2
+                ),
+                "sharper_chernoff_exponent": _fraction(
+                    candidate.finite_error_chernoff_exponent
+                ),
+                "log2_sharper_two_sided_tail_upper_bound": (
+                    _log2_two_sided_tail(
+                        candidate.finite_error_chernoff_exponent
+                    )
+                ),
+            },
         },
         "hardness_instances": {
             "prefix_first": {
@@ -274,7 +400,11 @@ def analyse(
                 "n": candidate.prefix_dimension,
                 "q": 1 << candidate.torus_bits,
                 "m": candidate.aligned_width,
-                "sigma": candidate.fresh_sigma,
+                "sigma": candidate.finite_error_stddev,
+                "error_model": (
+                    "variance-matched discrete-Gaussian attack proxy for the "
+                    "exact finite implementation law"
+                ),
                 "multiplicity": 2,
             },
             "prefix_second": {
@@ -282,7 +412,11 @@ def analyse(
                 "n": candidate.prefix_dimension,
                 "q": 1 << candidate.torus_bits,
                 "m": candidate.aligned_width,
-                "sigma": candidate.fresh_sigma,
+                "sigma": candidate.finite_error_stddev,
+                "error_model": (
+                    "variance-matched discrete-Gaussian attack proxy for the "
+                    "exact finite implementation law"
+                ),
                 "multiplicity": 2,
             },
             "suffix_ordinary_ternary_rlwe": {
@@ -292,7 +426,11 @@ def analyse(
                 "ring_rank": 1,
                 "q": 1 << candidate.torus_bits,
                 "m": candidate.suffix_rlwe_samples,
-                "sigma": candidate.fresh_sigma,
+                "sigma": candidate.finite_error_stddev,
+                "error_model": (
+                    "variance-matched discrete-Gaussian attack proxy for the "
+                    "exact finite implementation law"
+                ),
                 "multiplicity": 2,
                 "formal_reduction": (
                     "Exact parity scalarization and odd-secret reduction to "
@@ -300,8 +438,9 @@ def analyse(
                 ),
                 "warning": (
                     "The formal source reduction is exact.  Treating this "
-                    "RLWE instance as coefficient LWE in lattice-estimator "
-                    "is still heuristic attack evidence, not a theorem."
+                    "RLWE instance as coefficient LWE with a variance-matched "
+                    "discrete Gaussian in lattice-estimator is still "
+                    "heuristic attack evidence, not a theorem."
                 ),
             },
             "input_tlwe": {
@@ -327,25 +466,36 @@ def analyse(
             ),
             "proof_aligned_parity_key_law_implemented": parity_key_law,
             "proof_aligned_paired_error_law_implemented": parity_error_law,
+            "exact_finite_error_decoder_implemented": finite_error_law,
+            "exact_finite_error_mgf_certificate_formalized": exact_finite_mgf,
+            "finite_error_proxy_matches_parameter": (
+                candidate.finite_error_mgf_proxy <= candidate.fresh_sigma**2
+            ),
             "exact_ordinary_ternary_rlwe_reduction_formalized": (
                 exact_parity_reduction
             ),
             "modified_format_implemented": native_aligned_format,
         },
         "remaining_obligations": [
-            "finite modular-Gaussian MGF certificate",
             "complete ordinary bootstrap rounding/noise composition",
-            "ordinary ternary-RLWE hardness premise; estimator output is heuristic evidence",
+            (
+                "ordinary ternary-RLWE/LWE hardness for the exact finite "
+                "error law; the variance-matched estimator output is "
+                "heuristic evidence"
+            ),
             "widened correlated aligned-KSK generator and evaluator",
+            "standard ideal-uniform-bit model for configured CSPRNG outputs",
         ],
         "conclusion": {
             "arithmetic_correctness_candidate": True,
             "native_tfhepp_parameter_certified": False,
             "reason": (
-                "The suffix is now exactly ordinary ternary RLWE and the "
-                "TFHEpp key/error samplers match the parity law.  The isolated "
-                "correction arithmetic passes, but the correlated aligned KSK "
-                "and complete correctness certificate remain absent."
+                "The suffix is now exactly ordinary ternary RLWE, and the "
+                "TFHEpp key/error samplers match the parity law.  The exact "
+                "finite sampler now has the required MGF certificate.  The "
+                "isolated correction arithmetic passes, but the correlated "
+                "aligned KSK and complete bootstrap noise composition remain "
+                "absent."
             ),
         },
     }
@@ -363,9 +513,16 @@ def self_test(root: Path, formal_proof_root: Path | None = None) -> None:
     assert candidate["factor_energy_bound"] == 301_989_888
     assert candidate["chernoff_exponent"]["numerator"] == 1024
     assert candidate["chernoff_exponent"]["denominator"] == 9
+    finite_error = candidate["finite_error_law"]
+    assert finite_error["variance"]["denominator"] == 2
+    assert finite_error["proved_proxy_below_configured"]
+    assert finite_error["sharper_chernoff_exponent"]["decimal"] > 1024 / 9
     assert report["checks"]["fresh_component_meets_requested_tail"]
     assert report["checks"]["proof_aligned_parity_key_law_implemented"]
     assert report["checks"]["proof_aligned_paired_error_law_implemented"]
+    assert report["checks"]["exact_finite_error_decoder_implemented"]
+    assert report["checks"]["exact_finite_error_mgf_certificate_formalized"]
+    assert report["checks"]["finite_error_proxy_matches_parameter"]
     assert report["checks"]["exact_ordinary_ternary_rlwe_reduction_formalized"]
     assert not report["checks"]["modified_format_implemented"]
 
@@ -392,7 +549,11 @@ def _print_human(report: dict[str, Any]) -> None:
         f"{candidate['aligned_width']} / "
         f"{candidate['factor_energy_bound']}"
     )
-    print(f"  fresh sigma: {candidate['fresh_sigma']}")
+    print(f"  correctness proxy sigma: {candidate['fresh_sigma']}")
+    print(
+        "  exact finite-law standard deviation: "
+        f"{candidate['finite_error_law']['standard_deviation']:.6f}"
+    )
     print(
         "  fresh-component log2 failure bound: "
         f"{candidate['log2_two_sided_tail_upper_bound']:.3f}"
@@ -405,6 +566,11 @@ def _print_human(report: dict[str, Any]) -> None:
     print(
         "  exact ordinary ternary-RLWE reduction: "
         f"{report['checks']['exact_ordinary_ternary_rlwe_reduction_formalized']}"
+    )
+    print(
+        "  exact finite decoder / MGF certificate: "
+        f"{report['checks']['exact_finite_error_decoder_implemented']} / "
+        f"{report['checks']['exact_finite_error_mgf_certificate_formalized']}"
     )
     print(
         "  native correlated format implemented: "

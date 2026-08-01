@@ -4,7 +4,9 @@
 The Lean reduction makes the suffix source ordinary ternary RLWE exactly.
 Because lattice-estimator consumes LWE instances, this script continues the
 project convention of using its coefficient-LWE image as heuristic attack
-evidence; that numerical image is not the formal security reduction.
+evidence.  It also replaces the exact finite error law by a discrete Gaussian
+with the same standard deviation.  Neither numerical replacement is the
+formal security reduction.
 """
 
 from __future__ import annotations
@@ -89,9 +91,10 @@ def run(mode: str) -> dict[str, Any]:
             "warning": (
                 "Heuristic lattice-estimator costs.  The formal parity "
                 "reduction reaches ordinary ternary RLWE exactly; only its "
-                "coefficient-LWE numerical attack model is heuristic.  Rough "
-                "and full estimates use different reduction-cost models and "
-                "are not directly comparable."
+                "coefficient-LWE numerical attack model is heuristic.  "
+                "The error input is a variance-matched discrete Gaussian, not "
+                "the exact finite law.  Rough and full estimates use different "
+                "reduction-cost models and are not directly comparable."
             ),
         },
         "source_candidate": source["candidate"],
