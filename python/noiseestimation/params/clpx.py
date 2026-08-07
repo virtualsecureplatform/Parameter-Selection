@@ -168,3 +168,24 @@ class lvlh1param:
 class lvlh2param:
     domainP = lvlhalfparam
     targetP = lvl2param
+
+
+class CLPX2TFHElvl2param(lvl2param):
+    """Reverse-switch-only lvl2 PBS output with balanced gadget noise.
+
+    The ring, secret, fresh-noise, and row count are unchanged.  Searching the
+    four-row gadget decomposition over integral base bits selects Bgbit=10;
+    the default Bgbit=9 leaves too little HomDecomp margin for basebit=4.
+    """
+
+    l = 4
+    lₐ = l
+    ℬbit = 10
+    ℬₐbit = ℬbit
+    ℬ = 2**ℬbit
+    ℬₐ = ℬ
+
+
+class CLPX2TFHElvlh2param:
+    domainP = lvlhalfparam
+    targetP = CLPX2TFHElvl2param

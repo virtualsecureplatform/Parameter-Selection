@@ -61,8 +61,18 @@ class CLPX2TLWESEstimate:
     max_homdecomp_sum_variance: float
     max_internal_pbs_input_variance: float
     max_final_pbs_input_variance: float
+    rounded_digit_margin_bits: float
+    homdecomp_margin_bits: float
+    final_extraction_margin_bits: float
+    carry_margin_bits: float
     output_variance: float
     produced_tlwes: int
+    fid_round_pbs_count: int
+    homdecomp_pbs_count: int
+    bit_extraction_pbs_count: int
+    carry_pbs_count: int
+    total_pbs_count: int
+    semantic_log2_failure: float
     log2_failure: float
 
 
@@ -126,6 +136,23 @@ def _failure_log2(threshold: float, variance: float, count: int = 1) -> float:
     return min(0.0, log_probability / math.log(2.0))
 
 
+def _union_log2(log_probabilities: list[float]) -> float:
+    finite = [value for value in log_probabilities if value != NEG_INF]
+    if not finite:
+        return NEG_INF
+    largest = max(finite)
+    if largest >= 0:
+        return 0.0
+    total = sum(2.0 ** (value - largest) for value in finite)
+    return min(0.0, largest + math.log2(total))
+
+
+def _margin_failure_log2(margin_bits: float, count: int) -> float:
+    if count <= 0 or math.isinf(margin_bits):
+        return NEG_INF
+    return _failure_log2(2.0 ** (margin_bits / 2.0), 1.0, count)
+
+
 def tlwe_failure_log2(P, variance: float, count: int = 1) -> float:
     threshold = P.q / (2.0 * P.plain_modulus)
     return _failure_log2(threshold, variance, count)
@@ -169,6 +196,15 @@ def pbs_input_margin_log2(
     return 2.0 * math.log2(half_interval) - math.log2(input_variance)
 
 
+def decision_margin_log2(threshold: float, variance: float) -> float:
+    """Return log2(threshold^2 / variance) for a custom PBS decision."""
+    if variance <= 0:
+        return float("inf")
+    if threshold <= 0:
+        return NEG_INF
+    return 2.0 * math.log2(threshold) - math.log2(variance)
+
+
 def scale_variance_between(variance: float, domainP, targetP) -> float:
     if variance <= 0:
         return 0.0
@@ -189,6 +225,37 @@ def identity_key_switch_variance(ksP, input_variance: float = 0.0) -> float:
 
 def pbs_variance(brP) -> float:
     return float(brnoisecalc(brP))
+
+
+def reverse_lvl2_pbs_variance(
+    bgbit: int,
+    *,
+    levels: int = 4,
+    domainP=default_params.lvlhalfparam,
+    targetP=default_params.lvl2param,
+) -> float:
+    """Evaluate a reverse-switch lvl2 PBS gadget decomposition candidate."""
+    if bgbit <= 0 or levels <= 0:
+        raise ValueError("bgbit and levels must be positive")
+    base = 1 << bgbit
+    candidate_target = type(
+        f"ReverseLvl2_l{levels}_b{bgbit}",
+        (targetP,),
+        {
+            "l": levels,
+            "la": levels,
+            "Bbit": bgbit,
+            "Babit": bgbit,
+            "B": base,
+            "Ba": base,
+        },
+    )
+    candidate_bk = type(
+        f"ReverseLvlh2_l{levels}_b{bgbit}",
+        (),
+        {"domainP": domainP, "targetP": candidate_target},
+    )
+    return pbs_variance(candidate_bk)
 
 
 def _key_square_coefficient_variance(P) -> float:
@@ -244,8 +311,8 @@ def hom_decomp_variances(
 
         max_mid_input = max(max_mid_input, cres)
         tlwelvlhalf = identity_key_switch_variance(mid2lowP, cres)
-        max_pbs_input = max(max_pbs_input, tlwelvlhalf)
         if digit != numdigit:
+            max_pbs_input = max(max_pbs_input, tlwelvlhalf)
             subtlwe_variance = pbs_variance(brP)
 
     return HomDecompEstimate(
@@ -335,6 +402,7 @@ def estimate_clpx_to_tlwes(
     batch_size: int | None = None,
     numdigit: int = 9,
     basebit: int = 2,
+    carry_mode: str = "legacy",
     iksP10=default_params.lvl1hparam,
     iksP21=default_params.lvl21param,
     bkP01=default_params.lvlh1param,
@@ -348,6 +416,12 @@ def estimate_clpx_to_tlwes(
         raise ValueError("numdigit must be at least 2")
     if basebit <= 0:
         raise ValueError("basebit must be positive")
+    if carry_mode not in {"legacy", "single"}:
+        raise ValueError("carry_mode must be 'legacy' or 'single'")
+    if carry_mode == "legacy" and basebit != 2:
+        raise ValueError("the legacy two-digit carry is modeled only for basebit=2")
+    if carry_mode == "single" and basebit < 4:
+        raise ValueError("the single-PBS carry requires basebit >= 4")
     implementation_block_size = (numdigit - 1) * basebit
     if batch_size is None:
         batch_size = implementation_block_size
@@ -362,7 +436,15 @@ def estimate_clpx_to_tlwes(
     max_internal_input = 0.0
     max_final_input = 0.0
     max_sum_var = 0.0
+    rounded_margin = float("inf")
+    hom_margin = float("inf")
+    final_margin = float("inf")
+    carry_margin = float("inf")
     output_vars: list[float] = []
+    fid_round_pbs_count = 0
+    homdecomp_pbs_count = 0
+    bit_extraction_pbs_count = 0
+    carry_pbs_count = 0
 
     remaining = validbit
     global_index = 0
@@ -390,52 +472,116 @@ def estimate_clpx_to_tlwes(
                 x_minus_b += previous_scaled_var
             rounded_input = identity_key_switch_variance(iksP20, x_minus_b)
             max_internal_input = max(max_internal_input, rounded_input)
+            rounded_threshold = float(iksP20.targetP.q) / 32.0
+            rounded_margin = min(
+                rounded_margin,
+                decision_margin_log2(rounded_threshold, rounded_input),
+            )
 
             # The combined rounded-digit/weight LUT replaces the previous
             # three-PBS chain with one refreshed lvl2 ciphertext.
             sumpra_var += pbs02_var
             previous_scaled_var = fid_stage2
             global_index += 1
+            fid_round_pbs_count += 3
 
+        carry_digits = 2 if carry_mode == "legacy" else 1
+        hom_numdigit = numdigit + carry_digits
         hom = hom_decomp_variances(
             sumpra_var,
             high2midP=iksP21,
             mid2lowP=iksP10,
             brP=bkP01,
             basebit=basebit,
-            numdigit=numdigit + 2,
-            source_bits=basebit * (numdigit + 2),
+            numdigit=hom_numdigit,
+            source_bits=basebit * hom_numdigit,
         )
+        homdecomp_pbs_count += hom_numdigit - 1
         max_sum_var = max(max_sum_var, max(hom.sums))
         max_internal_input = max(max_internal_input, hom.max_sub_pbs_input_variance)
+        hom_threshold = float(bkP01.domainP.q) / (1 << (basebit + 1))
+        hom_margin = min(
+            hom_margin,
+            decision_margin_log2(
+                hom_threshold, hom.max_sub_pbs_input_variance
+            ),
+        )
 
         for digit in range(1, numdigit):
             temp = identity_key_switch_variance(iksP10, hom.sums[digit])
-            for k in range(basebit - 1):
-                if (digit - 1) * basebit + k >= current_batch:
-                    continue
-                final_input = shift_variance(temp, basebit - k - 1)
+            active_bits = min(
+                basebit,
+                max(0, current_batch - (digit - 1) * basebit),
+            )
+            if active_bits == 0:
+                continue
+
+            for k in range(active_bits):
+                shift = basebit - k - 1
+                final_input = shift_variance(temp, shift)
+                threshold = float(iksP10.targetP.q) / (
+                    1 << (basebit + 1 - shift)
+                )
                 max_final_input = max(max_final_input, final_input)
+                final_margin = min(
+                    final_margin,
+                    decision_margin_log2(threshold, final_input),
+                )
                 output_vars.append(pbs01_var)
-            if digit * basebit - 1 < current_batch:
-                max_final_input = max(max_final_input, temp)
-                output_vars.append(pbs01_var)
+            bit_extraction_pbs_count += active_bits
 
         remaining -= current_batch
         if epoch < epoch_count - 1:
-            carry_inputs = [
-                identity_key_switch_variance(iksP10, hom.sums[numdigit + i])
-                for i in range(2)
-            ]
-            max_internal_input = max(max_internal_input, *carry_inputs)
-            max_internal_input = max(
-                max_internal_input,
-                shift_variance(carry_inputs[0], 1),
-            )
-            sumpra_var = 3.0 * pbs02_var
+            if carry_mode == "legacy":
+                carry_inputs = [
+                    identity_key_switch_variance(iksP10, hom.sums[numdigit + i])
+                    for i in range(2)
+                ]
+                shifted_carry = shift_variance(carry_inputs[0], 1)
+                max_internal_input = max(
+                    max_internal_input, *carry_inputs, shifted_carry
+                )
+                unshifted_threshold = float(iksP10.targetP.q) / 8.0
+                shifted_threshold = float(iksP10.targetP.q) / 4.0
+                carry_margin = min(
+                    carry_margin,
+                    *(decision_margin_log2(unshifted_threshold, variance)
+                      for variance in carry_inputs),
+                    decision_margin_log2(shifted_threshold, shifted_carry),
+                )
+                sumpra_var = 3.0 * pbs02_var
+                carry_pbs_count += 3
+            else:
+                carry_input = identity_key_switch_variance(
+                    iksP10, hom.sums[numdigit]
+                )
+                max_internal_input = max(max_internal_input, carry_input)
+                carry_threshold = float(iksP10.targetP.q) / (
+                    1 << (basebit + 1)
+                )
+                carry_margin = min(
+                    carry_margin,
+                    decision_margin_log2(carry_threshold, carry_input),
+                )
+                sumpra_var = pbs02_var
+                carry_pbs_count += 1
 
     output_var = max(output_vars) if output_vars else 0.0
     log2_fail = tlwe_failure_log2(bkP01.targetP, output_var, count=len(output_vars))
+    total_pbs_count = (
+        fid_round_pbs_count
+        + homdecomp_pbs_count
+        + bit_extraction_pbs_count
+        + carry_pbs_count
+    )
+    semantic_log2_failure = _union_log2(
+        [
+            _margin_failure_log2(rounded_margin, fid_round_pbs_count // 3),
+            _margin_failure_log2(hom_margin, homdecomp_pbs_count),
+            _margin_failure_log2(final_margin, len(output_vars)),
+            _margin_failure_log2(carry_margin, carry_pbs_count),
+        ]
+    )
     return CLPX2TLWESEstimate(
         input_variance=input_var,
         pbs02_variance=pbs02_var,
@@ -444,8 +590,18 @@ def estimate_clpx_to_tlwes(
         max_homdecomp_sum_variance=max_sum_var,
         max_internal_pbs_input_variance=max_internal_input,
         max_final_pbs_input_variance=max_final_input,
+        rounded_digit_margin_bits=rounded_margin,
+        homdecomp_margin_bits=hom_margin,
+        final_extraction_margin_bits=final_margin,
+        carry_margin_bits=carry_margin,
         output_variance=output_var,
         produced_tlwes=len(output_vars),
+        fid_round_pbs_count=fid_round_pbs_count,
+        homdecomp_pbs_count=homdecomp_pbs_count,
+        bit_extraction_pbs_count=bit_extraction_pbs_count,
+        carry_pbs_count=carry_pbs_count,
+        total_pbs_count=total_pbs_count,
+        semantic_log2_failure=semantic_log2_failure,
         log2_failure=log2_fail,
     )
 

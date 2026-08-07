@@ -10,6 +10,7 @@ from python.noiseestimation.clpx import (
     estimate_tlwes_to_clpx,
     paper_clpx_fixed_noise_threshold,
     pbs_input_margin_log2,
+    reverse_lvl2_pbs_variance,
 )
 from python.noiseestimation.params import clpx as params
 
@@ -130,6 +131,52 @@ class CLPXNoiseTest(unittest.TestCase):
             estimate_clpx_to_tlwes(
                 validbit=13, batch_size=8, numdigit=9, basebit=2
             )
+
+    def test_reverse_switch_candidates_have_expected_counts_and_margins(self):
+        current = estimate_clpx_to_tlwes(
+            validbit=128, numdigit=9, basebit=2, carry_mode="legacy"
+        )
+        current_tuned = estimate_clpx_to_tlwes(
+            validbit=128,
+            numdigit=9,
+            basebit=2,
+            carry_mode="legacy",
+            bkP02=params.CLPX2TFHElvlh2param,
+        )
+        base4_default = estimate_clpx_to_tlwes(
+            validbit=128, numdigit=5, basebit=4, carry_mode="single"
+        )
+        base4_tuned = estimate_clpx_to_tlwes(
+            validbit=128,
+            numdigit=5,
+            basebit=4,
+            carry_mode="single",
+            bkP02=params.CLPX2TFHElvlh2param,
+        )
+        self.assertEqual(current.total_pbs_count, 613)
+        self.assertEqual(base4_tuned.total_pbs_count, 559)
+
+        self.assertGreater(current.semantic_log2_failure, -128.0)
+        self.assertLess(current_tuned.semantic_log2_failure, -128.0)
+
+        self.assertLess(base4_default.homdecomp_margin_bits, 3.0)
+        self.assertGreater(base4_tuned.homdecomp_margin_bits, 7.0)
+        self.assertGreater(base4_tuned.final_extraction_margin_bits, 8.0)
+        self.assertGreater(base4_tuned.carry_margin_bits, 8.0)
+        self.assertLess(base4_tuned.semantic_log2_failure, -128.0)
+        self.assertLess(
+            base4_tuned.pbs02_variance,
+            base4_default.pbs02_variance / (2**5),
+        )
+
+    def test_reverse_lvl2_candidate_keeps_four_gadget_rows(self):
+        self.assertEqual(params.CLPX2TFHElvl2param.l, params.lvl2param.l)
+        self.assertEqual(params.CLPX2TFHElvl2param.Bbit, 10)
+        candidates = {
+            bgbit: reverse_lvl2_pbs_variance(bgbit)
+            for bgbit in range(8, 13)
+        }
+        self.assertEqual(min(candidates, key=candidates.get), 10)
 
 
 if __name__ == "__main__":

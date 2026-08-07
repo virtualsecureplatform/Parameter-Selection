@@ -152,6 +152,7 @@ SciPy is installed:
 python3 python/CLPXnoise.py
 python3 python/CLPXnoise.py --direction tlwes-to-clpx --paper-ss2clpx --validbit 8
 python3 python/CLPXnoise.py --direction clpx-to-tlwes --validbit 16 --numdigit 9 --basebit 2
+python3 python/CLPXnoise.py --compare-reverse-options --validbit 128
 python3 python/CLPXnoise.py --direction switched-multiplication --paper-ss2clpx --validbit 8 --max-mults 8 --mult-chain square
 python3 python/CLPXnoise.py --direction all --validbit 8 --max-mults 16
 ```
@@ -178,8 +179,23 @@ fit within one modulus-switch rounding bin.
 The paper model also keeps the two meanings of `w` separate: `Delta_b`'s
 truncation width is a scheme-switch argument, whereas relinearization uses the
 TFHEpp gadget base (`P.B`) and level count (`P.l`).  Margins for the reverse
-path's custom internal encodings are intentionally not reported until their
-operation-specific decision intervals are modeled.
+path use their operation-specific decision intervals: `1/32` for rounded
+radix-2 digits, half a decomposition bin for HomDecomp and final bit
+extraction, and the corresponding carry-LUT interval.
+
+`--compare-reverse-options` compares the implemented 16-bit-block path with
+`basebit=4` candidates.  Packing the four final bit LUTs into one PBS is not a
+valid option: negacyclic PBS requires `f(x+1/2)=-f(x)`, while the lower-bit
+functions repeat after a half-torus shift.  Their distinct input shifts are
+therefore necessary.  The default lvl2 PBS gadget (`l=4`, `Bgbit=9`) does not
+leave a sufficient HomDecomp margin for `basebit=4`.  The reverse-only
+candidate keeps four rows and selects
+`Bgbit=10`, reducing lvl2 PBS variance by about 5.2 bits without increasing
+the bootstrapping-key row count.  This raises the estimated `basebit=4`
+HomDecomp margin from about 2.5 to 7.5 variance bits.  The same preset also
+raises the current path's conservative aggregate semantic-failure estimate
+from about `2^-56` to well beyond `2^-128`; it is therefore used for both
+optimized candidates in the comparison.
 
 The `--direction switched-multiplication` mode is an approximate depth screen
 for `CLPXMult` (`TRLWEMultWithoutRelinerizationCLPX + Relinearization`) using

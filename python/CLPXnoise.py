@@ -19,6 +19,7 @@ try:
         estimate_tlwes_to_clpx,
         format_log2,
         pbs_input_margin_log2,
+        reverse_lvl2_pbs_variance,
     )
     from python.noiseestimation.params import clpx as params  # noqa: E402
 except ModuleNotFoundError as exc:
@@ -31,6 +32,7 @@ except ModuleNotFoundError as exc:
         estimate_tlwes_to_clpx,
         format_log2,
         pbs_input_margin_log2,
+        reverse_lvl2_pbs_variance,
     )
     from noiseestimation.params import clpx as params  # type: ignore[no-redef] # noqa: E402
 
@@ -80,6 +82,22 @@ def parse_args() -> argparse.Namespace:
     )
     ap.add_argument("--numdigit", type=int, default=9)
     ap.add_argument("--basebit", type=int, default=2)
+    ap.add_argument(
+        "--carry-mode",
+        choices=("legacy", "single"),
+        default="legacy",
+        help="legacy three-PBS carry or proposed basebit>=4 single-PBS carry",
+    )
+    ap.add_argument(
+        "--compare-reverse-options",
+        action="store_true",
+        help="compare current and basebit=4 reverse paths",
+    )
+    ap.add_argument(
+        "--reverse-tuned-lvl2",
+        action="store_true",
+        help="use the reverse-only four-row Bgbit=10 lvl2 PBS output preset",
+    )
     ap.add_argument(
         "--max-mults",
         type=int,
@@ -208,11 +226,18 @@ def print_clpx_to_tlwes(args: argparse.Namespace) -> None:
     input_var = None
     if args.input_log2_var is not None and args.direction != "both":
         input_var = 2.0 ** args.input_log2_var
+    reverse_bkP02 = (
+        params.CLPX2TFHElvlh2param
+        if args.reverse_tuned_lvl2
+        else params.lvlh2param
+    )
     est = estimate_clpx_to_tlwes(
         validbit=args.validbit,
         batch_size=args.batch_size,
         numdigit=args.numdigit,
         basebit=args.basebit,
+        carry_mode=args.carry_mode,
+        bkP02=reverse_bkP02,
         input_variance=input_var,
     )
     print("CLPX2TLWESIKSanybit")
@@ -223,10 +248,68 @@ def print_clpx_to_tlwes(args: argparse.Namespace) -> None:
     print(f"  max HomDecomp sum log2(V):  {format_log2(est.max_homdecomp_sum_variance)}")
     print(f"  max internal PBS in log2(V): {format_log2(est.max_internal_pbs_input_variance)}")
     print(f"  max final PBS in log2(V):   {format_log2(est.max_final_pbs_input_variance)}")
-    print("  PBS input margins:          not modeled for custom internal encodings")
+    print(f"  rounded-digit margin:       {est.rounded_digit_margin_bits:.2f} bits")
+    print(f"  HomDecomp margin:           {est.homdecomp_margin_bits:.2f} bits")
+    print(f"  final extraction margin:    {est.final_extraction_margin_bits:.2f} bits")
+    print(f"  carry margin:               {est.carry_margin_bits:.2f} bits")
     print(f"  produced TLWEs:             {est.produced_tlwes}")
+    print(
+        "  PBS counts:                 "
+        f"Fid/round={est.fid_round_pbs_count}, "
+        f"HomDecomp={est.homdecomp_pbs_count}, "
+        f"extract={est.bit_extraction_pbs_count}, "
+        f"carry={est.carry_pbs_count}, total={est.total_pbs_count}"
+    )
     print(f"  output TLWE log2(V):        {format_log2(est.output_variance)}")
+    print(f"  semantic failure bound:     {_fmt_prob(est.semantic_log2_failure)}")
     print(f"  output decrypt fail:        {_fmt_prob(est.log2_failure)}")
+
+
+def print_reverse_option_comparison(args: argparse.Namespace) -> None:
+    configurations = (
+        ("current", 9, 2, "legacy", params.lvlh2param),
+        ("current-t", 9, 2, "legacy", params.CLPX2TFHElvlh2param),
+        ("b4-default", 5, 4, "single", params.lvlh2param),
+        ("b4-tuned", 5, 4, "single", params.CLPX2TFHElvlh2param),
+    )
+    print("CLPX2TFHE reverse-path comparison (16-bit blocks)")
+    print(
+        "option       PBS  Fid/rnd  Hom  extract  carry  "
+        "round_m  hom_m  extract_m  carry_m  semantic_fail"
+    )
+    print("-" * 111)
+    for label, numdigit, basebit, carry_mode, bkP02 in configurations:
+        estimate = estimate_clpx_to_tlwes(
+            validbit=args.validbit,
+            batch_size=16,
+            numdigit=numdigit,
+            basebit=basebit,
+            carry_mode=carry_mode,
+            bkP02=bkP02,
+        )
+        print(
+            f"{label:<11} {estimate.total_pbs_count:4d} "
+            f"{estimate.fid_round_pbs_count:8d} "
+            f"{estimate.homdecomp_pbs_count:4d} "
+            f"{estimate.bit_extraction_pbs_count:8d} "
+            f"{estimate.carry_pbs_count:6d} "
+            f"{estimate.rounded_digit_margin_bits:7.2f} "
+            f"{estimate.homdecomp_margin_bits:6.2f} "
+            f"{estimate.final_extraction_margin_bits:9.2f} "
+            f"{estimate.carry_margin_bits:7.2f} "
+            f"{_fmt_prob(estimate.semantic_log2_failure):>13}"
+        )
+
+    print("\nreverse lvl2 PBS gadget sweep (four rows)")
+    print("Bgbit  log2(V)")
+    candidates = [
+        (bgbit, reverse_lvl2_pbs_variance(bgbit))
+        for bgbit in range(8, 13)
+    ]
+    selected = min(candidates, key=lambda candidate: candidate[1])[0]
+    for bgbit, variance in candidates:
+        suffix = "  selected" if bgbit == selected else ""
+        print(f"{bgbit:5d}  {format_log2(variance):>7}{suffix}")
 
 
 def print_multiplication(args: argparse.Namespace) -> None:
@@ -340,6 +423,9 @@ def main() -> int:
         f"w={args.effective_w or 'full'} "
         f"batch_size={effective_batch_size} numdigit={args.numdigit} basebit={args.basebit}"
     )
+    if args.compare_reverse_options:
+        print_reverse_option_comparison(args)
+        return 0
     if args.direction == "all":
         args.direction = "both"
         run_multiplication = True
