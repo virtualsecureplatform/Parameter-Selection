@@ -151,22 +151,35 @@ SciPy is installed:
 ```bash
 python3 python/CLPXnoise.py
 python3 python/CLPXnoise.py --direction tlwes-to-clpx --paper-ss2clpx --validbit 8
-python3 python/CLPXnoise.py --direction clpx-to-tlwes --validbit 8 --numdigit 4 --basebit 2
+python3 python/CLPXnoise.py --direction clpx-to-tlwes --validbit 16 --numdigit 9 --basebit 2
 python3 python/CLPXnoise.py --direction switched-multiplication --paper-ss2clpx --validbit 8 --max-mults 8 --mult-chain square
 python3 python/CLPXnoise.py --direction all --validbit 8 --max-mults 16
 ```
 
 `CLPXnoise.py` follows the TFHEpp operation sequence in
-`../TFHEpp/include/bfv-clpx.hpp` for `TLWES2CLPXIKS` and
+`../TFHEpp/include/clpx/bfv-clpx.hpp` for `TLWES2CLPXIKS` and
 `CLPX2TLWESIKSanybit`.  It composes the existing TFHE bootstrapping,
 identity-key-switching, and annihilate-packing formulas from
 `python/noiseestimation/keyvariation.py`.  The default CLPX preset in
 `python/noiseestimation/params/clpx.py` mirrors the local TFHEpp default
 `include/params/128bit.hpp` CLPX test path.  Programmable bootstrapping is
 modeled as refreshing the output encryption noise; the script also reports the
-largest internal PBS-input variance and a bin margin, because CLPX digit
-extraction can fail semantically even when the final refreshed TLWE noise is
-small.
+largest internal PBS-input variance and a semantic interval margin, because
+CLPX digit extraction can fail semantically even when the final refreshed TLWE
+noise is small.
+
+For TFHE-to-CLPX, the estimator also includes the paper's
+`q^2 / 2^(2w)` variance contribution from the finite-width approximation of
+`Delta_b`.  Failure probabilities are evaluated in the log domain so results
+below floating-point `erfc` range remain finite.  The reported PBS input margin
+uses the source TLWE message interval; it is not a requirement that input noise
+fit within one modulus-switch rounding bin.
+
+The paper model also keeps the two meanings of `w` separate: `Delta_b`'s
+truncation width is a scheme-switch argument, whereas relinearization uses the
+TFHEpp gadget base (`P.B`) and level count (`P.l`).  Margins for the reverse
+path's custom internal encodings are intentionally not reported until their
+operation-specific decision intervals are modeled.
 
 The `--direction switched-multiplication` mode is an approximate depth screen
 for `CLPXMult` (`TRLWEMultWithoutRelinerizationCLPX + Relinearization`) using

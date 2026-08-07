@@ -14,7 +14,7 @@ def _secret_stats(key_min: int, key_max: int) -> tuple[float, float]:
 class lvl0param:
     key_value_min = 0
     key_value_max = 1
-    n = 636
+    n = 630
     k = 1
     q = 2**16
     alpha = 0.000_092_511_997_467_675_6 * q
@@ -134,6 +134,12 @@ class lvl02param:
 
 
 class SS2CLPXlvl2param(lvl2param):
+    l = 3
+    lₐ = l
+    ℬbit = 13
+    ℬₐbit = ℬbit
+    ℬ = 2**ℬbit
+    ℬₐ = 2**ℬₐbit
     plain_modulus = 2
 
 

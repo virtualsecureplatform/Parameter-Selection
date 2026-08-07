@@ -73,8 +73,12 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="use Nagai et al. TFHE->CLPX settings: base=2, w=20, shiftnum=5",
     )
-    ap.add_argument("--batch-size", type=int, default=16)
-    ap.add_argument("--numdigit", type=int, default=4)
+    ap.add_argument(
+        "--batch-size",
+        type=int,
+        help="CLPX->TFHE block size; must equal (numdigit-1)*basebit (default: derived)",
+    )
+    ap.add_argument("--numdigit", type=int, default=9)
     ap.add_argument("--basebit", type=int, default=2)
     ap.add_argument(
         "--max-mults",
@@ -182,10 +186,14 @@ def print_tlwes_to_clpx(args: argparse.Namespace) -> None:
     print(f"  input log2(V):              {format_log2(est.input_variance)}")
     print(f"  after IKS log2(V):          {format_log2(est.iks_variance)}")
     iks_margin = pbs_input_margin_log2(
-        args.switch_bkP, est.iks_variance, num_out=args.num_multi
+        args.switch_bkP,
+        est.iks_variance,
+        num_out=args.num_multi,
+        input_plain_modulus=args.switch_iksP.domainP.plain_modulus,
     )
-    print(f"  PBS bin margin:             {iks_margin:.2f} bits")
+    print(f"  PBS semantic margin:        {iks_margin:.2f} bits")
     print(f"  PBS output log2(V):         {format_log2(est.pbs_variance)}")
+    print(f"  Delta_b approx log2(V):     {format_log2(est.approximation_variance)}")
     print(
         f"  packing inputs:             {est.temp_tlwe_count} TLWEs, "
         f"max {est.max_terms_per_temp} PBS terms/TLWE"
@@ -207,22 +215,15 @@ def print_clpx_to_tlwes(args: argparse.Namespace) -> None:
         basebit=args.basebit,
         input_variance=input_var,
     )
-    internal_margin = pbs_input_margin_log2(
-        params.lvlh2param, est.max_internal_pbs_input_variance, num_out=2
-    )
-    final_margin = pbs_input_margin_log2(
-        params.lvlh1param, est.max_final_pbs_input_variance
-    )
     print("CLPX2TLWESIKSanybit")
-    print("  TFHEpp path: lvl2 CLPX -> lvlhalf/lvl2 PBS chain -> HomDecomp -> lvl1 PBS")
+    print("  TFHEpp path: lvl2 CLPX -> two Fid PBS + rounded-digit PBS -> HomDecomp -> lvl1 PBS")
     print(f"  input CLPX coeff log2(V):   {format_log2(est.input_variance)}")
     print(f"  lvlh2 PBS output log2(V):   {format_log2(est.pbs02_variance)}")
     print(f"  sumpra log2(V):             {format_log2(est.sumpra_variance)}")
     print(f"  max HomDecomp sum log2(V):  {format_log2(est.max_homdecomp_sum_variance)}")
     print(f"  max internal PBS in log2(V): {format_log2(est.max_internal_pbs_input_variance)}")
-    print(f"  internal PBS bin margin:    {internal_margin:.2f} bits")
     print(f"  max final PBS in log2(V):   {format_log2(est.max_final_pbs_input_variance)}")
-    print(f"  final PBS bin margin:       {final_margin:.2f} bits")
+    print("  PBS input margins:          not modeled for custom internal encodings")
     print(f"  produced TLWEs:             {est.produced_tlwes}")
     print(f"  output TLWE log2(V):        {format_log2(est.output_variance)}")
     print(f"  output decrypt fail:        {_fmt_prob(est.log2_failure)}")
@@ -278,6 +279,10 @@ def print_multiplication(args: argparse.Namespace) -> None:
     )
     if args.paper_ss2clpx:
         print("  multiplication noise model: Nagai et al. Eq. (44)-(48)")
+        print(
+            "  relinearization decomposition: "
+            f"levels={args.switch_clpxP.l}, base={args.switch_clpxP.B}"
+        )
     else:
         print("  caveat: approximate digit-value model with fixed plaintext bound")
     print(f"  initial source: {source}")
@@ -326,13 +331,14 @@ def main() -> int:
     args = parse_args()
     resolve_switch_args(args)
     print("CLPX scheme-switch noise estimate")
-    print("  source: TFHEpp/include/bfv-clpx.hpp operation sequence")
-    print("  note: PBS output noise is estimated separately from PBS input-bin margins")
+    print("  source: TFHEpp/include/clpx/bfv-clpx.hpp operation sequence")
+    print("  note: PBS output noise is estimated separately from semantic input margins")
+    effective_batch_size = args.batch_size or (args.numdigit - 1) * args.basebit
     print(
         f"  validbit={args.validbit} num_multi={args.num_multi} "
         f"shift={args.effective_shift} shiftnum={args.effective_shiftnum} "
         f"w={args.effective_w or 'full'} "
-        f"batch_size={args.batch_size} numdigit={args.numdigit} basebit={args.basebit}"
+        f"batch_size={effective_batch_size} numdigit={args.numdigit} basebit={args.basebit}"
     )
     if args.direction == "all":
         args.direction = "both"

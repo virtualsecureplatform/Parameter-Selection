@@ -13,7 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import math
 
-from scipy.special import erfc
+from scipy.special import erfcx
 
 try:
     from python.noiseestimation.keyvariation import (  # noqa: E402
@@ -43,6 +43,7 @@ class TLWES2CLPXEstimate:
     input_variance: float
     iks_variance: float
     pbs_variance: float
+    approximation_variance: float
     max_packed_input_variance: float
     packed_variance: float
     clpx_value_variance: float
@@ -112,17 +113,17 @@ def format_log2(variance: float) -> str:
     return f"{value:.2f}"
 
 
-def _log2_probability(probability: float) -> float:
-    if probability <= 0:
-        return NEG_INF
-    return math.log2(min(1.0, probability))
-
-
 def _failure_log2(threshold: float, variance: float, count: int = 1) -> float:
     if variance <= 0:
         return NEG_INF
-    one = float(erfc(threshold / math.sqrt(2.0 * variance)))
-    return _log2_probability(count * one)
+    if threshold <= 0:
+        return 0.0
+    # erfc underflows for precisely the small failure probabilities for which
+    # this estimator is useful.  erfc(x) = exp(-x^2) * erfcx(x) keeps the
+    # calculation in the log domain.
+    x = threshold / math.sqrt(2.0 * variance)
+    log_probability = math.log(float(erfcx(x))) - x * x + math.log(count)
+    return min(0.0, log_probability / math.log(2.0))
 
 
 def tlwe_failure_log2(P, variance: float, count: int = 1) -> float:
@@ -143,12 +144,29 @@ def clpx_value_margin_log2(P, value_variance: float, d: float = 6.0) -> float:
     return threshold_log2 - math.log2(value_variance)
 
 
-def pbs_input_margin_log2(brP, input_variance: float, num_out: int = 1) -> float:
+def pbs_input_margin_log2(
+    brP,
+    input_variance: float,
+    num_out: int = 1,
+    input_plain_modulus: int | None = None,
+) -> float:
+    """Variance-bit margin to the nearest semantic PBS decision boundary.
+
+    ``num_out`` is retained for API compatibility, but ManyLUT's coefficient
+    layout does not shrink the input message interval.  The previous model
+    compared TLWE noise with one modulus-switch rounding bin; ordinary TFHE
+    PBS noise is not required to fit inside such a bin.
+    """
     if input_variance <= 0:
         return float("inf")
-    bitwidth = max(0, int(num_out - 1).bit_length())
-    half_bin_log2 = q_bits(brP.domainP) - 2 - brP.targetP.nbit + bitwidth
-    return 2.0 * half_bin_log2 - math.log2(input_variance)
+    del num_out
+    plain_modulus = int(
+        brP.domainP.plain_modulus
+        if input_plain_modulus is None
+        else input_plain_modulus
+    )
+    half_interval = float(brP.domainP.q) / (2.0 * plain_modulus)
+    return 2.0 * math.log2(half_interval) - math.log2(input_variance)
 
 
 def scale_variance_between(variance: float, domainP, targetP) -> float:
@@ -205,15 +223,20 @@ def hom_decomp_variances(
     brP=default_params.lvlh1param,
     basebit: int = 2,
     numdigit: int = 6,
+    source_bits: int | None = None,
 ) -> HomDecompEstimate:
     domain_bits = q_bits(high2midP.domainP)
+    if source_bits is None:
+        source_bits = domain_bits
+    if source_bits < basebit * numdigit or source_bits > domain_bits:
+        raise ValueError("invalid HomDecomp source window")
     subtlwe_variance = 0.0
     sums: list[float] = []
     max_mid_input = 0.0
     max_pbs_input = 0.0
 
     for digit in range(1, numdigit + 1):
-        shifted_input = shift_variance(input_variance, domain_bits - basebit * digit)
+        shifted_input = shift_variance(input_variance, source_bits - basebit * digit)
         cres = identity_key_switch_variance(high2midP, shifted_input)
         if digit != 1:
             cres += subtlwe_variance
@@ -279,7 +302,16 @@ def estimate_tlwes_to_clpx(
                         term_counts[out_index] += 1
 
     max_temp = max(temp_vars) if temp_vars else 0.0
-    packed_var = float(annihilatecalc(bkP.targetP, max_temp))
+    # Nagai et al., T2CPVar (Eq. 43 in the checked-in draft): approximating
+    # Delta_b to w bits contributes q^2 / 2^(2w) before annihilate packing.
+    # This term is what creates the observed correctness transition around
+    # w=16--20; omitting it incorrectly makes very small w look preferable.
+    approximation_var = math.ldexp(
+        1.0, 2 * (target_bits - truncation_bits)
+    )
+    packed_var = float(
+        annihilatecalc(bkP.targetP, max_temp + approximation_var)
+    )
     value_var, log2_fail = clpx_digit_failure_log2(
         bkP.targetP, packed_var, count=validbit
     )
@@ -287,6 +319,7 @@ def estimate_tlwes_to_clpx(
         input_variance=input_var,
         iks_variance=iks_var,
         pbs_variance=pbs_var,
+        approximation_variance=approximation_var,
         max_packed_input_variance=max_temp,
         packed_variance=packed_var,
         clpx_value_variance=value_var,
@@ -299,8 +332,8 @@ def estimate_tlwes_to_clpx(
 def estimate_clpx_to_tlwes(
     *,
     validbit: int = 8,
-    batch_size: int = 16,
-    numdigit: int = 4,
+    batch_size: int | None = None,
+    numdigit: int = 9,
     basebit: int = 2,
     iksP10=default_params.lvl1hparam,
     iksP21=default_params.lvl21param,
@@ -311,12 +344,17 @@ def estimate_clpx_to_tlwes(
 ) -> CLPX2TLWESEstimate:
     if validbit <= 0:
         raise ValueError("validbit must be positive")
-    if batch_size <= 0:
-        raise ValueError("batch_size must be positive")
     if numdigit < 2:
         raise ValueError("numdigit must be at least 2")
     if basebit <= 0:
         raise ValueError("basebit must be positive")
+    implementation_block_size = (numdigit - 1) * basebit
+    if batch_size is None:
+        batch_size = implementation_block_size
+    elif batch_size != implementation_block_size:
+        raise ValueError(
+            "batch_size must equal (numdigit - 1) * basebit to match TFHEpp"
+        )
 
     input_var = float(iksP20.domainP.σ if input_variance is None else input_variance)
     pbs02_var = pbs_variance(bkP02)
@@ -330,36 +368,33 @@ def estimate_clpx_to_tlwes(
     global_index = 0
     epoch_count = (validbit + batch_size - 1) // batch_size
     sumpra_var = 0.0
-    prev_temps1_var = 0.0
+    previous_scaled_var = 0.0
 
     for epoch in range(epoch_count):
         current_batch = min(batch_size, remaining)
         for _ in range(current_batch):
+            # Fid_1 refreshes the extracted coefficient. Fid_2 refreshes its
+            # scaled representative before x-b is formed. The current Fid_2
+            # ciphertext is shifted once, whereas the previous coefficient is
+            # used without a shift.
             temp = identity_key_switch_variance(iksP20, input_var)
             max_internal_input = max(max_internal_input, temp)
 
-            temp31 = pbs02_var
-            temp = identity_key_switch_variance(iksP20, temp31)
+            fid_stage1 = pbs02_var
+            temp = identity_key_switch_variance(iksP20, fid_stage1)
             max_internal_input = max(max_internal_input, temp)
 
-            temps0 = pbs02_var
-            temps1 = pbs02_var
-            diff = temps0 + (prev_temps1_var if global_index > 0 else 0.0)
-            temp10 = identity_key_switch_variance(iksP20, diff)
+            fid_stage2 = pbs02_var
+            x_minus_b = shift_variance(fid_stage2, 1)
+            if global_index > 0:
+                x_minus_b += previous_scaled_var
+            rounded_input = identity_key_switch_variance(iksP20, x_minus_b)
+            max_internal_input = max(max_internal_input, rounded_input)
 
-            shifted = shift_variance(temp10, 2)
-            max_internal_input = max(max_internal_input, shifted)
-            temp32_0 = pbs02_var
-            temp32_1 = pbs02_var
-            temp10 += identity_key_switch_variance(iksP20, temp32_1)
-
-            max_internal_input = max(
-                max_internal_input,
-                shift_variance(temp10, 1),
-                temp10,
-            )
-            sumpra_var += pbs02_var + pbs02_var + temp32_0
-            prev_temps1_var = temps1
+            # The combined rounded-digit/weight LUT replaces the previous
+            # three-PBS chain with one refreshed lvl2 ciphertext.
+            sumpra_var += pbs02_var
+            previous_scaled_var = fid_stage2
             global_index += 1
 
         hom = hom_decomp_variances(
@@ -369,6 +404,7 @@ def estimate_clpx_to_tlwes(
             brP=bkP01,
             basebit=basebit,
             numdigit=numdigit + 2,
+            source_bits=basebit * (numdigit + 2),
         )
         max_sum_var = max(max_sum_var, max(hom.sums))
         max_internal_input = max(max_internal_input, hom.max_sub_pbs_input_variance)
@@ -376,11 +412,14 @@ def estimate_clpx_to_tlwes(
         for digit in range(1, numdigit):
             temp = identity_key_switch_variance(iksP10, hom.sums[digit])
             for k in range(basebit - 1):
+                if (digit - 1) * basebit + k >= current_batch:
+                    continue
                 final_input = shift_variance(temp, basebit - k - 1)
                 max_final_input = max(max_final_input, final_input)
                 output_vars.append(pbs01_var)
-            max_final_input = max(max_final_input, temp)
-            output_vars.append(pbs01_var)
+            if digit * basebit - 1 < current_batch:
+                max_final_input = max(max_final_input, temp)
+                output_vars.append(pbs01_var)
 
         remaining -= current_batch
         if epoch < epoch_count - 1:
@@ -461,7 +500,7 @@ def paper_clpx_multiplication_variance(
 ) -> float:
     """Equation (44) from Nagai et al. for CLPX multiplication noise."""
     b = float(P.plain_modulus)
-    common = 6.0 * P.n + 3.0 * math.sqrt(P.n)
+    common = 6.0 * P.n + math.sqrt(3.0 * P.n)
     lhs_factor = ((b + 1.0) * lhs_nonzero_terms + common) ** 2
     rhs_factor = ((b + 1.0) * rhs_nonzero_terms + common) ** 2
     return (
@@ -473,14 +512,30 @@ def paper_clpx_multiplication_variance(
 def paper_clpx_fixed_noise_threshold(
     *,
     P=default_params.SS2CLPXlvl2param,
-    w: int = 20,
+    relinearization_base: int | None = None,
 ) -> float:
-    """Equations (45)-(47) from Nagai et al."""
+    """Equations (45)-(47) from Nagai et al.
+
+    The paper's ``w_rlin`` is the integer base used to decompose the
+    relinearized polynomial, not the unrelated Delta_b truncation width ``w``.
+    TFHEpp has ``P.l`` gadget rows whose signed digits use base ``P.B``.
+    """
     b = float(P.plain_modulus)
+    w_rlin = int(P.B if relinearization_base is None else relinearization_base)
+    if w_rlin <= 0:
+        raise ValueError("relinearization_base must be positive")
     a1 = (b + 1.0) * math.sqrt(3.0 * P.n) * (
         1.0 + 2.0 * math.sqrt(3.0 * P.n) + 12.0 * P.n
     )
-    a2 = 6.0 * math.sqrt(3.0) * (b + 1.0) * P.n * P.alpha * (w + 1.0) * b
+    a2 = (
+        6.0
+        * math.sqrt(3.0)
+        * (b + 1.0)
+        * P.n
+        * P.alpha
+        * P.l
+        * w_rlin
+    )
     return P.q / 2.0 - a1 - a2
 
 
@@ -529,10 +584,7 @@ def estimate_clpx_multiplication_depth(
     initial_value_var = coeff_to_value * initial_coefficient_variance
 
     if model == "paper":
-        threshold = paper_clpx_fixed_noise_threshold(
-            P=P,
-            w=w if w is not None else q_bits(P),
-        )
+        threshold = paper_clpx_fixed_noise_threshold(P=P)
         current_coeff_var = initial_coefficient_variance
         fresh_coeff_var = initial_coefficient_variance
         current_nonzero_terms = validbit
