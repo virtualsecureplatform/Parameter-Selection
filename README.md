@@ -53,6 +53,35 @@ apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/v
 apptainer exec --no-home --pwd /work --env DOT_SAGE=/tmp/.sage --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/TFHEprus_secure_128.py
 ```
 
+**BatchBoot reassessment** (run from `python/`):
+
+```bash
+# Conservative functional-BatchBoot noise screen; no Sage dependency.
+python3 BatchBoot.py --profile tfhepp-lvl1 --slots 1024 --hamming-weight 34
+
+# Estimate both the sparse source and the accumulator target secrets.
+apptainer exec --no-home --pwd /work --env DOT_SAGE=/tmp/.sage \
+  --bind "$(pwd):/work" sagemath.sif \
+  sage -python /work/BatchBoot.py --profile tfhepp-lvl1 \
+  --slots 1024 --hamming-weight 34 --security
+```
+
+`BatchBoot.py` follows the concrete radix-4 selector count in
+`TFHEpp/include/tfhe/batchboot.hpp`: each EMP uses four external products per
+stored radix-4 digit, including the final partially used digit when
+`log2(slots)` is odd.  It treats the sparse source key and accumulator target
+key as different LWE instances, since evaluation keys are encrypted under the
+target key.  The reported failure value is a conservative Gaussian screening
+bound; it does not cover FFT numerical error or serve as a correctness proof.
+The built-in profiles are TFHEpp structs, not proposed production settings:
+for a separate sparse input parameter, set `--source-alpha-bits` and rerun
+`--security` for both source and target instances.
+The latest local assessment and its exact estimator assumptions are recorded in
+[`python/estimates/batchboot_results.md`](python/estimates/batchboot_results.md).
+The same-checkout throughput comparison with TFHEpp's existing block-binary
+implementation is recorded in
+[`python/estimates/batchboot_vs_blockbinary.md`](python/estimates/batchboot_vs_blockbinary.md).
+
 The `--no-home --env DOT_SAGE=/tmp/.sage` form avoids Sage trying to create
 `~/.sage` on read-only container paths in rootless Apptainer environments.
 
