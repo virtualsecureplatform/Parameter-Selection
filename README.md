@@ -51,7 +51,14 @@ apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/newTFHE.py
 apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/TFHE586.py
 apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/verify128bit.py
 apptainer exec --no-home --pwd /work --env DOT_SAGE=/tmp/.sage --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/TFHEprus_secure_128.py
+apptainer exec --no-home --pwd /work --env DOT_SAGE=/tmp/.sage --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/shallowboot_structured_std128.py
 ```
+
+The shallow-bootstrap screen covers TFHEpp's executable `n=1024`, `q=512`,
+one-hot `h=64` source and its current `N=1024`, 32-bit-torus accumulator
+proxy.  It reports the source's uniform-sparse-binary proxy separately from
+the accumulator proxy: the one-hot structured-secret assumption still needs
+the additional concrete analysis discussed in ePrint 2026/1730.
 
 **BatchBoot reassessment** (run from `python/`):
 
