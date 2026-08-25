@@ -52,6 +52,8 @@ apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/T
 apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/verify128bit.py
 apptainer exec --no-home --pwd /work --env DOT_SAGE=/tmp/.sage --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/TFHEprus_secure_128.py
 apptainer exec --no-home --pwd /work --env DOT_SAGE=/tmp/.sage --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/shallowboot_structured_std128.py
+apptainer exec --no-home --pwd /work --env DOT_SAGE=/tmp/.sage --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/shallowboot_lowdepth.py
+python3 python/estimates/shallowboot_noise.py
 ```
 
 The shallow-bootstrap screen covers TFHEpp's executable `n=1024`, `q=512`,
@@ -59,6 +61,33 @@ one-hot `h=64` source and its current `N=1024`, 32-bit-torus accumulator
 proxy.  It reports the source's uniform-sparse-binary proxy separately from
 the accumulator proxy: the one-hot structured-secret assumption still needs
 the additional concrete analysis discussed in ePrint 2026/1730.
+
+`shallowboot_lowdepth.py` records Algorithm 3's `n=1450`, `h=29`, `N=4096`,
+`105 -> 50` bit schedule and screens its sparse-LWE source. Its Binary-NTT
+RLWE security remains the paper's new assumption and is intentionally not
+treated as a standard lattice-estimator result.
+The checked local estimates and the source-security discrepancy are recorded
+in [`python/estimates/shallowboot_lowdepth_results.md`](python/estimates/shallowboot_lowdepth_results.md).
+
+`shallowboot_noise.py` follows the implemented Algorithm-3 PBC/QH-RLWE phase
+variance, checks modulus wrap headroom, and applies every modulus switch. Use
+`--lwe-h 29 --search-middle 13:49` to search the paper-sized chain's omitted
+intermediate modulus. The recorded noise-feasible candidate uses
+`--ring-n 8192 --modulus-chain 151 69 52 36 --switch-after 3 4 5`.
+This estimator requires ordinary Python, not Sage.
+The older boundary diagnostic printed by `shallowboot_lowdepth.py` excludes
+ciphertext-product noise and must not be interpreted as a correctness margin.
+Recorded output and the resulting diagnosis are in
+[`python/estimates/shallowboot_noise_results.md`](python/estimates/shallowboot_noise_results.md).
+The recorded `N=8192,Q=2^151,sigma'=0.75` ring proxy is 188.7 classical bits.
+The general input `n=1450,h=37,q=512` proxy is 133.3 bits. The faster
+structured input profile uses `n=1024,h=64` with 16-position one-hot blocks;
+its uniform-sparse proxy is 170.3 bits and its actual distribution follows the
+paper's structured-entropy assumption. The refreshed output key uses
+`n=1450,h=60,Q'=2^15,sigma=3.2` (the smaller `n=1150` proxy is already 138.6
+bits). The structured executable optionally stores every PBC `a` polynomial
+as a 256-bit BLAKE3 seed, reducing its estimated PBC key from 0.797 to 0.398
+GiB without increasing the measured online runtime.
 
 **BatchBoot reassessment** (run from `python/`):
 
