@@ -51,7 +51,72 @@ apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/newTFHE.py
 apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/TFHE586.py
 apptainer exec --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/verify128bit.py
 apptainer exec --no-home --pwd /work --env DOT_SAGE=/tmp/.sage --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/TFHEprus_secure_128.py
+apptainer exec --no-home --pwd /work --env DOT_SAGE=/tmp/.sage --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/shallowboot_structured_std128.py
+apptainer exec --no-home --pwd /work --env DOT_SAGE=/tmp/.sage --bind "$(pwd):/work" sagemath.sif sage -python /work/estimates/shallowboot_lowdepth.py
+python3 python/estimates/shallowboot_noise.py
 ```
+
+The shallow-bootstrap screen covers TFHEpp's executable `n=1024`, `q=512`,
+one-hot `h=64` source and its current `N=1024`, 32-bit-torus accumulator
+proxy.  It reports the source's uniform-sparse-binary proxy separately from
+the accumulator proxy: the one-hot structured-secret assumption still needs
+the additional concrete analysis discussed in ePrint 2026/1730.
+
+`shallowboot_lowdepth.py` records Algorithm 3's `n=1450`, `h=29`, `N=4096`,
+`105 -> 50` bit schedule and screens its sparse-LWE source. Its Binary-NTT
+RLWE security remains the paper's new assumption and is intentionally not
+treated as a standard lattice-estimator result.
+The checked local estimates and the source-security discrepancy are recorded
+in [`python/estimates/shallowboot_lowdepth_results.md`](python/estimates/shallowboot_lowdepth_results.md).
+
+`shallowboot_noise.py` follows the implemented Algorithm-3 PBC/QH-RLWE phase
+variance, checks modulus wrap headroom, and applies every modulus switch. Use
+`--lwe-h 29 --search-middle 13:49` to search the paper-sized chain's omitted
+intermediate modulus. The recorded noise-feasible candidate uses
+`--ring-n 8192 --modulus-chain 151 69 52 36 --switch-after 3 4 5`.
+This estimator requires ordinary Python, not Sage.
+The older boundary diagnostic printed by `shallowboot_lowdepth.py` excludes
+ciphertext-product noise and must not be interpreted as a correctness margin.
+Recorded output and the resulting diagnosis are in
+[`python/estimates/shallowboot_noise_results.md`](python/estimates/shallowboot_noise_results.md).
+The recorded `N=8192,Q=2^151,sigma'=0.75` ring proxy is 188.7 classical bits.
+The general input `n=1450,h=37,q=512` proxy is 133.3 bits. The faster
+structured input profile uses `n=1024,h=64` with 16-position one-hot blocks;
+its uniform-sparse proxy is 170.3 bits and its actual distribution follows the
+paper's structured-entropy assumption. The refreshed output key uses
+`n=1450,h=60,Q'=2^15,sigma=3.2` (the smaller `n=1150` proxy is already 138.6
+bits). The structured executable optionally stores every PBC `a` polynomial
+as a 256-bit BLAKE3 seed, reducing its estimated PBC key from 0.797 to 0.398
+GiB without increasing the measured online runtime.
+
+**BatchBoot reassessment** (run from `python/`):
+
+```bash
+# Conservative functional-BatchBoot noise screen; no Sage dependency.
+python3 BatchBoot.py --profile tfhepp-lvl1 --slots 1024 --hamming-weight 34
+
+# Estimate both the sparse source and the accumulator target secrets.
+apptainer exec --no-home --pwd /work --env DOT_SAGE=/tmp/.sage \
+  --bind "$(pwd):/work" sagemath.sif \
+  sage -python /work/BatchBoot.py --profile tfhepp-lvl1 \
+  --slots 1024 --hamming-weight 34 --security
+```
+
+`BatchBoot.py` follows the concrete radix-4 selector count in
+`TFHEpp/include/tfhe/batchboot.hpp`: each EMP uses four external products per
+stored radix-4 digit, including the final partially used digit when
+`log2(slots)` is odd.  It treats the sparse source key and accumulator target
+key as different LWE instances, since evaluation keys are encrypted under the
+target key.  The reported failure value is a conservative Gaussian screening
+bound; it does not cover FFT numerical error or serve as a correctness proof.
+The built-in profiles are TFHEpp structs, not proposed production settings:
+for a separate sparse input parameter, set `--source-alpha-bits` and rerun
+`--security` for both source and target instances.
+The latest local assessment and its exact estimator assumptions are recorded in
+[`python/estimates/batchboot_results.md`](python/estimates/batchboot_results.md).
+The same-checkout throughput comparison with TFHEpp's existing block-binary
+implementation is recorded in
+[`python/estimates/batchboot_vs_blockbinary.md`](python/estimates/batchboot_vs_blockbinary.md).
 
 The `--no-home --env DOT_SAGE=/tmp/.sage` form avoids Sage trying to create
 `~/.sage` on read-only container paths in rootless Apptainer environments.
@@ -195,22 +260,51 @@ SciPy is installed:
 ```bash
 python3 python/CLPXnoise.py
 python3 python/CLPXnoise.py --direction tlwes-to-clpx --paper-ss2clpx --validbit 8
-python3 python/CLPXnoise.py --direction clpx-to-tlwes --validbit 8 --numdigit 4 --basebit 2
+python3 python/CLPXnoise.py --direction clpx-to-tlwes --validbit 16 --numdigit 9 --basebit 2
+python3 python/CLPXnoise.py --compare-reverse-options --validbit 128
 python3 python/CLPXnoise.py --direction switched-multiplication --paper-ss2clpx --validbit 8 --max-mults 8 --mult-chain square
 python3 python/CLPXnoise.py --direction all --validbit 8 --max-mults 16
 ```
 
 `CLPXnoise.py` follows the TFHEpp operation sequence in
-`../TFHEpp/include/bfv-clpx.hpp` for `TLWES2CLPXIKS` and
+`../TFHEpp/include/clpx/bfv-clpx.hpp` for `TLWES2CLPXIKS` and
 `CLPX2TLWESIKSanybit`.  It composes the existing TFHE bootstrapping,
 identity-key-switching, and annihilate-packing formulas from
 `python/noiseestimation/keyvariation.py`.  The default CLPX preset in
 `python/noiseestimation/params/clpx.py` mirrors the local TFHEpp default
 `include/params/128bit.hpp` CLPX test path.  Programmable bootstrapping is
 modeled as refreshing the output encryption noise; the script also reports the
-largest internal PBS-input variance and a bin margin, because CLPX digit
-extraction can fail semantically even when the final refreshed TLWE noise is
-small.
+largest internal PBS-input variance and a semantic interval margin, because
+CLPX digit extraction can fail semantically even when the final refreshed TLWE
+noise is small.
+
+For TFHE-to-CLPX, the estimator also includes the paper's
+`q^2 / 2^(2w)` variance contribution from the finite-width approximation of
+`Delta_b`.  Failure probabilities are evaluated in the log domain so results
+below floating-point `erfc` range remain finite.  The reported PBS input margin
+uses the source TLWE message interval; it is not a requirement that input noise
+fit within one modulus-switch rounding bin.
+
+The paper model also keeps the two meanings of `w` separate: `Delta_b`'s
+truncation width is a scheme-switch argument, whereas relinearization uses the
+TFHEpp gadget base (`P.B`) and level count (`P.l`).  Margins for the reverse
+path use their operation-specific decision intervals: `1/32` for rounded
+radix-2 digits, half a decomposition bin for HomDecomp and final bit
+extraction, and the corresponding carry-LUT interval.
+
+`--compare-reverse-options` compares the implemented 16-bit-block path with
+`basebit=4` candidates.  Packing the four final bit LUTs into one PBS is not a
+valid option: negacyclic PBS requires `f(x+1/2)=-f(x)`, while the lower-bit
+functions repeat after a half-torus shift.  Their distinct input shifts are
+therefore necessary.  The default lvl2 PBS gadget (`l=4`, `Bgbit=9`) does not
+leave a sufficient HomDecomp margin for `basebit=4`.  The reverse-only
+candidate keeps four rows and selects
+`Bgbit=10`, reducing lvl2 PBS variance by about 5.2 bits without increasing
+the bootstrapping-key row count.  This raises the estimated `basebit=4`
+HomDecomp margin from about 2.5 to 7.5 variance bits.  The same preset also
+raises the current path's conservative aggregate semantic-failure estimate
+from about `2^-56` to well beyond `2^-128`; it is therefore used for both
+optimized candidates in the comparison.
 
 The `--direction switched-multiplication` mode is an approximate depth screen
 for `CLPXMult` (`TRLWEMultWithoutRelinerizationCLPX + Relinearization`) using
