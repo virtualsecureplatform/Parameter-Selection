@@ -10,7 +10,10 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+import hashlib
+import json
 import math
+from typing import Any
 
 
 def multiplicative_order(value: int, modulus: int) -> int:
@@ -108,6 +111,76 @@ class Schedule:
     peak_live_ciphertexts: int
 
 
+@dataclass(frozen=True)
+class SwitchUse:
+    family: str
+    one_based_index: int
+    mixed_radix: tuple[int, ...]
+    rotation: tuple[int, ...]
+    exponent: int
+
+
+@dataclass(frozen=True)
+class GateManifest:
+    schedule: Schedule
+    baby_switches: tuple[SwitchUse, ...]
+    giant_switches: tuple[SwitchUse, ...]
+    backward_exponent: int
+    trace_exponent: int
+    stages: tuple[dict[str, Any], ...]
+
+    def canonical_object(self) -> dict[str, Any]:
+        schedule = self.schedule
+        return {
+            "schema": "tfhepp-compact-bgv-gate-manifest-v1",
+            "degree": schedule.degree,
+            "cyclotomic_index": schedule.cyclotomic_index,
+            "plaintext_prime": schedule.plaintext_prime,
+            "hensel_input_exponent": 1,
+            "hensel_bootstrap_exponent": 2,
+            "frobenius_order": schedule.frobenius_order,
+            "slot_count": schedule.slot_count,
+            "dimension_sizes": list(schedule.dimension_sizes),
+            "dimension_generators": list(schedule.dimension_generators),
+            "baby_sizes": list(schedule.baby_sizes),
+            "giant_sizes": list(schedule.giant_sizes),
+            "baby_product": schedule.baby_product,
+            "giant_product": schedule.giant_product,
+            "peak_live_ciphertexts": schedule.peak_live_ciphertexts,
+            "baby_switches": [
+                {
+                    "index": use.one_based_index,
+                    "mixed_radix": list(use.mixed_radix),
+                    "rotation": list(use.rotation),
+                    "exponent": use.exponent,
+                }
+                for use in self.baby_switches
+            ],
+            "giant_switches": [
+                {
+                    "index": use.one_based_index,
+                    "mixed_radix": list(use.mixed_radix),
+                    "rotation": list(use.rotation),
+                    "exponent": use.exponent,
+                }
+                for use in self.giant_switches
+            ],
+            "backward_exponent": self.backward_exponent,
+            "trace_exponent": self.trace_exponent,
+            "unique_switch_exponents": sorted(schedule.switch_key_exponents),
+            "generated_group_size": schedule.generated_group_size,
+            "stages": list(self.stages),
+        }
+
+    def canonical_json(self) -> str:
+        return json.dumps(
+            self.canonical_object(), sort_keys=True, separators=(",", ":")
+        )
+
+    def sha256(self) -> str:
+        return hashlib.sha256(self.canonical_json().encode("utf-8")).hexdigest()
+
+
 def thin_power_of_two_schedule(
     degree: int = 65_536, plaintext_prime: int = 65_537
 ) -> Schedule:
@@ -170,17 +243,200 @@ def thin_power_of_two_schedule(
     )
 
 
+def thin_power_of_two_gate_manifest(
+    degree: int = 65_536, plaintext_prime: int = 65_537
+) -> GateManifest:
+    schedule = thin_power_of_two_schedule(degree, plaintext_prime)
+    modulus = schedule.cyclotomic_index
+    stage_sizes = (schedule.dimension_sizes[1], schedule.dimension_sizes[0])
+    stage_generators = (
+        schedule.dimension_generators[1],
+        schedule.dimension_generators[0],
+    )
+
+    baby_switches: list[SwitchUse] = []
+    for index in range(2, schedule.baby_product + 1):
+        mixed = index_to_sequence(index, schedule.baby_sizes)
+        rotation = mixed
+        baby_switches.append(
+            SwitchUse(
+                "baby",
+                index,
+                mixed,
+                rotation,
+                rotation_exponent(stage_generators, rotation, modulus),
+            )
+        )
+
+    giant_switches: list[SwitchUse] = []
+    for index in range(2, schedule.giant_product + 1):
+        mixed = index_to_sequence(index, schedule.giant_sizes)
+        rotation = tuple(
+            schedule.baby_sizes[i] * mixed[i] for i in range(len(mixed))
+        )
+        giant_switches.append(
+            SwitchUse(
+                "giant",
+                index,
+                mixed,
+                rotation,
+                rotation_exponent(stage_generators, rotation, modulus),
+            )
+        )
+
+    backward = pow(
+        schedule.dimension_generators[0],
+        -schedule.dimension_sizes[0],
+        modulus,
+    )
+    trace = pow(plaintext_prime, schedule.frobenius_order // 2, modulus)
+    stages = (
+        {
+            "name": "forward_bad_dimension",
+            "operation": "matmul_2d_bad_dimension_bsgs",
+            "plaintext_hensel_exponent": 1,
+            "source_width": 1,
+            "peak_width": schedule.peak_live_ciphertexts,
+            "target_width": 1,
+            "baby_switch_count": len(baby_switches),
+            "giant_switch_count": len(giant_switches),
+            "uses_backward": True,
+        },
+        {
+            "name": "homomorphic_inner_product",
+            "operation": "encrypted_secret_inner_product",
+            "plaintext_hensel_exponent": 2,
+            "source_width": 1,
+            "peak_width": 4,
+            "target_width": 1,
+        },
+        {
+            "name": "degree_two_trace",
+            "operation": "trace_add_automorphism",
+            "plaintext_hensel_exponent": 2,
+            "source_width": 1,
+            "peak_width": 2,
+            "target_width": 1,
+            "automorphism": trace,
+        },
+        {
+            "name": "inverse_bad_dimension",
+            "operation": "matmul_2d_bad_dimension_bsgs",
+            "plaintext_hensel_exponent": 2,
+            "source_width": 1,
+            "peak_width": schedule.peak_live_ciphertexts,
+            "target_width": 1,
+            "baby_switch_count": len(baby_switches),
+            "giant_switch_count": len(giant_switches),
+            "uses_backward": True,
+        },
+        {
+            "name": "bounded_digit_extraction",
+            "operation": "lowest_digit_removal_then_exact_division",
+            "plaintext_hensel_exponent": 2,
+            "source_width": 1,
+            "peak_width": 8,
+            "target_width": 1,
+        },
+        {
+            "name": "cyclic_return",
+            "operation": "frontier_transition_and_rerandomize",
+            "plaintext_hensel_exponent": 1,
+            "source_width": 1,
+            "peak_width": 2,
+            "target_width": 1,
+        },
+    )
+    return GateManifest(
+        schedule=schedule,
+        baby_switches=tuple(baby_switches),
+        giant_switches=tuple(giant_switches),
+        backward_exponent=backward,
+        trace_exponent=trace,
+        stages=stages,
+    )
+
+
+def scalar_direct_gate_manifest_object(
+    degree: int = 65_536, plaintext_prime: int = 65_537
+) -> dict[str, Any]:
+    """Canonical manifest for the scalar-only direct BGV refresh.
+
+    Lifting the phase by p makes both the old BGV error and the evaluation-row
+    error divisible by p^2.  Thus one complete-modulus gadget transition and
+    exact public division replace the packed-slot linear maps.
+    """
+    return {
+        "schema": "tfhepp-compact-bgv-scalar-direct-manifest-v1",
+        "degree": degree,
+        "cyclotomic_index": 2 * degree,
+        "plaintext_prime": plaintext_prime,
+        "plaintext_square": plaintext_prime * plaintext_prime,
+        "gadget_digits": 5,
+        "stages": [
+            {
+                "name": "phase_lift",
+                "operation": "multiply_ciphertext_by_plaintext_prime",
+                "source_plaintext": plaintext_prime,
+                "target_plaintext": plaintext_prime * plaintext_prime,
+            },
+            {
+                "name": "homomorphic_decryption_transition",
+                "operation": "balanced_full_modulus_gadget_transition",
+                "source_width": 1,
+                "target_width": 1,
+                "gadget_digits": 5,
+                "key_error_scale": plaintext_prime * plaintext_prime,
+            },
+            {
+                "name": "exact_public_division",
+                "operation": "multiply_components_by_inverse_plaintext_prime",
+                "source_plaintext": plaintext_prime * plaintext_prime,
+                "target_plaintext": plaintext_prime,
+            },
+        ],
+    }
+
+
+def scalar_direct_gate_manifest_json(
+    degree: int = 65_536, plaintext_prime: int = 65_537
+) -> str:
+    return json.dumps(
+        scalar_direct_gate_manifest_object(degree, plaintext_prime),
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+
+def scalar_direct_gate_manifest_sha256(
+    degree: int = 65_536, plaintext_prime: int = 65_537
+) -> str:
+    return hashlib.sha256(
+        scalar_direct_gate_manifest_json(degree, plaintext_prime).encode()
+    ).hexdigest()
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--degree", type=int, default=65_536)
     parser.add_argument("--plaintext-prime", type=int, default=65_537)
     parser.add_argument("--rns-limbs", type=int, default=15)
+    parser.add_argument(
+        "--manifest-json",
+        action="store_true",
+        help="emit the canonical gate manifest as JSON",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    schedule = thin_power_of_two_schedule(args.degree, args.plaintext_prime)
+    manifest = thin_power_of_two_gate_manifest(args.degree, args.plaintext_prime)
+    schedule = manifest.schedule
+    if args.manifest_json:
+        print(json.dumps(manifest.canonical_object(), sort_keys=True, indent=2))
+        print(f"sha256={manifest.sha256()}")
+        return 0
     residue_bytes = 8
     full_ciphertext_bytes = (
         2 * schedule.degree * schedule.generated_group_size * residue_bytes * args.rns_limbs
@@ -205,6 +461,7 @@ def main() -> int:
     print(f"  unique switch-key automorphisms={len(schedule.switch_key_exponents)}")
     print(f"  generated subgroup size={schedule.generated_group_size}")
     print(f"  peak live ciphertexts={schedule.peak_live_ciphertexts}")
+    print(f"  gate manifest sha256={manifest.sha256()}")
     print(f"  full-cover ciphertext={full_ciphertext_bytes / 2**30:.2f} GiB")
     print(f"  scheduled frontier={frontier_bytes / 2**30:.2f} GiB")
     return 0
