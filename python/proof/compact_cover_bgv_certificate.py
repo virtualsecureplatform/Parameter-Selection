@@ -183,13 +183,20 @@ class Certificate:
     trace_drop_after: tuple[int, ...]
     digit_error_bound: int
     digit_polynomial_degree: int
+    accepted_input_error_bound: int
     accepted_input_error_log2: float
+    projected_error_bound: int
     projected_error_log2_bound: float
     output_limbs: int
+    output_error_bound: int
     output_error_log2_bound: float
+    output_capacity: int
     output_capacity_log2: float
     multiplication_input_limbs: int
+    addition_output_error_bound: int
+    multiplication_output_error_bound: int
     multiplication_output_error_log2_bound: float
+    multiplication_capacity: int
     multiplication_capacity_log2: float
     cycle_contraction_bits: float
     bootstrap_key_bytes: int
@@ -197,7 +204,8 @@ class Certificate:
     reduction_reserve_bits: float
     retained_security_proxy_bits: float
     correctness_failure_log2_bound: float
-    certified: bool
+    correctness_certified: bool
+    estimated_security_meets_target: bool
 
     def canonical_json(self) -> str:
         return json.dumps(asdict(self), sort_keys=True, separators=(",", ":"))
@@ -252,6 +260,8 @@ def build_certificate() -> Certificate:
     multiplication_input = modulus_drop(output, 2)
     multiplied = multiply_and_drop(multiplication_input, multiplication_input)
     multiplication_capacity = low_modulus // (2 * PLAINTEXT_PRIME)
+    addition_input = modulus_drop(output, 1)
+    added = add(addition_input, addition_input)
 
     retained_security = SOURCE_SECURITY_PROXY_BITS - REDUCTION_RESERVE_BITS
     cycle_contraction = math.log2(accepted_input_error) - math.log2(multiplied.bound)
@@ -264,15 +274,16 @@ def build_certificate() -> Certificate:
     hint_bytes = 4 * DEGREE * len(primes) * 8
     key_bytes = phase_key_bytes + trace_key_bytes + hint_bytes
 
-    certified = (
+    correctness_certified = (
         output.bound < output_capacity
         and multiplied.bound < multiplication_capacity
+        and added.bound <= accepted_input_error
         and cycle_contraction > 0
-        and retained_security >= SECURITY_TARGET_BITS
         and len(polynomial) - 1 == 93
     )
+    estimated_security_meets_target = retained_security >= SECURITY_TARGET_BITS
     return Certificate(
-        schema="tfhepp-compact-bgv-scalar-certificate-v2",
+        schema="tfhepp-compact-bgv-scalar-certificate-v3",
         gate_manifest_sha256=scalar_direct_gate_manifest_sha256(),
         degree=DEGREE,
         plaintext_prime=PLAINTEXT_PRIME,
@@ -290,13 +301,20 @@ def build_certificate() -> Certificate:
         trace_drop_after=(8, 16),
         digit_error_bound=DIGIT_ERROR_BOUND,
         digit_polynomial_degree=len(polynomial) - 1,
+        accepted_input_error_bound=accepted_input_error,
         accepted_input_error_log2=math.log2(accepted_input_error),
+        projected_error_bound=projected_error,
         projected_error_log2_bound=math.log2(projected_error),
         output_limbs=output.limbs,
+        output_error_bound=output.bound,
         output_error_log2_bound=math.log2(output.bound),
+        output_capacity=output_capacity,
         output_capacity_log2=math.log2(output_capacity),
         multiplication_input_limbs=2,
+        addition_output_error_bound=added.bound,
+        multiplication_output_error_bound=multiplied.bound,
         multiplication_output_error_log2_bound=math.log2(multiplied.bound),
+        multiplication_capacity=multiplication_capacity,
         multiplication_capacity_log2=math.log2(multiplication_capacity),
         cycle_contraction_bits=cycle_contraction,
         bootstrap_key_bytes=key_bytes,
@@ -304,7 +322,8 @@ def build_certificate() -> Certificate:
         reduction_reserve_bits=REDUCTION_RESERVE_BITS,
         retained_security_proxy_bits=retained_security,
         correctness_failure_log2_bound=-1_000_000.0,
-        certified=certified,
+        correctness_certified=correctness_certified,
+        estimated_security_meets_target=estimated_security_meets_target,
     )
 
 
@@ -339,8 +358,16 @@ def main() -> int:
         print(f"  evaluation key={certificate.bootstrap_key_bytes / 2**30:.2f} GiB")
         print(f"  manifest={certificate.gate_manifest_sha256}")
         print(f"  sha256={certificate.sha256()}")
-        print(f"  status={'CERTIFIED' if certificate.certified else 'FAIL'}")
-    return 0 if certificate.certified else 1
+        print(
+            "  correctness="
+            f"{'CERTIFIED' if certificate.correctness_certified else 'FAIL'}"
+        )
+        print(
+            "  estimated security="
+            f"{'MEETS TARGET' if certificate.estimated_security_meets_target else 'FAIL'}"
+        )
+    return 0 if (certificate.correctness_certified and
+                  certificate.estimated_security_meets_target) else 1
 
 
 if __name__ == "__main__":

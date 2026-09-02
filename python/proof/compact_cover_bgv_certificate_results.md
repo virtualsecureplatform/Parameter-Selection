@@ -39,6 +39,7 @@ projected trace error          < 2^46.00
 bootstrap output error         < 2^641.98
 13-limb output capacity          2^775.61
 two-limb preparation error     < 2^4.17
+one-limb refreshed addition      36
 multiply-and-drop error        < 2^4.17
 one-limb input capacity          2^44.00
 cycle contraction               27.41 bits
@@ -71,5 +72,5 @@ The scalar gate-manifest hash is
 and the certificate hash is
 
 ```text
-09c36cf48f9ac9b51cbd0a454b109e563663d3dc48a3f141fac7637cff13f16c
+69f97713b99002f8be8fc337b9899bd7e2969b5b27f2345577bd4e3a0cafb3f8
 ```
