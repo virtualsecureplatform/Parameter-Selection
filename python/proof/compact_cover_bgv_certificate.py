@@ -1,21 +1,10 @@
 #!/usr/bin/env python3
-"""Concrete security/correctness certificate for compact-cover scalar BGV.
-
-The certificate deliberately separates three claims:
-
-* the exact gate manifest and RNS congruences are deterministic checks;
-* ordinary Binary-NTT RLWE security is reported through the repository's
-  conservative unlimited-sample LWE attack-cost proxy; and
-* correctness uses the existing dependent-input BFV/BGV invariant-noise
-  model, plus a rigorous Hoeffding bound for the modulus-switch digit error.
-
-It does not claim a conventional-RLWE reduction for Binary-NTT RLWE.
-"""
+"""Deterministic certificate for the N=65536 scalar Binary-NTT BGV cycle."""
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
 import argparse
+from dataclasses import asdict, dataclass
 from functools import cache
 import hashlib
 import json
@@ -27,40 +16,25 @@ _HERE = Path(__file__).resolve().parent
 _PYTHON = _HERE.parent
 sys.path[:0] = [str(_HERE), str(_PYTHON)]
 
-from compact_cover_schedule import (  # noqa: E402
-    scalar_direct_gate_manifest_sha256,
-    thin_power_of_two_gate_manifest,
-)
-from noiseestimation.bfv import (  # noqa: E402
-    BFVParams,
-    NoiseState,
-    add_many,
-    const_mul,
-    correctness_d_for_failure,
-    estimate_polyeval_bsgs,
-    fresh,
-    key_switch,
-    log2_add,
-    log2_correctness_threshold,
+from compact_cover_schedule import scalar_direct_gate_manifest_sha256  # noqa: E402
+from noiseestimation.bfv_polynomial import (  # noqa: E402
+    lowest_digit_removal_polynomial_over_range,
 )
 
 
 DEGREE = 65_536
 PLAINTEXT_PRIME = 65_537
-PLAINTEXT_SQUARE = PLAINTEXT_PRIME * PLAINTEXT_PRIME
-FRONTIER_WIDTH = 368
+PLAINTEXT_SQUARE = PLAINTEXT_PRIME**2
 SECRET_WEIGHT = 32
 CBD_ETA = 20
-ERROR_STDDEV = math.sqrt(CBD_ETA / 2)
-GADGET_DIGITS = 5
-DIGIT_ERROR_BOUND = 43
-FAILURE_TARGET_LOG2 = -128.0
+PHASE_LIFT_DIGITS = 2
+TRACE_DIGITS = 23
+TRACE_KEY_COUNT = 16
+DIGIT_ERROR_BOUND = 23
 SECURITY_TARGET_BITS = 128.0
-ACCEPTED_INPUT_LOG2_VARIANCE = -900.0
+REDUCTION_RESERVE_BITS = 1.0
+SOURCE_SECURITY_PROXY_BITS = 133.44
 
-# These primes are the first deterministic descending candidates q=1+k*M,
-# M=lcm(2N,p^2), passing primality.  The listed primitive roots are checked by
-# the C++ NTT regression.  Every prefix product is one modulo p^2 and 2N.
 RNS_PRIMES_AND_ROOTS = (
     (2_301_972_608_560_791_553, 5),
     (2_295_217_002_959_732_737, 5),
@@ -77,7 +51,116 @@ RNS_PRIMES_AND_ROOTS = (
     (2_203_453_360_212_017_153, 3),
     (2_179_808_740_608_311_297, 5),
     (2_156_164_121_004_605_441, 3),
+    (2_152_786_318_204_076_033, 3),
+    (2_124_637_961_532_997_633, 11),
+    (2_114_504_553_131_409_409, 14),
+    (2_109_437_848_930_615_297, 5),
+    (2_102_682_243_329_556_481, 13),
+    (2_078_474_656_592_429_057, 3),
+    (2_065_526_412_523_732_993, 11),
+    (2_057_081_905_522_409_473, 5),
 )
+
+
+@dataclass(frozen=True)
+class ErrorState:
+    limbs: int
+    bound: int
+
+
+def modulus(limbs: int) -> int:
+    return math.prod(value for value, _ in RNS_PRIMES_AND_ROOTS[:limbs])
+
+
+def modulus_drop(state: ErrorState, target_limbs: int) -> ErrorState:
+    if not 0 < target_limbs <= state.limbs:
+        raise ValueError("invalid target limb count")
+    error = state.bound
+    for active in range(state.limbs, target_limbs, -1):
+        dropped = RNS_PRIMES_AND_ROOTS[active - 1][0]
+        # Exact BGV LSB division plus one body and h signed mask roundings.
+        error = (error + dropped - 1) // dropped + (SECRET_WEIGHT + 2) // 2
+    return ErrorState(target_limbs, error)
+
+
+def key_switch_error(limbs: int, rows: int, gadget_bits: int | None = None) -> int:
+    if gadget_bits is None:
+        gadget_bits = math.ceil(modulus(limbs).bit_length() / rows)
+    digit_bound = 1 << (gadget_bits - 1)
+    return rows * DEGREE * digit_bound * CBD_ETA
+
+
+def add(left: ErrorState, right: ErrorState) -> ErrorState:
+    limbs = min(left.limbs, right.limbs)
+    return ErrorState(
+        limbs,
+        modulus_drop(left, limbs).bound + modulus_drop(right, limbs).bound,
+    )
+
+
+def multiply_and_drop(left: ErrorState, right: ErrorState) -> ErrorState:
+    limbs = min(left.limbs, right.limbs)
+    if limbs < 2:
+        raise ValueError("multiplication exhausted RNS levels")
+    left_error = modulus_drop(left, limbs).bound
+    right_error = modulus_drop(right, limbs).bound
+    message_bound = PLAINTEXT_SQUARE // 2
+    raw = (
+        message_bound * (left_error + right_error)
+        + PLAINTEXT_SQUARE * left_error * right_error
+        + (message_bound * message_bound + PLAINTEXT_SQUARE - 1)
+        // PLAINTEXT_SQUARE
+        + 1
+    )
+    return modulus_drop(ErrorState(limbs, raw), limbs - 1)
+
+
+def scale(state: ErrorState, scalar: int) -> ErrorState:
+    scalar %= PLAINTEXT_SQUARE
+    if scalar > PLAINTEXT_SQUARE // 2:
+        scalar -= PLAINTEXT_SQUARE
+    return ErrorState(state.limbs, abs(scalar) * state.bound)
+
+
+def generic_bsgs_error(coefficients: list[int], value: ErrorState) -> ErrorState:
+    baby_count = 3
+    giant_count = 6
+    baby = [ErrorState(value.limbs, 0), value]
+    baby.append(multiply_and_drop(baby[1], baby[1]))
+    baby.append(multiply_and_drop(baby[2], baby[1]))
+    giant = [baby[baby_count]]
+    for _ in range(1, giant_count):
+        giant.append(multiply_and_drop(giant[-1], giant[-1]))
+
+    def evaluate(offset: int, length: int, level: int) -> ErrorState:
+        accumulator = ErrorState(value.limbs, 0)
+        if length <= 1:
+            return accumulator
+        if level == 0:
+            for power in range(1, min(length - 1, baby_count) + 1):
+                coefficient = coefficients[offset + power]
+                if coefficient:
+                    accumulator = add(accumulator, scale(baby[power], coefficient))
+            return accumulator
+        split = min(length, baby_count * (1 << (level - 1)))
+        lower = evaluate(offset, split, level - 1)
+        if split == length:
+            return lower
+        upper = evaluate(offset + split, length - split, level - 1)
+        return add(lower, multiply_and_drop(upper, giant[level - 1]))
+
+    return evaluate(0, len(coefficients), giant_count)
+
+
+def digit_polynomial_error(coefficients: list[int], value: ErrorState) -> ErrorState:
+    odd = coefficients[0] == 0 and all(
+        coefficients[index] == 0 for index in range(2, len(coefficients), 2)
+    )
+    if not odd:
+        return generic_bsgs_error(coefficients, value)
+    square = multiply_and_drop(value, value)
+    inner = generic_bsgs_error(coefficients[1::2], square)
+    return multiply_and_drop(inner, value)
 
 
 @dataclass(frozen=True)
@@ -87,35 +170,33 @@ class Certificate:
     degree: int
     plaintext_prime: int
     plaintext_square: int
-    frobenius_order: int
-    frontier_width: int
     secret_weight: int
     error_distribution: str
-    error_stddev: float
     rns_primes: tuple[int, ...]
     primitive_roots: tuple[int, ...]
-    modulus_log2: float
     modulus_bits: int
-    gadget_digits: int
-    gadget_bits: int
+    modulus_log2: float
+    low_modulus_bits: int
+    phase_lift_digits: int
+    trace_digits: int
+    trace_key_count: int
+    trace_drop_after: tuple[int, ...]
     digit_error_bound: int
     digit_polynomial_degree: int
-    digit_bsgs_k: int
-    digit_bsgs_m: int
-    rounding_trials: int
-    rounding_failure_log2_bound: float
-    accepted_input_log2_variance: float
-    fresh_output_log2_variance: float
-    refresh_contraction_bits: float
-    output_correctness_threshold_log2_variance: float
-    source_security_proxy_bits: float
-    reduction_loss_bits: float
-    certified_security_bits: float
-    security_model: str
-    correctness_model: str
-    circuit: str
-    deterministic_output_error_log2_bound: float
+    accepted_input_error_log2: float
+    projected_error_log2_bound: float
+    output_limbs: int
+    output_error_log2_bound: float
+    output_capacity_log2: float
+    multiplication_input_limbs: int
+    multiplication_output_error_log2_bound: float
+    multiplication_capacity_log2: float
+    cycle_contraction_bits: float
     bootstrap_key_bytes: int
+    source_security_proxy_bits: float
+    reduction_reserve_bits: float
+    retained_security_proxy_bits: float
+    correctness_failure_log2_bound: float
     certified: bool
 
     def canonical_json(self) -> str:
@@ -125,131 +206,104 @@ class Certificate:
         return hashlib.sha256(self.canonical_json().encode()).hexdigest()
 
 
-def _params(t: int, q_bits: int) -> BFVParams:
-    return BFVParams(
-        nbit=16,
-        t=t,
-        q_bits=q_bits,
-        secret_variance=SECRET_WEIGHT / DEGREE,
-        encryption_u_variance=2 / 3,
-        error_log2_std=math.log2(ERROR_STDDEV),
-        key_switch="hybrid-rns",
-        rns_digits=GADGET_DIGITS,
-        hybrid_omega=GADGET_DIGITS,
-        fresh="symmetric",
-        tag="compact-cover-bgv-65536",
-    )
-
-
-def _linear_stage(state: NoiseState, params: BFVParams) -> NoiseState:
-    switched = key_switch(state, params)
-    scaled = const_mul(switched, params, "linear-constant")
-    # All diagonal terms depend on the same input.  Squaring the sum of their
-    # standard deviations is the conservative dependent-input bound.
-    return NoiseState(
-        scaled.log2_variance + 2 * math.log2(DEGREE // 2),
-        scaled.degree,
-        "bad-dimension-linear-stage",
-    )
-
-
 @cache
 def build_certificate() -> Certificate:
-    packed_manifest = thin_power_of_two_gate_manifest(DEGREE, PLAINTEXT_PRIME)
     primes = tuple(value for value, _ in RNS_PRIMES_AND_ROOTS)
     roots = tuple(root for _, root in RNS_PRIMES_AND_ROOTS)
-    modulus = math.prod(primes)
-    modulus_log2 = math.log2(modulus)
-    modulus_bits = modulus.bit_length()
     congruence = math.lcm(2 * DEGREE, PLAINTEXT_SQUARE)
-    if any((prime - 1) % congruence != 0 for prime in primes):
-        raise AssertionError("RNS prime violates BGV/NTT congruence")
+    if any((prime - 1) % congruence for prime in primes):
+        raise AssertionError("invalid BGV/NTT prime congruence")
+    full_modulus = modulus(len(primes))
+    low_modulus = primes[0]
 
-    p_params = _params(PLAINTEXT_PRIME, modulus_bits)
-    p2_params = _params(PLAINTEXT_SQUARE, modulus_bits)
+    # The first term of the BGV carry is bounded by (h+1)/2.  Reserve six
+    # additional units for the scaled old error, leaving strict room below 23.
+    accepted_input_error = 6 * low_modulus // PLAINTEXT_SQUARE
+    carry_bound_twice = SECRET_WEIGHT + 1 + 12
+    if carry_bound_twice >= 2 * DIGIT_ERROR_BOUND:
+        raise AssertionError("carry interval is not strict")
 
-    # Retain the general packed-path polynomial metadata, but certify the
-    # scalar specialization below.  Its lifted p^2 error is removed by exact
-    # public division and requires no probabilistic digit-extraction event.
-    packed_digit_degree = 4 * DIGIT_ERROR_BOUND + 1
-
-    # A coefficient modulus switch has one body rounding term and at most h
-    # signed mask terms.  Each centered rounding term has range length one.
-    # Hoeffding: P(|sum| >= B) <= 2 exp(-2 B^2/(h+1)).
-    rounding_trials = 0
-    # No rounding sampler is used by the scalar direct circuit.  Keep a finite
-    # sentinel so the canonical JSON remains standards compliant.
-    rounding_failure = -1_000_000.0
-
-    output_d = correctness_d_for_failure(DEGREE, FAILURE_TARGET_LOG2)
-    output_threshold = log2_correctness_threshold(output_d)
-
-    gadget_bits = math.ceil(modulus_bits / GADGET_DIGITS)
-    deterministic_error_log2 = (
-        math.log2(PLAINTEXT_PRIME)
-        + math.log2(GADGET_DIGITS)
-        + math.log2(DEGREE)
-        + (gadget_bits - 1)
-        + math.log2(CBD_ETA)
+    low_gadget_bits = math.ceil(low_modulus.bit_length() / PHASE_LIFT_DIGITS)
+    quotient_factor = (low_modulus - 1) // PLAINTEXT_SQUARE
+    phase_error = (
+        accepted_input_error
+        + quotient_factor * DIGIT_ERROR_BOUND
+        + key_switch_error(len(primes), PHASE_LIFT_DIGITS, low_gadget_bits)
     )
-    output_log2_variance = 2 * (deterministic_error_log2 - modulus_log2)
+    state = ErrorState(len(primes), phase_error)
+    for stage in range(TRACE_KEY_COUNT):
+        state = ErrorState(
+            state.limbs,
+            2 * state.bound
+            + key_switch_error(state.limbs, TRACE_DIGITS),
+        )
+        if stage in (7, 15):
+            state = modulus_drop(state, state.limbs - 1)
+    # 65536^(-1) mod 65537^2 has centered representative -65538.
+    state = scale(state, PLAINTEXT_SQUARE - 65_538)
+    projected_error = state.bound
 
-    # Unlimited-sample rough estimator result for n=65536, qbits=915 and the
-    # actual evaluation-row phase error p^2*CBD(20), recorded by
-    # regular_cover_bgv_security.py. One bit is reserved for finite reduction
-    # accounting.
-    source_security = 243.53
-    reduction_loss = 1.0
-    certified_security = source_security - reduction_loss
-    contraction = ACCEPTED_INPUT_LOG2_VARIANCE - output_log2_variance
-    per_ciphertext_bytes = 2 * DEGREE * len(primes) * 8
-    bootstrap_key_bytes = GADGET_DIGITS * per_ciphertext_bytes + 48
+    polynomial = lowest_digit_removal_polynomial_over_range(
+        PLAINTEXT_PRIME, DIGIT_ERROR_BOUND
+    )
+    output = digit_polynomial_error(polynomial, state)
+    output_capacity = modulus(output.limbs) // (2 * PLAINTEXT_PRIME)
+
+    multiplication_input = modulus_drop(output, 2)
+    multiplied = multiply_and_drop(multiplication_input, multiplication_input)
+    multiplication_capacity = low_modulus // (2 * PLAINTEXT_PRIME)
+
+    retained_security = SOURCE_SECURITY_PROXY_BITS - REDUCTION_RESERVE_BITS
+    cycle_contraction = math.log2(accepted_input_error) - math.log2(multiplied.bound)
+    ciphertext_bytes = 2 * DEGREE * 8
+    phase_key_bytes = PHASE_LIFT_DIGITS * len(primes) * ciphertext_bytes + 48
+    trace_key_bytes = sum(
+        TRACE_DIGITS * (23 if index < 8 else 22) * ciphertext_bytes + 48
+        for index in range(TRACE_KEY_COUNT)
+    )
+    hint_bytes = 4 * DEGREE * len(primes) * 8
+    key_bytes = phase_key_bytes + trace_key_bytes + hint_bytes
+
     certified = (
-        deterministic_error_log2 < modulus_log2 - 1
-        and output_log2_variance <= output_threshold
-        and contraction > 0
-        and certified_security >= SECURITY_TARGET_BITS
+        output.bound < output_capacity
+        and multiplied.bound < multiplication_capacity
+        and cycle_contraction > 0
+        and retained_security >= SECURITY_TARGET_BITS
+        and len(polynomial) - 1 == 93
     )
-
     return Certificate(
-        schema="tfhepp-compact-bgv-certificate-v1",
-        gate_manifest_sha256=scalar_direct_gate_manifest_sha256(
-            DEGREE, PLAINTEXT_PRIME
-        ),
+        schema="tfhepp-compact-bgv-scalar-certificate-v2",
+        gate_manifest_sha256=scalar_direct_gate_manifest_sha256(),
         degree=DEGREE,
         plaintext_prime=PLAINTEXT_PRIME,
         plaintext_square=PLAINTEXT_SQUARE,
-        frobenius_order=packed_manifest.schedule.frobenius_order,
-        frontier_width=FRONTIER_WIDTH,
         secret_weight=SECRET_WEIGHT,
         error_distribution=f"CBD({CBD_ETA})",
-        error_stddev=ERROR_STDDEV,
         rns_primes=primes,
         primitive_roots=roots,
-        modulus_log2=modulus_log2,
-        modulus_bits=modulus_bits,
-        gadget_digits=GADGET_DIGITS,
-        gadget_bits=gadget_bits,
+        modulus_bits=full_modulus.bit_length(),
+        modulus_log2=math.log2(full_modulus),
+        low_modulus_bits=low_modulus.bit_length(),
+        phase_lift_digits=PHASE_LIFT_DIGITS,
+        trace_digits=TRACE_DIGITS,
+        trace_key_count=TRACE_KEY_COUNT,
+        trace_drop_after=(8, 16),
         digit_error_bound=DIGIT_ERROR_BOUND,
-        digit_polynomial_degree=packed_digit_degree,
-        digit_bsgs_k=3,
-        digit_bsgs_m=6,
-        rounding_trials=rounding_trials,
-        rounding_failure_log2_bound=rounding_failure,
-        accepted_input_log2_variance=ACCEPTED_INPUT_LOG2_VARIANCE,
-        fresh_output_log2_variance=output_log2_variance,
-        refresh_contraction_bits=contraction,
-        output_correctness_threshold_log2_variance=output_threshold,
-        source_security_proxy_bits=source_security,
-        reduction_loss_bits=reduction_loss,
-        certified_security_bits=certified_security,
-        security_model=(
-            "unlimited-sample LWE proxy for Binary-NTT RLWE with p^2*CBD(20)"
-        ),
-        correctness_model="deterministic bounded-CBD full-modulus gadget bound",
-        circuit="scalar direct p-to-p^2 transition and exact division",
-        deterministic_output_error_log2_bound=deterministic_error_log2,
-        bootstrap_key_bytes=bootstrap_key_bytes,
+        digit_polynomial_degree=len(polynomial) - 1,
+        accepted_input_error_log2=math.log2(accepted_input_error),
+        projected_error_log2_bound=math.log2(projected_error),
+        output_limbs=output.limbs,
+        output_error_log2_bound=math.log2(output.bound),
+        output_capacity_log2=math.log2(output_capacity),
+        multiplication_input_limbs=2,
+        multiplication_output_error_log2_bound=math.log2(multiplied.bound),
+        multiplication_capacity_log2=math.log2(multiplication_capacity),
+        cycle_contraction_bits=cycle_contraction,
+        bootstrap_key_bytes=key_bytes,
+        source_security_proxy_bits=SOURCE_SECURITY_PROXY_BITS,
+        reduction_reserve_bits=REDUCTION_RESERVE_BITS,
+        retained_security_proxy_bits=retained_security,
+        correctness_failure_log2_bound=-1_000_000.0,
         certified=certified,
     )
 
@@ -262,26 +316,28 @@ def main() -> int:
     if args.json:
         print(json.dumps(asdict(certificate), sort_keys=True, indent=2))
     else:
-        print("Compact-cover BGV N=65536 certificate")
+        print("Binary-NTT scalar BGV cycle certificate")
+        print(
+            f"  Q={certificate.modulus_bits} bits, q0={certificate.low_modulus_bits} bits"
+        )
+        print(
+            f"  projected error <2^{certificate.projected_error_log2_bound:.2f}"
+        )
+        print(
+            f"  output: {certificate.output_limbs} limbs, error "
+            f"<2^{certificate.output_error_log2_bound:.2f}, capacity "
+            f"2^{certificate.output_capacity_log2:.2f}"
+        )
+        print(
+            f"  multiply/drop error <2^{certificate.multiplication_output_error_log2_bound:.2f}, "
+            f"capacity 2^{certificate.multiplication_capacity_log2:.2f}"
+        )
+        print(
+            f"  cycle contraction={certificate.cycle_contraction_bits:.2f} bits, "
+            f"security proxy={certificate.retained_security_proxy_bits:.2f} bits"
+        )
+        print(f"  evaluation key={certificate.bootstrap_key_bytes / 2**30:.2f} GiB")
         print(f"  manifest={certificate.gate_manifest_sha256}")
-        print(
-            f"  Q bits={certificate.modulus_bits} "
-            f"log2(Q)={certificate.modulus_log2:.3f}"
-        )
-        print(
-            f"  gadget={certificate.gadget_digits}x"
-            f"{certificate.gadget_bits} bits "
-            f"deterministic error<2^"
-            f"{certificate.deterministic_output_error_log2_bound:.2f}"
-        )
-        print(
-            f"  output log2(V)={certificate.fresh_output_log2_variance:.2f} "
-            f"contraction={certificate.refresh_contraction_bits:.2f} bits"
-        )
-        print(
-            f"  source proxy={certificate.source_security_proxy_bits:.2f} "
-            f"certified={certificate.certified_security_bits:.2f} bits"
-        )
         print(f"  sha256={certificate.sha256()}")
         print(f"  status={'CERTIFIED' if certificate.certified else 'FAIL'}")
     return 0 if certificate.certified else 1

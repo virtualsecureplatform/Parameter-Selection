@@ -360,39 +360,60 @@ def thin_power_of_two_gate_manifest(
 def scalar_direct_gate_manifest_object(
     degree: int = 65_536, plaintext_prime: int = 65_537
 ) -> dict[str, Any]:
-    """Canonical manifest for the scalar-only direct BGV refresh.
-
-    Lifting the phase by p makes both the old BGV error and the evaluation-row
-    error divisible by p^2.  Thus one complete-modulus gadget transition and
-    exact public division replace the packed-slot linear maps.
-    """
+    """Canonical manifest for the genuine scalar-only BGV bootstrap."""
     return {
-        "schema": "tfhepp-compact-bgv-scalar-direct-manifest-v1",
+        "schema": "tfhepp-compact-bgv-scalar-bootstrap-manifest-v2",
         "degree": degree,
         "cyclotomic_index": 2 * degree,
         "plaintext_prime": plaintext_prime,
         "plaintext_square": plaintext_prime * plaintext_prime,
-        "gadget_digits": 5,
+        "full_rns_limbs": 23,
+        "phase_lift_gadget_digits": 2,
+        "trace_gadget_digits": 23,
+        "trace_exponents": [
+            pow(5, 1 << index, 2 * degree) for index in range(15)
+        ]
+        + [2 * degree - 1],
+        "trace_drop_after": [8, 16],
+        "digit_error_bound": 23,
+        "digit_polynomial_degree": 93,
         "stages": [
             {
-                "name": "phase_lift",
-                "operation": "multiply_ciphertext_by_plaintext_prime",
-                "source_plaintext": plaintext_prime,
-                "target_plaintext": plaintext_prime * plaintext_prime,
+                "name": "modulus_down",
+                "operation": "bgv_lsb_drop_to_one_limb",
+                "source_limbs": 23,
+                "target_limbs": 1,
             },
             {
-                "name": "homomorphic_decryption_transition",
-                "operation": "balanced_full_modulus_gadget_transition",
-                "source_width": 1,
-                "target_width": 1,
-                "gadget_digits": 5,
+                "name": "low_to_high_phase_lift",
+                "operation": "centered_scale_and_cross_modulus_transition",
+                "source_limbs": 1,
+                "target_limbs": 23,
+                "gadget_digits": 2,
                 "key_error_scale": plaintext_prime * plaintext_prime,
+            },
+            {
+                "name": "constant_projection",
+                "operation": "normalized_16_stage_galois_trace",
+                "source_limbs": 23,
+                "target_limbs": 21,
+            },
+            {
+                "name": "bounded_digit_removal",
+                "operation": "centered_odd_bsgs_with_level_drops",
+                "source_plaintext": plaintext_prime * plaintext_prime,
+                "carry_bound": 23,
             },
             {
                 "name": "exact_public_division",
                 "operation": "multiply_components_by_inverse_plaintext_prime",
                 "source_plaintext": plaintext_prime * plaintext_prime,
                 "target_plaintext": plaintext_prime,
+            },
+            {
+                "name": "multiplication_closure",
+                "operation": "quadratic_hint_multiply_and_level_drop",
+                "target_input_limbs": 1,
             },
         ],
     }

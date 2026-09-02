@@ -57,10 +57,10 @@ class CompactCoverScheduleTest(unittest.TestCase):
         )
 
     def test_scalar_direct_manifest(self) -> None:
-        self.assertEqual(len(scalar_direct_gate_manifest_json()), 640)
+        self.assertEqual(len(scalar_direct_gate_manifest_json()), 1_203)
         self.assertEqual(
             scalar_direct_gate_manifest_sha256(),
-            "209b8826908383c92bce2ea41f27eda9febbf250e69e2c5541f5c18b76e454f0",
+            "9584b90e526fc67ca85c4ea1b6cea004ca64b30b70e4e6609d0961c7e6144843",
         )
 
 
