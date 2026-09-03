@@ -22,7 +22,7 @@ class CompactCoverBGVCertificateTest(unittest.TestCase):
         certificate = build_certificate()
         self.assertTrue(certificate.correctness_certified)
         self.assertTrue(certificate.estimated_security_meets_target)
-        self.assertEqual(certificate.modulus_bits, 1402)
+        self.assertEqual(certificate.modulus_bits, 1219)
         self.assertEqual(certificate.digit_error_bound, 23)
         self.assertEqual(certificate.digit_polynomial_degree, 93)
         self.assertEqual(
@@ -35,9 +35,9 @@ class CompactCoverBGVCertificateTest(unittest.TestCase):
              31_745, 63_489, 126_977, 122_881, 114_689, 98_305,
              65_537, 131_071),
         )
-        self.assertEqual(certificate.output_limbs, 13)
+        self.assertEqual(certificate.output_limbs, 10)
         self.assertEqual(certificate.accepted_input_error_bound, 3_215_720_448)
-        self.assertEqual(certificate.projected_error_bound, 70_304_015_244_276)
+        self.assertEqual(certificate.projected_error_bound, 268_909_426_566)
         self.assertEqual(certificate.addition_output_error_bound, 36)
         self.assertEqual(certificate.multiplication_output_error_bound, 18)
         self.assertLessEqual(certificate.addition_output_error_bound,
@@ -49,7 +49,14 @@ class CompactCoverBGVCertificateTest(unittest.TestCase):
         self.assertLess(certificate.multiplication_output_error_log2_bound,
                         certificate.multiplication_capacity_log2)
         self.assertGreater(certificate.cycle_contraction_bits, 0)
-        self.assertGreaterEqual(certificate.retained_security_proxy_bits, 128)
+        self.assertAlmostEqual(certificate.evaluation_security_proxy_bits, 162.94)
+        self.assertAlmostEqual(certificate.context_security_proxy_bits, 155.93)
+        self.assertGreater(certificate.unit_pivot_success_probability,
+                           1 - 2**-40)
+        self.assertLess(certificate.unit_pivot_failure_log2, -40)
+        self.assertAlmostEqual(certificate.combined_security_proxy_bits,
+                               154.92441422728973)
+        self.assertGreaterEqual(certificate.combined_security_proxy_bits, 128)
 
     def test_rns_congruences(self) -> None:
         modulus = 2 * 65_536 * PLAINTEXT_SQUARE
@@ -59,7 +66,7 @@ class CompactCoverBGVCertificateTest(unittest.TestCase):
     def test_certificate_hash_is_stable(self) -> None:
         self.assertEqual(
             build_certificate().sha256(),
-            "f3b1e9f169d152bdab7d17305d54e881d20fd022aed273cbc0640afe946a4e73",
+            "155a50174b509e170a649674d38c55c450f475e43ae56d32a8865c3459eaab7e",
         )
 
     def test_cross_repository_parameter_alignment(self) -> None:
@@ -82,10 +89,11 @@ class CompactCoverBGVCertificateTest(unittest.TestCase):
         )
         self.assertEqual(cpp_pairs, RNS_PRIMES_AND_ROOTS)
         cpp_primes = tuple(value for value, _ in cpp_pairs)
+        self.assertEqual(build_certificate().rns_primes, cpp_primes[:20])
 
         lean_source = (formal / "FormalProof4FHE/RLWE/CompactCoverBGVExactNoise.lean").read_text()
         lean_block = re.search(
-            r"def rnsPrimes : List ℕ :=\s*\[(.*?)\]",
+            r"def availableRNSPrimes : List ℕ :=\s*\[(.*?)\]",
             lean_source,
             re.DOTALL,
         )
@@ -131,7 +139,7 @@ class CompactCoverBGVCertificateTest(unittest.TestCase):
         bootstrap_source = (
             tfhepp / "include/bfv/compact-cover-bgv-bootstrap.hpp"
         ).read_text()
-        self.assertIn('certificate_version = 5', bootstrap_source)
+        self.assertIn('certificate_version = 8', bootstrap_source)
         self.assertIn(build_certificate().sha256(), bootstrap_source)
         polynomial_hash = 1_469_598_103_934_665_603
         for coefficient in lean_coefficients:

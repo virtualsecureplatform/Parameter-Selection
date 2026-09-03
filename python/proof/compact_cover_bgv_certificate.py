@@ -30,14 +30,15 @@ CBD_ETA = 20
 PHASE_LIFT_DIGITS = 2
 TRACE_DIGITS = 23
 TRACE_KEY_COUNT = 16
+ACTIVE_RNS_LIMBS = 20
 TRACE_EXPONENTS = (
     5, 25, 625, 128_481, 28_609, 61_313, 7_937, 81_409,
     31_745, 63_489, 126_977, 122_881, 114_689, 98_305, 65_537, 131_071,
 )
 DIGIT_ERROR_BOUND = 23
 SECURITY_TARGET_BITS = 128.0
-REDUCTION_RESERVE_BITS = 1.0
-SOURCE_SECURITY_PROXY_BITS = 133.44
+EVALUATION_SECURITY_PROXY_BITS = 162.94
+CONTEXT_SECURITY_PROXY_BITS = 155.93
 
 RNS_PRIMES_AND_ROOTS = (
     (2_301_972_608_560_791_553, 5),
@@ -207,9 +208,12 @@ class Certificate:
     multiplication_capacity_log2: float
     cycle_contraction_bits: float
     bootstrap_key_bytes: int
-    source_security_proxy_bits: float
-    reduction_reserve_bits: float
-    retained_security_proxy_bits: float
+    evaluation_security_proxy_bits: float
+    context_security_proxy_bits: float
+    unit_pivot_success_probability: float
+    unit_pivot_failure_log2: float
+    conditioned_context_security_proxy_bits: float
+    combined_security_proxy_bits: float
     correctness_failure_log2_bound: float
     correctness_certified: bool
     estimated_security_meets_target: bool
@@ -223,8 +227,9 @@ class Certificate:
 
 @cache
 def build_certificate() -> Certificate:
-    primes = tuple(value for value, _ in RNS_PRIMES_AND_ROOTS)
-    roots = tuple(root for _, root in RNS_PRIMES_AND_ROOTS)
+    selected = RNS_PRIMES_AND_ROOTS[:ACTIVE_RNS_LIMBS]
+    primes = tuple(value for value, _ in selected)
+    roots = tuple(root for _, root in selected)
     congruence = math.lcm(2 * DEGREE, PLAINTEXT_SQUARE)
     if any((prime - 1) % congruence for prime in primes):
         raise AssertionError("invalid BGV/NTT prime congruence")
@@ -270,12 +275,28 @@ def build_certificate() -> Certificate:
     addition_input = modulus_drop(output, 1)
     added = add(addition_input, addition_input)
 
-    retained_security = SOURCE_SECURITY_PROXY_BITS - REDUCTION_RESERVE_BITS
+    unit_pivot_log_success = sum(
+        DEGREE * math.log1p(-1.0 / prime) for prime in primes
+    )
+    unit_pivot_success = math.exp(unit_pivot_log_success)
+    unit_pivot_failure = -math.expm1(unit_pivot_log_success)
+    conditioned_context_security = (
+        CONTEXT_SECURITY_PROXY_BITS + math.log2(unit_pivot_success)
+    )
+    # The P0--P2 full-source hybrid contains the evaluation table and one
+    # context row; the P2--P1 auxiliary-leakage triangle charges the context
+    # row once more.  Keep both context terms explicit rather than silently
+    # treating the heterogeneous full problem as the evaluation-row problem.
+    combined_security = -math.log2(
+        2.0 ** (-EVALUATION_SECURITY_PROXY_BITS)
+        + 2.0 * 2.0 ** (-conditioned_context_security)
+    )
     cycle_contraction = math.log2(accepted_input_error) - math.log2(multiplied.bound)
     ciphertext_bytes = 2 * DEGREE * 8
     phase_key_bytes = PHASE_LIFT_DIGITS * len(primes) * ciphertext_bytes + 48
     trace_key_bytes = sum(
-        TRACE_DIGITS * (23 if index < 8 else 22) * ciphertext_bytes + 48
+        TRACE_DIGITS * (len(primes) if index < 8 else len(primes) - 1)
+        * ciphertext_bytes + 48
         for index in range(TRACE_KEY_COUNT)
     )
     hint_bytes = 4 * DEGREE * len(primes) * 8
@@ -288,9 +309,9 @@ def build_certificate() -> Certificate:
         and cycle_contraction > 0
         and len(polynomial) - 1 == 93
     )
-    estimated_security_meets_target = retained_security >= SECURITY_TARGET_BITS
+    estimated_security_meets_target = combined_security >= SECURITY_TARGET_BITS
     return Certificate(
-        schema="tfhepp-compact-bgv-scalar-certificate-v4",
+        schema="tfhepp-compact-bgv-scalar-certificate-v6",
         gate_manifest_sha256=scalar_direct_gate_manifest_sha256(),
         degree=DEGREE,
         plaintext_prime=PLAINTEXT_PRIME,
@@ -328,9 +349,12 @@ def build_certificate() -> Certificate:
         multiplication_capacity_log2=math.log2(multiplication_capacity),
         cycle_contraction_bits=cycle_contraction,
         bootstrap_key_bytes=key_bytes,
-        source_security_proxy_bits=SOURCE_SECURITY_PROXY_BITS,
-        reduction_reserve_bits=REDUCTION_RESERVE_BITS,
-        retained_security_proxy_bits=retained_security,
+        evaluation_security_proxy_bits=EVALUATION_SECURITY_PROXY_BITS,
+        context_security_proxy_bits=CONTEXT_SECURITY_PROXY_BITS,
+        unit_pivot_success_probability=unit_pivot_success,
+        unit_pivot_failure_log2=math.log2(unit_pivot_failure),
+        conditioned_context_security_proxy_bits=conditioned_context_security,
+        combined_security_proxy_bits=combined_security,
         correctness_failure_log2_bound=-1_000_000.0,
         correctness_certified=correctness_certified,
         estimated_security_meets_target=estimated_security_meets_target,
@@ -363,7 +387,7 @@ def main() -> int:
         )
         print(
             f"  cycle contraction={certificate.cycle_contraction_bits:.2f} bits, "
-            f"security proxy={certificate.retained_security_proxy_bits:.2f} bits"
+            f"combined security proxy={certificate.combined_security_proxy_bits:.2f} bits"
         )
         print(f"  evaluation key={certificate.bootstrap_key_bytes / 2**30:.2f} GiB")
         print(f"  manifest={certificate.gate_manifest_sha256}")
