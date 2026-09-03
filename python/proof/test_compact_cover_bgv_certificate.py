@@ -25,6 +25,16 @@ class CompactCoverBGVCertificateTest(unittest.TestCase):
         self.assertEqual(certificate.modulus_bits, 1402)
         self.assertEqual(certificate.digit_error_bound, 23)
         self.assertEqual(certificate.digit_polynomial_degree, 93)
+        self.assertEqual(
+            certificate.digit_polynomial_coefficients,
+            tuple(lowest_digit_removal_polynomial_over_range(65_537, 23)),
+        )
+        self.assertEqual(
+            certificate.trace_exponents,
+            (5, 25, 625, 128_481, 28_609, 61_313, 7_937, 81_409,
+             31_745, 63_489, 126_977, 122_881, 114_689, 98_305,
+             65_537, 131_071),
+        )
         self.assertEqual(certificate.output_limbs, 13)
         self.assertEqual(certificate.accepted_input_error_bound, 3_215_720_448)
         self.assertEqual(certificate.projected_error_bound, 70_304_015_244_276)
@@ -49,7 +59,7 @@ class CompactCoverBGVCertificateTest(unittest.TestCase):
     def test_certificate_hash_is_stable(self) -> None:
         self.assertEqual(
             build_certificate().sha256(),
-            "69f97713b99002f8be8fc337b9899bd7e2969b5b27f2345577bd4e3a0cafb3f8",
+            "f3b1e9f169d152bdab7d17305d54e881d20fd022aed273cbc0640afe946a4e73",
         )
 
     def test_cross_repository_parameter_alignment(self) -> None:
@@ -90,6 +100,20 @@ class CompactCoverBGVCertificateTest(unittest.TestCase):
         )
         self.assertEqual(lean_prime_data, cpp_pairs)
 
+        instantiation_source = (
+            formal / "FormalProof4FHE/RLWE/CompactCoverBGV65536Instantiation.lean"
+        ).read_text()
+        trace_block = re.search(
+            r"def concreteTraceExponents : List ℕ :=\s*\[(.*?)\]",
+            instantiation_source,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(trace_block)
+        lean_trace = tuple(
+            int(value) for value in re.findall(r"\d+", trace_block.group(1))
+        )
+        self.assertEqual(lean_trace, build_certificate().trace_exponents)
+
         coefficient_block = re.search(
             r"def digitRemovalCoefficients : List ℕ :=\s*\[(.*?)\]\s*\n\n/-!",
             lean_source,
@@ -107,7 +131,7 @@ class CompactCoverBGVCertificateTest(unittest.TestCase):
         bootstrap_source = (
             tfhepp / "include/bfv/compact-cover-bgv-bootstrap.hpp"
         ).read_text()
-        self.assertIn('certificate_version = 4', bootstrap_source)
+        self.assertIn('certificate_version = 5', bootstrap_source)
         self.assertIn(build_certificate().sha256(), bootstrap_source)
         polynomial_hash = 1_469_598_103_934_665_603
         for coefficient in lean_coefficients:

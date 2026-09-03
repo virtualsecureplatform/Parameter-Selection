@@ -30,6 +30,10 @@ CBD_ETA = 20
 PHASE_LIFT_DIGITS = 2
 TRACE_DIGITS = 23
 TRACE_KEY_COUNT = 16
+TRACE_EXPONENTS = (
+    5, 25, 625, 128_481, 28_609, 61_313, 7_937, 81_409,
+    31_745, 63_489, 126_977, 122_881, 114_689, 98_305, 65_537, 131_071,
+)
 DIGIT_ERROR_BOUND = 23
 SECURITY_TARGET_BITS = 128.0
 REDUCTION_RESERVE_BITS = 1.0
@@ -171,6 +175,7 @@ class Certificate:
     plaintext_prime: int
     plaintext_square: int
     secret_weight: int
+    operational_secret_distribution: str
     error_distribution: str
     rns_primes: tuple[int, ...]
     primitive_roots: tuple[int, ...]
@@ -180,9 +185,11 @@ class Certificate:
     phase_lift_digits: int
     trace_digits: int
     trace_key_count: int
+    trace_exponents: tuple[int, ...]
     trace_drop_after: tuple[int, ...]
     digit_error_bound: int
     digit_polynomial_degree: int
+    digit_polynomial_coefficients: tuple[int, ...]
     accepted_input_error_bound: int
     accepted_input_error_log2: float
     projected_error_bound: int
@@ -283,12 +290,13 @@ def build_certificate() -> Certificate:
     )
     estimated_security_meets_target = retained_security >= SECURITY_TARGET_BITS
     return Certificate(
-        schema="tfhepp-compact-bgv-scalar-certificate-v3",
+        schema="tfhepp-compact-bgv-scalar-certificate-v4",
         gate_manifest_sha256=scalar_direct_gate_manifest_sha256(),
         degree=DEGREE,
         plaintext_prime=PLAINTEXT_PRIME,
         plaintext_square=PLAINTEXT_SQUARE,
         secret_weight=SECRET_WEIGHT,
+        operational_secret_distribution=f"fixed-weight-{SECRET_WEIGHT}-signed-ternary",
         error_distribution=f"CBD({CBD_ETA})",
         rns_primes=primes,
         primitive_roots=roots,
@@ -298,9 +306,11 @@ def build_certificate() -> Certificate:
         phase_lift_digits=PHASE_LIFT_DIGITS,
         trace_digits=TRACE_DIGITS,
         trace_key_count=TRACE_KEY_COUNT,
+        trace_exponents=TRACE_EXPONENTS,
         trace_drop_after=(8, 16),
         digit_error_bound=DIGIT_ERROR_BOUND,
         digit_polynomial_degree=len(polynomial) - 1,
+        digit_polynomial_coefficients=tuple(polynomial),
         accepted_input_error_bound=accepted_input_error,
         accepted_input_error_log2=math.log2(accepted_input_error),
         projected_error_bound=projected_error,

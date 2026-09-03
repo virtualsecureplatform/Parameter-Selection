@@ -72,5 +72,5 @@ The scalar gate-manifest hash is
 and the certificate hash is
 
 ```text
-69f97713b99002f8be8fc337b9899bd7e2969b5b27f2345577bd4e3a0cafb3f8
+f3b1e9f169d152bdab7d17305d54e881d20fd022aed273cbc0640afe946a4e73
 ```
