@@ -122,6 +122,29 @@ class CompactCoverBGVCertificateTest(unittest.TestCase):
         )
         self.assertEqual(lean_trace, build_certificate().trace_exponents)
 
+        scalar_security_source = (
+            formal / "FormalProof4FHE/RLWE/CompactCoverBGVScalarSecurity.lean"
+        ).read_text()
+        self.assertRegex(
+            scalar_security_source,
+            r"def EvaluationRow\.activeLimbs[\s\S]*?traceLate _ _ => 19\s*\| _ => 20",
+        )
+
+        consolidated_source = (
+            formal / "FormalProof4FHE/RLWE/BinaryNTTBGVConsolidated.lean"
+        ).read_text()
+        consolidated_trace_block = re.search(
+            r"def traceExponents : List ℕ :=\s*\[(.*?)\]",
+            consolidated_source,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(consolidated_trace_block)
+        consolidated_trace = tuple(
+            int(value)
+            for value in re.findall(r"\d+", consolidated_trace_block.group(1))
+        )
+        self.assertEqual(consolidated_trace, build_certificate().trace_exponents)
+
         coefficient_block = re.search(
             r"def digitRemovalCoefficients : List ℕ :=\s*\[(.*?)\]\s*\n\n/-!",
             lean_source,
@@ -140,6 +163,8 @@ class CompactCoverBGVCertificateTest(unittest.TestCase):
             tfhepp / "include/bfv/compact-cover-bgv-bootstrap.hpp"
         ).read_text()
         self.assertIn('certificate_version = 8', bootstrap_source)
+        self.assertIn('rns_limbs = 20', bootstrap_source)
+        self.assertIn('rns_limbs - 1', bootstrap_source)
         self.assertIn(build_certificate().sha256(), bootstrap_source)
         polynomial_hash = 1_469_598_103_934_665_603
         for coefficient in lean_coefficients:
