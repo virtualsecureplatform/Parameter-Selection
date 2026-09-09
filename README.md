@@ -102,6 +102,30 @@ CLPX-to-TFHE switch.  Without `--paper-ss2clpx`, the estimator keeps the older
 TFHEpp default CLPX path (`plain_modulus=8`) and treats multiplication as a
 bounded-digit screening model rather than the paper's direct post-switch path.
 
+`CLPXreverse.py` separately traces the current 16-bit-output reverse circuit,
+including ramp composition, rounded digits, the 24-bit HomDecomp source window,
+and final bit decisions. It uses absolute error envelopes and a union bound,
+so composition does not require independence between reused-key errors. Its
+Parameter-Selection adapter **assumes** sub-Gaussian primitive tails at the
+estimated standard deviations; variances alone do not prove those tails, and
+FFT error remains an explicit proof obligation. Reports therefore distinguish
+`conditional_target_passes` from `implementation_certified` (always false).
+The legacy `CLPXnoise.py` reverse trace and CLPX gadget presets above are not a
+faithful end-to-end model of this newer reverse circuit.
+
+```bash
+python3 python/CLPXreverse.py --output /tmp/clpx-reverse.json
+python3 python/CLPXreverse.py --basebit 2 --half-n 832 --half-alpha-bits 19 --output /tmp/clpx-reverse-candidate.json
+PYTHONPATH=python python3 -m unittest discover -s python/tests -p test_clpx_reverse_bound.py -v
+```
+
+The current basebit=4 parameters do not pass the conservative whole-run bound.
+The second command is an analytical candidate, not an encrypted validation run.
+Use `--tfhepp /path/to/TFHEpp` to record the analyzed C++ source hashes and
+`--input-log2-variance` to specify the input coefficient variance assumption in
+64-bit integer units. The scope is one 16-bit block per conversion; inter-block
+carry bootstraps for wider outputs are not covered.
+
 `BFVnoise.py` implements the invariant-noise variance formulas from `600.pdf`
 ("Improving and Automating BFV Parameters Selection: An Average-Case Approach").
 The default TFHEpp bootstrap preset estimates the final digit-removal
