@@ -26,11 +26,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--estimator-revision", help="revision of an exported checkout when git is unavailable")
+    parser.add_argument("--operand-bits", type=int, choices=(8, 16), default=8)
     args = parser.parse_args()
     report = {
         "utc": datetime.now(timezone.utc).isoformat(),
         "cost_model": "RC.BDGL16 (classical)", "samples": "unbounded",
         "target_bits": 128,
+        "operand_bits": args.operand_bits,
         "scope": "Four-attack heuristic LWE screen; excludes ring structure and circular/KDM assumptions",
         "estimator_revision": args.estimator_revision or subprocess.check_output(
             ["git", "-C", str(PYTHON_ROOT / "lattice-estimator"), "rev-parse", "HEAD"], text=True).strip(),
@@ -43,15 +45,27 @@ def main():
     report["estimator_sources_sha256"] = digest.hexdigest()
     header = PYTHON_ROOT.parents[1] / "TFHEpp/include/params/128bit.hpp"
     report["parameter_header_sha256"] = hashlib.sha256(header.read_bytes()).hexdigest()
+    switching_header = header.parents[1] / "bfv/scheme_switching.hpp"
+    if switching_header.exists():
+        report["switching_header_sha256"] = hashlib.sha256(switching_header.read_bytes()).hexdigest()
     attacks = {"primal_usvp": estimator.LWE.primal_usvp,
                "primal_bdd": estimator.LWE.primal_bdd,
                "dual": estimator.LWE.dual,
                "dual_hybrid": estimator.LWE.dual_hybrid}
-    for name, n, qbits, sigma, alphabet in (
+    cases = [
         ("tfhe_io", 1024, 32, 2**7, 3),
         ("tfhe_half", 760, 32, 2**15, 2),
-        ("bfv_ring", 4096, 128, 2**23, 3),
-    ):
+    ]
+    if args.operand_bits == 8:
+        cases.append(("bfv_ring", 4096, 128, 2**23, 3))
+    else:
+        cases.extend([("bfv_ring", 8192, 128, 16, 3),
+                      ("bfv_ring_lower_noise_sensitivity", 8192, 128, 8, 3)])
+        report["noise_discretization_note"] = (
+            "Implementation truncates a continuous Gaussian with sigma=16 to integers. "
+            "The sigma=8 case is a lower-noise heuristic sensitivity check, not a proof "
+            "of equivalence between that sampler and the estimator's discrete Gaussian.")
+    for name, n, qbits, sigma, alphabet in cases:
         params = estimator.lwe_parameters.LWEParameters(
             n=n, q=2**qbits, Xs=estimator.nd.Binary if alphabet == 2 else estimator.nd.Ternary,
             Xe=estimator.nd.DiscreteGaussian(stddev=sigma), m=oo, tag=name)

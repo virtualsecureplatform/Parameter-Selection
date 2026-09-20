@@ -5,10 +5,36 @@ from dataclasses import replace
 
 from noiseestimation.bfv_switch import (
     Parameters, analyse, envelope, product_envelope, reverse_reference, search,
+    parameters_for_width, tune_16bit, key_bytes,
 )
 
 
 class BFVSwitchTests(unittest.TestCase):
+    def test_paired_forward(self):
+        p = parameters_for_width(16)
+        report = analyse(p)
+        old = analyse(replace(p, forward_digit_bits=1))
+        self.assertEqual(report["events"]["pbs3"], 16 * p.products)
+        self.assertEqual(report["events"]["pbs1"], 80 * p.products)
+        self.assertEqual(report["events"]["ks1h"], 81 * p.products)
+        self.assertLess(report["envelope"]["forward_error"], old["envelope"]["forward_error"])
+        # Integer negacyclic LUT reference, including both ends of every
+        # strict address interval, for all eight weighted radix-4 digits.
+        n, q = p.ring_n, 1 << p.qbits
+        for pair in range(8):
+            half_weight = (q >> 33) << (2 * pair)
+            for digit in range(4):
+                center = (2 * digit - 3) * n // 8
+                for displacement in (-n // 8 + 1, 0, n // 8 - 1):
+                    index = (center + displacement) % (2 * n)
+                    coefficient = index % n
+                    value = half_weight * (1 if coefficient < n // 4 or coefficient >= 3 * n // 4 else 3)
+                    if index >= n:
+                        value = -value
+                    self.assertEqual(value + 3 * half_weight, digit * 2 * half_weight)
+        with self.assertRaises(ValueError):
+            analyse(replace(p, forward_digit_bits=3))
+
     def test_all_uint16_reverse_values(self):
         for message in range(65536):
             self.assertEqual(reverse_reference(message), message)
@@ -60,6 +86,49 @@ class BFVSwitchTests(unittest.TestCase):
         e = 2.0**-70
         bound = product_envelope(e, 0, p)
         self.assertGreater(bound, 2 * 255 * e + p.ring_n * 65536 * e * e)
+
+    def test_wider_profiles_and_reference(self):
+        rng = random.Random(20260920)
+        for bits in (9, 10, 12, 16, 24, 32):
+            p = Parameters(plaintext_bits=2 * bits)
+            report = analyse(p)
+            self.assertEqual(report["events"]["input"], 2 * bits * p.products)
+            self.assertEqual(report["events"]["ks31"], (bits + 1) * p.products)
+            self.assertEqual(report["evaluation_key_bytes"], analyse()["evaluation_key_bytes"])
+            values = {0, 1, (1 << (2 * bits)) - 1}
+            for bit in range(1, 2 * bits):
+                values.update({(1 << bit) - 1, 1 << bit, (1 << bit) + 1})
+            values.update(rng.randrange(1 << (2 * bits)) for _ in range(256))
+            # A small signed error tests semantic guard/carry handling even
+            # when the cryptographic envelope cannot certify this width.
+            radius = 1 << (128 - 2 * bits - 9)
+            for value in values:
+                for error in (-radius, 0, radius):
+                    self.assertEqual(reverse_reference(value, error, plaintext_bits=2 * bits), value)
+        self.assertTrue(analyse(Parameters(plaintext_bits=18))["meets_target_conditionally"])
+        self.assertFalse(analyse(Parameters(plaintext_bits=20))["meets_target_conditionally"])
+        for invalid in (0, 3, 66):
+            with self.assertRaises(ValueError):
+                analyse(Parameters(plaintext_bits=invalid))
+
+    def test_tuned_16bit_profile(self):
+        self.assertEqual(parameters_for_width(8), Parameters())
+        self.assertFalse(analyse(parameters_for_width(16, legacy=True))["meets_target_conditionally"])
+        p = parameters_for_width(16)
+        report = analyse(p)
+        self.assertTrue(report["meets_target_conditionally"])
+        self.assertLess(report["conditional_log2_failure"], -48)
+        self.assertLess(key_bytes(p) + 4 * 1024**3, 24 * 1024**3)
+        self.assertEqual(tune_16bit()["parameters"], analyse(replace(p, forward_digit_bits=1))["parameters"])
+        radius = int(report["envelope"]["product_error"] * 2**128)
+        rng = random.Random(20260921)
+        values = {0, 1, 65535**2, 2**32 - 1}
+        for bit in range(1, 32):
+            values.update({2**bit - 1, 2**bit, 2**bit + 1})
+        values.update(rng.randrange(2**32) for _ in range(2048))
+        for value in values:
+            for error in (-radius, 0, radius):
+                self.assertEqual(reverse_reference(value, error, plaintext_bits=32), value)
 
 
 if __name__ == "__main__":

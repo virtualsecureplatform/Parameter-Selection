@@ -2,29 +2,48 @@
 """Conditional whole-run failure analysis for scalar TFHE/BFV switching."""
 
 import argparse
+from dataclasses import replace
 import json
 import math
 from pathlib import Path
 
-from noiseestimation.bfv_switch import Parameters, analyse, search
+from noiseestimation.bfv_switch import parameters_for_width, analyse, search, tune_16bit
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--products", type=int, default=256)
+    parser.add_argument("--operand-bits", type=int, default=8)
+    parser.add_argument("--legacy-profile", action="store_true",
+                        help="reproduce the original untuned wider-operand experiment")
+    parser.add_argument("--bitwise-forward", action="store_true",
+                        help="model the original one-bit forward conversion")
     parser.add_argument("--failure-bits", type=int, default=40)
     parser.add_argument("--search", action="store_true")
+    parser.add_argument("--tune-16bit", action="store_true",
+                        help="reproduce the bounded 16-bit ring/gadget search")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--benchmark-report", type=Path,
                         help="check the modeled parameters against a successful measured BFV run")
     args = parser.parse_args()
-    params = Parameters(products=args.products, target_failure_bits=args.failure_bits)
+    if not 1 <= args.operand_bits <= 32:
+        parser.error("--operand-bits must be in 1..32")
+    params = parameters_for_width(args.operand_bits, legacy=args.legacy_profile,
+                                  products=args.products, target_failure_bits=args.failure_bits)
+    if args.bitwise_forward:
+        params = replace(params, forward_digit_bits=1)
     result = search(params) if args.search else analyse(params)
+    if args.tune_16bit:
+        if args.operand_bits != 16 or args.legacy_profile or args.search:
+            parser.error("--tune-16bit requires --operand-bits 16 and no other search/profile override")
+        result = tune_16bit(args.products, args.failure_bits)
     if args.benchmark_report:
-        if params.products != 256:
-            parser.error("the scalar comparison report covers exactly 256 products")
         measured = json.loads(args.benchmark_report.read_text())
+        if measured.get("products", 256) != params.products or measured.get("operand_bits", 8) != args.operand_bits:
+            parser.error("model/benchmark product count or operand width mismatch")
         run = measured["runs"]["bfv"]
+        if run.get("bfv_forward_digit_bits", 1) != result["parameters"]["forward_digit_bits"]:
+            parser.error("model/benchmark forward digit width mismatch")
         if not run["passed"]:
             parser.error("BFV benchmark did not pass")
         mapping = {"ring_n": "bfv_ring_dimension", "qbits": "bfv_ciphertext_bits",

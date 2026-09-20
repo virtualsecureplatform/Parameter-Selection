@@ -13,6 +13,8 @@ conditional whole-run error analysis:
 
 ```sh
 python3 python/BFVswitch.py --products 256 --failure-bits 40
+python3 python/BFVswitch.py --operand-bits 9 --products 256 --failure-bits 40
+python3 python/BFVswitch.py --operand-bits 16 --tune-16bit --products 256 --failure-bits 40
 python3 -m unittest discover -s python -p test_bfv_switch.py -v
 sage -python python/estimates/bfv_switch_security.py --output /tmp/bfv-switch-security.json
 ```
@@ -20,6 +22,15 @@ sage -python python/estimates/bfv_switch_security.py --output /tmp/bfv-switch-se
 The error report explicitly assumes primitive sub-Gaussian tails and FFT
 rounding envelopes; it is not an unconditional proof. See the companion
 `TFHEpp/docs/BFVSchemeSwitching.md` for the circuit, measurements, and assumptions.
+`--operand-bits` models wider scalar profiles with a full double-width product.
+The original fixed profile meets the conditional target through 9-bit operands,
+not at 10 bits or above. Width 16 now selects a separate N=8192 profile with a
+paired two-bit forward conversion. The conditional whole-256-product bound
+is approximately 2^-83.9. `--bitwise-forward` models the previous tuned circuit
+(approximately 2^-54.3); `--tune-16bit` reproduces its original bounded,
+bitwise-forward parameter search. Neither option changes compiled C++ code.
+`--legacy-profile` reproduces the old
+untuned width-16 failure. An experimental correctness pass is not a failure bound.
 
 ### Prerequisites
 
