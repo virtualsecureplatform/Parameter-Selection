@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+"""Conditional whole-run failure analysis for scalar TFHE/BFV switching."""
+
+import argparse
+import json
+import math
+from pathlib import Path
+
+from noiseestimation.bfv_switch import Parameters, analyse, search
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--products", type=int, default=256)
+    parser.add_argument("--failure-bits", type=int, default=40)
+    parser.add_argument("--search", action="store_true")
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--benchmark-report", type=Path,
+                        help="check the modeled parameters against a successful measured BFV run")
+    args = parser.parse_args()
+    params = Parameters(products=args.products, target_failure_bits=args.failure_bits)
+    result = search(params) if args.search else analyse(params)
+    if args.benchmark_report:
+        if params.products != 256:
+            parser.error("the scalar comparison report covers exactly 256 products")
+        measured = json.loads(args.benchmark_report.read_text())
+        run = measured["runs"]["bfv"]
+        if not run["passed"]:
+            parser.error("BFV benchmark did not pass")
+        mapping = {"ring_n": "bfv_ring_dimension", "qbits": "bfv_ciphertext_bits",
+                   "ring_alpha_log2": "bfv_alpha_log2", "ring_levels": "bfv_gadget_levels",
+                   "ring_basebit": "bfv_gadget_basebit", "to_io_levels": "bfv_to_tfhe_levels",
+                   "to_io_basebit": "bfv_to_tfhe_basebit", "io_n": "tfhe_io_n",
+                   "io_alpha_log2": "tfhe_io_alpha_log2", "io_levels": "tfhe_io_levels",
+                   "io_basebit": "tfhe_io_basebit", "half_n": "tfhe_half_n",
+                   "half_alpha_log2": "tfhe_half_alpha_log2", "to_half_levels": "tfhe_to_half_levels",
+                   "to_half_basebit": "tfhe_to_half_basebit"}
+        for model, runtime in mapping.items():
+            if result["parameters"][model] != run[runtime]:
+                parser.error(f"model/benchmark parameter mismatch: {model}")
+        if run["bfv_plaintext_modulus"] != 2**result["parameters"]["plaintext_bits"]:
+            parser.error("BFV plaintext modulus mismatch")
+        if run["evaluation_key_bytes"] != result["evaluation_key_bytes"]:
+            parser.error("evaluation-key size mismatch")
+        if run["bfv_dd_levels"] != 8 or run["bfv_dd_basebit"] != 16:
+            parser.error("analysis requires full 8x16-bit DD limb coverage")
+        observed = {
+            "forward": run["max_forward_integer_unit_error"],
+            "product": run["max_product_integer_unit_error"],
+        }
+        for stage, error in observed.items():
+            if not math.isfinite(error) or error < 0:
+                parser.error(f"invalid observed {stage} error")
+            if error > result["envelope"][f"{stage}_error"] * 2**params.plaintext_bits:
+                parser.error(f"observed {stage} error exceeds the conditional envelope")
+        result["observed_integer_unit_errors"] = observed
+        result["observed_errors_within_envelope"] = True
+        result["measured_source_sha256"] = measured["source_sha256"]
+        result["benchmark_report"] = str(args.benchmark_report)
+    rendered = json.dumps(result, indent=2, allow_nan=False) + "\n"
+    if args.output:
+        args.output.write_text(rendered)
+    print(rendered, end="")
+    return int(not result["meets_target_conditionally"])
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

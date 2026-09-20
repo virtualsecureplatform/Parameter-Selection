@@ -8,6 +8,19 @@ The newer BFV, CLPX, and GL noise estimators also run with ordinary Python.
 An Apptainer (Singularity) container definition is provided for a reproducible
 Sage environment.
 
+The scalar TFHE → BFV multiplication → TFHE circuit has a standalone
+conditional whole-run error analysis:
+
+```sh
+python3 python/BFVswitch.py --products 256 --failure-bits 40
+python3 -m unittest discover -s python -p test_bfv_switch.py -v
+sage -python python/estimates/bfv_switch_security.py --output /tmp/bfv-switch-security.json
+```
+
+The error report explicitly assumes primitive sub-Gaussian tails and FFT
+rounding envelopes; it is not an unconditional proof. See the companion
+`TFHEpp/docs/BFVSchemeSwitching.md` for the circuit, measurements, and assumptions.
+
 ### Prerequisites
 
 - [Apptainer](https://apptainer.org/) (or Singularity) installed on your system
