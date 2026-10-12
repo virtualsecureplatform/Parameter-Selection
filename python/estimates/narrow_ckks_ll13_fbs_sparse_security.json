@@ -1,0 +1,34 @@
+{
+  "utc": "2026-10-06T21:46:02.331577+00:00",
+  "estimator_source": "https://github.com/malb/lattice-estimator",
+  "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+  "cost_model": "RC.BDGL16 classical",
+  "samples": "unbounded",
+  "scope": "Generic LWE and uniform-sparse proxies; excludes public block constraints, ring structure, and circular/KDM security",
+  "security_validated": false,
+  "cases": {
+    "dd_ll13_fbs_sparse_switch_uniform_proxy": {
+      "n": 8192,
+      "log_q": 49,
+      "sigma": 3.2,
+      "secret": "uniform sparse ternary proxy (16 positive, 15 negative)",
+      "attacks": {
+        "primal_usvp": {
+          "error": "ValueError: nonfinite attack cost"
+        },
+        "dual": {
+          "error": "ValueError: nonfinite attack cost"
+        },
+        "dual_hybrid": {
+          "error": "ValueError: nonfinite attack cost"
+        },
+        "primal_bdd": {
+          "bits": 550.0096738708777,
+          "cost": "         rop: \u22482^550.0\n         red: \u22482^550.0\n         svp: \u22482^540.9\n           \u03b2:     1730\n           \u03b7:     1755\n           d:    13542\n         tag:      bdd"
+        }
+      },
+      "public_block_secret_entropy_bits": 280.41431972079147,
+      "complete": false
+    }
+  }
+}

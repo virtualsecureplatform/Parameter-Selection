@@ -1,0 +1,373 @@
+{
+  "scope": "Prospective nine-level TFHEpp DD schedules within Table-2 HT key budgets.\n\nRun from this directory's parent with ordinary Python. These are engineering\nscreens; encrypted measurements and structured/ring/KDM security are required.\n",
+  "profiles": [
+    {
+      "profile": "ht14-inspired-dd",
+      "parameters": {
+        "n": 16384,
+        "h": 31,
+        "selector_bits": 383,
+        "scale_bits": 25,
+        "plain_bits": 23,
+        "source_bits": 28,
+        "input_scale_bits": 26,
+        "s2c_bits": 23,
+        "primary_bits": 4,
+        "bbar_bits": 4,
+        "sigma": 3.2,
+        "message_bound": 0.125
+      },
+      "auxiliary_switch_bits": 58,
+      "key_modulus_budget": 438,
+      "target_precision_bits": 4,
+      "refresh": {
+        "scope": "Average-case factor/tree screen for ePrint 2026/2119's TFHEpp DD port.\n\nThis supports TFHEpp DD multiplication with rescaling before or after\nrelinearization, without a hybrid P modulus. Bbar limbs are exact arithmetic and introduce no\nindependent encryption error. It reuses the GL estimator's variance arithmetic.\nOptional auxiliary switching lifts its modulus and scale before DD switching\nand divides afterward; S2C uses a whole-pipeline lift screen.\nS2C/encapsulation use an average-case BSGS variance screen. FFT error and\nstructured-secret security are excluded. This is not a correctness certificate.\n",
+        "model": "independent",
+        "security_validated": false,
+        "multiplication_order": "relinearize-then-rescale",
+        "output_bits": 235,
+        "packed_bits": 420,
+        "auxiliary_switch_bits": 58,
+        "structured_switch_key_bits": 86,
+        "maximum_evaluation_key_bits": 420,
+        "selector_memory": {
+          "scope": "Selector torus/NTT storage only; excludes evaluation keys, their FFT caches, batches, and allocator overhead",
+          "inferred_torus_storage_bits": 448,
+          "expanded_torus_bytes": 34945892352,
+          "one_group_torus_bytes": 970719232,
+          "file_backed_torus_and_ntt_peak_bytes": 7627079680,
+          "in_memory_streamed_torus_and_ntt_peak_bytes": 41602252800
+        },
+        "chunked_selector_memory": {
+          "scope": "Loaded selector group, bounded NTT chunk and modular batch sums only; excludes evaluation keys, FFT caches and other workspaces",
+          "selector_chunk_size": 529,
+          "batch_columns": 1,
+          "ntt_chunk_bytes": 6656360448,
+          "modular_sum_bytes": 0,
+          "file_backed_group_chunk_and_sums_bytes": 7627079680
+        },
+        "raw_dd_chain_torus_bytes": 56241160192,
+        "compact_dd_chain_digit_bytes": 1004306432,
+        "dense_s2c_plaintext_polynomial_bytes": 15032385536,
+        "compact_s2c_plaintext_coefficient_bytes": 2147483648,
+        "prepared_fft_memory": {
+          "scope": "Derived key payloads only; excludes raw keys, selectors, transform plans and workspaces",
+          "factor_automorphism_bytes": 2890137600,
+          "output_automorphism_bytes": 1435500544,
+          "dd_chain_bytes": 8034451456,
+          "tail_rotation_binary_keys": 6,
+          "tail_rotation_bytes": 17340825600,
+          "bounded_tail_rotation_peak_bytes": 2890137600,
+          "staged_factor_phase_bytes": 5780275200,
+          "staged_product_tree_phase_bytes": 8034451456,
+          "staged_output_phase_bytes": 1435500544,
+          "staged_peak_bytes": 8034451456
+        },
+        "factor_log2_variance": -22.178178637478624,
+        "levels": [
+          {
+            "output_bits": 335,
+            "tensor_rounding_log2_variance": -26.169792924812345,
+            "relin_log2_variance": -57.72573833874295
+          },
+          {
+            "output_bits": 310,
+            "tensor_rounding_log2_variance": -26.169792924812345,
+            "relin_log2_variance": -57.82527401229387
+          },
+          {
+            "output_bits": 285,
+            "tensor_rounding_log2_variance": -26.169792924812345,
+            "relin_log2_variance": -57.93218921621038
+          },
+          {
+            "output_bits": 260,
+            "tensor_rounding_log2_variance": -26.169792924812345,
+            "relin_log2_variance": -58.04766643363032
+          },
+          {
+            "output_bits": 235,
+            "tensor_rounding_log2_variance": -26.169792924812345,
+            "relin_log2_variance": -58.195223622044175
+          }
+        ],
+        "maximum_tail_rotation_switches": 6,
+        "tail_rotation_log2_variance": -26.169792924812345,
+        "complex_factor_tree_rms": 0.002475970123271508,
+        "factor_tree_rms_precision_bits": 8.657790378538055,
+        "ntt_cache_bytes_upper_bound": 239628976128,
+        "ntt_cache_peak_bytes": 6656360448,
+        "s2c_coefficient_rms": 6.120098449967371e-06,
+        "s2c_log2_variances": {
+          "fresh": -34.64385618977472,
+          "input_conjugation": -128.410236513015,
+          "baby_rotations": -126.82527401229385,
+          "giant_rotations": -131.9508048943777,
+          "encapsulation": -141.75815981643532,
+          "rescale": -150.16979292481236,
+          "diagonal_encoding": -42.169925001442316,
+          "auxiliary_final_rounding": -50.584962500721154
+        },
+        "complex_refresh_rms": 0.0024759852508735177,
+        "real_sine_error_bound": 0.0008031904623282355,
+        "complex_sine_error_bound": 0.0011358828449933073,
+        "eight_rms_plus_sine_screen": 0.020943764851981447,
+        "screen_note": "Eight RMS is an engineering screen, not a tail/failure proof",
+        "excluded": [
+          "FFT error",
+          "security"
+        ]
+      },
+      "retained_unit_chain": {
+        "scope": "Average-case late-DD retained chain with encrypted unit operands; FFT/security excluded",
+        "retained_levels": 9,
+        "scale_reduction_bits": 2,
+        "product_scale_bits": 23,
+        "final_output_bits": 26,
+        "component_bound": 0.19,
+        "guard_bits": 3,
+        "centered_coefficient_capacity_log2": 2,
+        "coefficient_bound_log2": -1.8959286763311392,
+        "guarded_range_passed": true,
+        "minimum_refresh_output_bits": 235,
+        "steps": [
+          {
+            "input_bits": 233,
+            "output_bits": 210,
+            "rms": 0.0025601892846870583
+          },
+          {
+            "input_bits": 210,
+            "output_bits": 187,
+            "rms": 0.0026012859043792348
+          },
+          {
+            "input_bits": 187,
+            "output_bits": 164,
+            "rms": 0.0026417432766360693
+          },
+          {
+            "input_bits": 164,
+            "output_bits": 141,
+            "rms": 0.0026815903347483542
+          },
+          {
+            "input_bits": 141,
+            "output_bits": 118,
+            "rms": 0.0027208538931052057
+          },
+          {
+            "input_bits": 118,
+            "output_bits": 95,
+            "rms": 0.002759558858272432
+          },
+          {
+            "input_bits": 95,
+            "output_bits": 72,
+            "rms": 0.0027977284137936
+          },
+          {
+            "input_bits": 72,
+            "output_bits": 49,
+            "rms": 0.0028353841825862645
+          },
+          {
+            "input_bits": 49,
+            "output_bits": 26,
+            "rms": 0.0028725463701772974
+          }
+        ],
+        "eight_rms_plus_sine_screen": 0.024116253806411685,
+        "security_validated": false
+      },
+      "engineering_screen_passed": true,
+      "encrypted_validation_scope": "Configured full ring size; N=512 diagnostic results are separate",
+      "encrypted_validation_passed": false,
+      "security_validated": false
+    },
+    {
+      "profile": "ht15-inspired-dd",
+      "parameters": {
+        "n": 32768,
+        "h": 31,
+        "selector_bits": 669,
+        "scale_bits": 46,
+        "plain_bits": 39,
+        "source_bits": 50,
+        "input_scale_bits": 43,
+        "s2c_bits": 39,
+        "primary_bits": 4,
+        "bbar_bits": 4,
+        "sigma": 3.2,
+        "message_bound": 0.125
+      },
+      "auxiliary_switch_bits": 212,
+      "key_modulus_budget": 881,
+      "target_precision_bits": 16,
+      "refresh": {
+        "scope": "Average-case factor/tree screen for ePrint 2026/2119's TFHEpp DD port.\n\nThis supports TFHEpp DD multiplication with rescaling before or after\nrelinearization, without a hybrid P modulus. Bbar limbs are exact arithmetic and introduce no\nindependent encryption error. It reuses the GL estimator's variance arithmetic.\nOptional auxiliary switching lifts its modulus and scale before DD switching\nand divides afterward; S2C uses a whole-pipeline lift screen.\nS2C/encapsulation use an average-case BSGS variance screen. FFT error and\nstructured-secret security are excluded. This is not a correctness certificate.\n",
+        "model": "independent",
+        "security_validated": false,
+        "multiplication_order": "relinearize-then-rescale",
+        "output_bits": 400,
+        "packed_bits": 723,
+        "auxiliary_switch_bits": 212,
+        "structured_switch_key_bits": 262,
+        "maximum_evaluation_key_bits": 842,
+        "selector_memory": {
+          "scope": "Selector torus/NTT storage only; excludes evaluation keys, their FFT caches, batches, and allocator overhead",
+          "inferred_torus_storage_bits": 896,
+          "expanded_torus_bytes": 279567138816,
+          "one_group_torus_bytes": 7765753856,
+          "file_backed_torus_and_ntt_peak_bytes": 54360276992,
+          "in_memory_streamed_torus_and_ntt_peak_bytes": 326161661952
+        },
+        "chunked_selector_memory": {
+          "scope": "Loaded selector group, bounded NTT chunk and modular batch sums only; excludes evaluation keys, FFT caches and other workspaces",
+          "selector_chunk_size": 1058,
+          "batch_columns": 1,
+          "ntt_chunk_bytes": 46594523136,
+          "modular_sum_bytes": 0,
+          "file_backed_group_chunk_and_sums_bytes": 54360276992
+        },
+        "raw_dd_chain_torus_bytes": 676589469696,
+        "compact_dd_chain_digit_bytes": 6040977408,
+        "dense_s2c_plaintext_polynomial_bytes": 120259084288,
+        "compact_s2c_plaintext_coefficient_bytes": 8589934592,
+        "prepared_fft_memory": {
+          "scope": "Derived key payloads only; excludes raw keys, selectors, transform plans and workspaces",
+          "factor_automorphism_bytes": 23341826048,
+          "output_automorphism_bytes": 12273057792,
+          "dd_chain_bytes": 48327819264,
+          "tail_rotation_binary_keys": 9,
+          "tail_rotation_bytes": 210076434432,
+          "bounded_tail_rotation_peak_bytes": 23341826048,
+          "staged_factor_phase_bytes": 46683652096,
+          "staged_product_tree_phase_bytes": 48327819264,
+          "staged_output_phase_bytes": 12273057792,
+          "staged_peak_bytes": 48327819264
+        },
+        "factor_log2_variance": -61.92940587696485,
+        "levels": [
+          {
+            "output_bits": 584,
+            "tensor_rounding_log2_variance": -66.1698589616159,
+            "relin_log2_variance": -138.91381068689552
+          },
+          {
+            "output_bits": 538,
+            "tensor_rounding_log2_variance": -66.1698589616159,
+            "relin_log2_variance": -139.0277668761926
+          },
+          {
+            "output_bits": 492,
+            "tensor_rounding_log2_variance": -66.1698589616159,
+            "relin_log2_variance": -139.1407758380218
+          },
+          {
+            "output_bits": 446,
+            "tensor_rounding_log2_variance": -66.1698589616159,
+            "relin_log2_variance": -139.2750769297334
+          },
+          {
+            "output_bits": 400,
+            "tensor_rounding_log2_variance": -66.1698589616159,
+            "relin_log2_variance": -139.410236513015
+          }
+        ],
+        "maximum_tail_rotation_switches": 9,
+        "tail_rotation_log2_variance": -66.1698589616159,
+        "complex_factor_tree_rms": 7.822887768977566e-08,
+        "factor_tree_rms_precision_bits": 23.607723491600666,
+        "ntt_cache_bytes_upper_bound": 1677402832896,
+        "ntt_cache_peak_bytes": 46594523136,
+        "s2c_coefficient_rms": 6.656544094136241e-11,
+        "s2c_log2_variances": {
+          "fresh": -67.64385618977472,
+          "input_conjugation": -466.96966392162904,
+          "baby_rotations": -465.16230899957145,
+          "giant_rotations": -471.3658423936566,
+          "encapsulation": -481.17319731571416,
+          "rescale": -491.1698589616159,
+          "diagonal_encoding": -73.16992500144231,
+          "auxiliary_final_rounding": -84.58496250072116
+        },
+        "complex_refresh_rms": 7.822893433070488e-08,
+        "real_sine_error_bound": 7.843656858674175e-07,
+        "complex_sine_error_bound": 1.1092605908137766e-06,
+        "eight_rms_plus_sine_screen": 1.7350920654594157e-06,
+        "screen_note": "Eight RMS is an engineering screen, not a tail/failure proof",
+        "excluded": [
+          "FFT error",
+          "security"
+        ]
+      },
+      "retained_unit_chain": {
+        "scope": "Average-case late-DD retained chain with encrypted unit operands; FFT/security excluded",
+        "retained_levels": 9,
+        "scale_reduction_bits": 7,
+        "product_scale_bits": 39,
+        "final_output_bits": 42,
+        "component_bound": 0.13,
+        "guard_bits": 3,
+        "centered_coefficient_capacity_log2": 2,
+        "coefficient_bound_log2": -2.4434164716336326,
+        "guarded_range_passed": true,
+        "minimum_refresh_output_bits": 399,
+        "steps": [
+          {
+            "input_bits": 393,
+            "output_bits": 354,
+            "rms": 8.071287212336915e-08
+          },
+          {
+            "input_bits": 354,
+            "output_bits": 315,
+            "rms": 8.192671889631168e-08
+          },
+          {
+            "input_bits": 315,
+            "output_bits": 276,
+            "rms": 8.312284169725661e-08
+          },
+          {
+            "input_bits": 276,
+            "output_bits": 237,
+            "rms": 8.430199496179855e-08
+          },
+          {
+            "input_bits": 237,
+            "output_bits": 198,
+            "rms": 8.546488107550973e-08
+          },
+          {
+            "input_bits": 198,
+            "output_bits": 159,
+            "rms": 8.661215526681545e-08
+          },
+          {
+            "input_bits": 159,
+            "output_bits": 120,
+            "rms": 8.774442992392652e-08
+          },
+          {
+            "input_bits": 120,
+            "output_bits": 81,
+            "rms": 8.886227841658552e-08
+          },
+          {
+            "input_bits": 81,
+            "output_bits": 42,
+            "rms": 8.996623849032861e-08
+          }
+        ],
+        "eight_rms_plus_sine_screen": 1.8289904987364056e-06,
+        "security_validated": false
+      },
+      "engineering_screen_passed": true,
+      "encrypted_validation_scope": "Configured full ring size; N=512 diagnostic results are separate",
+      "encrypted_validation_passed": false,
+      "security_validated": false
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "parameters": {
+    "n": 16384,
+    "h": 31,
+    "selector_bits": 379,
+    "scale_bits": 49,
+    "plain_bits": 34,
+    "source_bits": 48,
+    "input_scale_bits": 41,
+    "s2c_bits": 37,
+    "primary_bits": 4,
+    "bbar_bits": 4,
+    "sigma": 3.2,
+    "message_bound": 0.125
+  },
+  "estimate": {
+    "scope": "Average-case factor/tree screen for ePrint 2026/2119's TFHEpp DD port.\n\nThis supports TFHEpp DD multiplication with rescaling before or after\nrelinearization, without a hybrid P modulus. Bbar limbs are exact arithmetic and introduce no\nindependent encryption error. It reuses the GL estimator's variance arithmetic.\nOptional auxiliary switching lifts its modulus and scale before DD switching\nand divides afterward; S2C uses a whole-pipeline lift screen.\nS2C/encapsulation use an average-case BSGS variance screen. FFT error and\nstructured-secret security are excluded. This is not a correctness certificate.\n",
+    "model": "independent",
+    "security_validated": false,
+    "multiplication_order": "relinearize-then-rescale",
+    "output_bits": 100,
+    "packed_bits": 427,
+    "auxiliary_switch_bits": 28,
+    "structured_switch_key_bits": 76,
+    "maximum_evaluation_key_bits": 427,
+    "factor_log2_variance": -55.5849041548698,
+    "levels": [
+      {
+        "output_bits": 296,
+        "tensor_rounding_log2_variance": -74.16979292481234,
+        "relin_log2_variance": -153.77464793922388
+      },
+      {
+        "output_bits": 247,
+        "tensor_rounding_log2_variance": -74.16979292481234,
+        "relin_log2_variance": -154.00813806944367
+      },
+      {
+        "output_bits": 198,
+        "tensor_rounding_log2_variance": -74.16979292481234,
+        "relin_log2_variance": -154.26339512468576
+      },
+      {
+        "output_bits": 149,
+        "tensor_rounding_log2_variance": -74.16979292481234,
+        "relin_log2_variance": -154.5737352452979
+      },
+      {
+        "output_bits": 100,
+        "tensor_rounding_log2_variance": -74.16979292481234,
+        "relin_log2_variance": -154.96966392162904
+      }
+    ],
+    "maximum_tail_rotation_switches": 6,
+    "tail_rotation_log2_variance": -74.16979292476759,
+    "complex_factor_tree_rms": 6.900247712170096e-07,
+    "factor_tree_rms_precision_bits": 20.4668485100447,
+    "ntt_cache_bytes_upper_bound": 239628976128,
+    "ntt_cache_peak_bytes": 6656360448,
+    "s2c_coefficient_rms": 1.8827623099751235e-10,
+    "s2c_log2_variances": {
+      "fresh": -64.64385618977472,
+      "input_conjugation": -98.35961043994504,
+      "baby_rotations": -96.77464793922388,
+      "giant_rotations": -102.16230899957144,
+      "encapsulation": -111.96966392162904,
+      "rescale": -120.16979292481234,
+      "diagonal_encoding": -70.16992500144231,
+      "auxiliary_final_rounding": -80.58496250072116
+    },
+    "complex_refresh_rms": 6.900248225889885e-07,
+    "real_sine_error_bound": 7.843656858674175e-07,
+    "complex_sine_error_bound": 1.1092605908137766e-06,
+    "eight_rms_plus_sine_screen": 6.629459171525685e-06,
+    "screen_note": "Eight RMS is an engineering screen, not a tail/failure proof",
+    "excluded": [
+      "FFT error",
+      "security"
+    ],
+    "retained_square_range": {
+      "scope": "Worst-case complex slot amplitude after one fixed-scale DD square; excludes noise/security",
+      "component_bound": 0.13,
+      "guard_bits": 3,
+      "square_log_q": 51,
+      "square_log_delta": 49,
+      "square_coefficient_bound_log2": -4.886832943267265,
+      "centered_coefficient_capacity_log2": 1,
+      "amplitude_fits": true,
+      "minimum_output_bits": 98,
+      "guarded_range_passed": true
+    }
+  }
+}

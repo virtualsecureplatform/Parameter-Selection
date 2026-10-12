@@ -1,0 +1,138 @@
+{
+  "utc": "2026-10-09T08:12:10.423548+00:00",
+  "scope": "Screen LL14 DD auxiliary lifts using the factor/tree RMS model.\n\nThis excludes nonlinear coefficient weights, maximum-slot tails and FFT error.\nIt neither validates encrypted accuracy nor qualifies structured-key security.\n",
+  "parameters": {
+    "n": 16384,
+    "h": 31,
+    "selector_bits": 385,
+    "scale_bits": 48,
+    "plain_bits": 37,
+    "source_bits": 48,
+    "input_scale_bits": 44,
+    "s2c_bits": 37,
+    "primary_bits": 4,
+    "bbar_bits": 4,
+    "sigma": 3.2,
+    "message_bound": 4
+  },
+  "model_source_sha256": "8d78021d4790d844588bc0c9e2e68614b98fd4112c3a20c0de828343df5473f2",
+  "generator_source_sha256": "5efbba74aef0bd6d483d1a5044f86a1a7f3ac7e9b478644304ee687c50acc6f1",
+  "rows": [
+    {
+      "auxiliary_bits": 0,
+      "structured_key_bits": 48,
+      "factor_key_bits": 348,
+      "s2c_input_key_bits": 85,
+      "output_conjugation_key_bits": 108,
+      "root_model_rms": 4.2754448629324577e-07,
+      "root_model_below_23bit_tolerance": false,
+      "model_maximum_key_bits": 436,
+      "packed_budget_used_by_full_uncompressed_run": false,
+      "actual_uncompressed_max_dense_modulus_bits": 385
+    },
+    {
+      "auxiliary_bits": 4,
+      "structured_key_bits": 52,
+      "factor_key_bits": 352,
+      "s2c_input_key_bits": 89,
+      "output_conjugation_key_bits": 112,
+      "root_model_rms": 2.8970699855414208e-08,
+      "root_model_below_23bit_tolerance": true,
+      "model_maximum_key_bits": 436,
+      "packed_budget_used_by_full_uncompressed_run": false,
+      "actual_uncompressed_max_dense_modulus_bits": 385
+    },
+    {
+      "auxiliary_bits": 8,
+      "structured_key_bits": 56,
+      "factor_key_bits": 356,
+      "s2c_input_key_bits": 93,
+      "output_conjugation_key_bits": 116,
+      "root_model_rms": 1.0971104738933705e-08,
+      "root_model_below_23bit_tolerance": true,
+      "model_maximum_key_bits": 436,
+      "packed_budget_used_by_full_uncompressed_run": false,
+      "actual_uncompressed_max_dense_modulus_bits": 385
+    },
+    {
+      "auxiliary_bits": 12,
+      "structured_key_bits": 60,
+      "factor_key_bits": 360,
+      "s2c_input_key_bits": 97,
+      "output_conjugation_key_bits": 120,
+      "root_model_rms": 1.0840888539874093e-08,
+      "root_model_below_23bit_tolerance": true,
+      "model_maximum_key_bits": 436,
+      "packed_budget_used_by_full_uncompressed_run": false,
+      "actual_uncompressed_max_dense_modulus_bits": 385
+    },
+    {
+      "auxiliary_bits": 16,
+      "structured_key_bits": 64,
+      "factor_key_bits": 364,
+      "s2c_input_key_bits": 101,
+      "output_conjugation_key_bits": 124,
+      "root_model_rms": 1.0840371063029107e-08,
+      "root_model_below_23bit_tolerance": true,
+      "model_maximum_key_bits": 436,
+      "packed_budget_used_by_full_uncompressed_run": false,
+      "actual_uncompressed_max_dense_modulus_bits": 385
+    },
+    {
+      "auxiliary_bits": 20,
+      "structured_key_bits": 68,
+      "factor_key_bits": 368,
+      "s2c_input_key_bits": 105,
+      "output_conjugation_key_bits": 128,
+      "root_model_rms": 1.0840369019114612e-08,
+      "root_model_below_23bit_tolerance": true,
+      "model_maximum_key_bits": 436,
+      "packed_budget_used_by_full_uncompressed_run": false,
+      "actual_uncompressed_max_dense_modulus_bits": 385
+    },
+    {
+      "auxiliary_bits": 24,
+      "structured_key_bits": 72,
+      "factor_key_bits": 372,
+      "s2c_input_key_bits": 109,
+      "output_conjugation_key_bits": 132,
+      "root_model_rms": 1.0840369011042795e-08,
+      "root_model_below_23bit_tolerance": true,
+      "model_maximum_key_bits": 436,
+      "packed_budget_used_by_full_uncompressed_run": false,
+      "actual_uncompressed_max_dense_modulus_bits": 385
+    },
+    {
+      "auxiliary_bits": 28,
+      "structured_key_bits": 76,
+      "factor_key_bits": 376,
+      "s2c_input_key_bits": 113,
+      "output_conjugation_key_bits": 136,
+      "root_model_rms": 1.0840369011010949e-08,
+      "root_model_below_23bit_tolerance": true,
+      "model_maximum_key_bits": 436,
+      "packed_budget_used_by_full_uncompressed_run": false,
+      "actual_uncompressed_max_dense_modulus_bits": 385
+    },
+    {
+      "auxiliary_bits": 32,
+      "structured_key_bits": 80,
+      "factor_key_bits": 380,
+      "s2c_input_key_bits": 117,
+      "output_conjugation_key_bits": 140,
+      "root_model_rms": 1.0840369011010815e-08,
+      "root_model_below_23bit_tolerance": true,
+      "model_maximum_key_bits": 436,
+      "packed_budget_used_by_full_uncompressed_run": false,
+      "actual_uncompressed_max_dense_modulus_bits": 385
+    }
+  ],
+  "auxiliary8_to16_root_rms_ratio": 1.0120598893842725,
+  "encrypted_accuracy_established_by_model": false,
+  "security_validated": false,
+  "limitations": [
+    "Root RMS excludes nonlinear coefficient weights, max-slot tails and FFT error",
+    "Unused packed modulus436 remains a conservative dense proxy, not an exposed key in the uncompressed run",
+    "C++ implementation and encrypted validation are assessed separately from this model"
+  ]
+}

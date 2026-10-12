@@ -1,0 +1,74 @@
+{
+  "parameters": {
+    "n": 8192,
+    "h": 31,
+    "selector_bits": 184,
+    "scale_bits": 20,
+    "plain_bits": 20,
+    "source_bits": 25,
+    "input_scale_bits": 21,
+    "s2c_bits": 20,
+    "primary_bits": 4,
+    "bbar_bits": 4,
+    "sigma": 3.2,
+    "message_bound": 0.125
+  },
+  "estimate": {
+    "scope": "Average-case factor/tree screen for ePrint 2026/2119's TFHEpp DD port.\n\nThis follows TFHEpp's current rescale-before-relinearization multiplication,\nwithout a hybrid P modulus. Bbar limbs are exact arithmetic and introduce no\nindependent encryption error. It reuses the GL estimator's variance arithmetic.\nS2C/encapsulation use an average-case BSGS variance screen. FFT error and\nstructured-secret security are excluded. This is not a correctness certificate.\n",
+    "model": "independent",
+    "security_validated": false,
+    "output_bits": 64,
+    "packed_bits": 217,
+    "factor_log2_variance": -0.8599157814523214,
+    "levels": [
+      {
+        "output_bits": 144,
+        "tensor_rounding_log2_variance": -4.754623336813218,
+        "relin_log2_variance": -1.0476664336303116
+      },
+      {
+        "output_bits": 124,
+        "tensor_rounding_log2_variance": -4.754623336813218,
+        "relin_log2_variance": -1.2633951246857507
+      },
+      {
+        "output_bits": 104,
+        "tensor_rounding_log2_variance": -4.754623336813218,
+        "relin_log2_variance": -1.5171517169315294
+      },
+      {
+        "output_bits": 84,
+        "tensor_rounding_log2_variance": -4.754623336813218,
+        "relin_log2_variance": -1.8252740122938675
+      },
+      {
+        "output_bits": 64,
+        "tensor_rounding_log2_variance": -4.754623336813218,
+        "relin_log2_variance": -2.2175914350726273
+      }
+    ],
+    "complex_factor_tree_rms": 19206.785756958277,
+    "factor_tree_rms_precision_bits": -14.229328484680492,
+    "ntt_cache_bytes_upper_bound": 15005122560,
+    "ntt_cache_peak_bytes": 416808960,
+    "s2c_coefficient_rms": 0.2858849380597436,
+    "s2c_log2_variances": {
+      "fresh": -25.643856189774723,
+      "input_conjugation": -5.632628934351466,
+      "baby_rotations": -4.04766643363031,
+      "giant_rotations": -9.825274012293859,
+      "encapsulation": -18.410236513015015,
+      "rescale": -26.169660860272696,
+      "diagonal_encoding": -37.169925001442316
+    },
+    "complex_refresh_rms": 19206.78576121356,
+    "real_sine_error_bound": 5.019940389551472e-05,
+    "complex_sine_error_bound": 7.09926778120817e-05,
+    "eight_rms_plus_sine_screen": 153654.28616070116,
+    "screen_note": "Eight RMS is an engineering screen, not a tail/failure proof",
+    "excluded": [
+      "FFT error",
+      "security"
+    ]
+  }
+}

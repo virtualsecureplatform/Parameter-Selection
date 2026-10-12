@@ -1,0 +1,104 @@
+{
+  "utc": "2026-10-09T06:02:31.704697+00:00",
+  "estimator_source": "https://github.com/malb/lattice-estimator",
+  "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+  "cost_model": "RC.BDGL16 classical",
+  "samples": "unbounded",
+  "estimator_global_max_beta": 4096,
+  "estimator_module_max_beta": {
+    "lwe_primal": 4096,
+    "lwe_dual": 4096
+  },
+  "estimator_max_beta_override": 4096,
+  "requested_attacks": [
+    "primal_usvp",
+    "primal_bdd",
+    "dual",
+    "dual_hybrid",
+    "mitm",
+    "bdd_hybrid",
+    "bdd_mitm_hybrid"
+  ],
+  "original_four_attacks": [
+    "primal_usvp",
+    "primal_bdd",
+    "dual",
+    "dual_hybrid"
+  ],
+  "mitm_cost_model": "estimator analytical word-operation model",
+  "nonfinite_costs_establish_security": false,
+  "scope": "Generic LWE and uniform-sparse proxies; excludes public block constraints, ring structure, and circular/KDM security",
+  "security_validated": false,
+  "cases": {
+    "dd_ll14_plain37_aux16_sparse_switch_uniform_proxy": {
+      "n": 16384,
+      "log_q": 64,
+      "sigma": 3.2,
+      "secret": "uniform sparse ternary proxy (16 positive, 15 negative)",
+      "attacks": {
+        "primal_usvp": {
+          "bits": 1070.543063492005,
+          "cost": "         rop: \u22482^1070.5\n         red: \u22482^1070.5\n           \u03b4: 1.000753\n           \u03b2:     3549\n           d:    29228\n         tag:     usvp",
+          "estimator_module_max_beta": {
+            "lwe_primal": 4096,
+            "lwe_dual": 4096
+          }
+        },
+        "primal_bdd": {
+          "bits": 1078.6184870712293,
+          "cost": "         rop: \u22482^1078.6\n         red: \u22482^1078.6\n         svp: \u22482^543.1\n           \u03b2:     3529\n           \u03b7:     1755\n           d:    29457\n         tag:      bdd",
+          "estimator_module_max_beta": {
+            "lwe_primal": 4096,
+            "lwe_dual": 4096
+          }
+        },
+        "dual": {
+          "bits": 1077.2779917498492,
+          "cost": "         rop: \u22482^1077.3\n         mem: \u22482^753.0\n           m: \u22482^13.7\n           \u03b2:     3572\n           d:    29614\n           \u21bb:        1\n         tag:     dual",
+          "estimator_module_max_beta": {
+            "lwe_primal": 4096,
+            "lwe_dual": 4096
+          }
+        },
+        "dual_hybrid": {
+          "bits": 1020.4417477788485,
+          "cost": "         rop: \u22482^1020.4\n         red: \u22482^1020.4\n       guess: \u22482^1011.0\n           \u03b2:     3377\n           p:        2\n           \u03b6:        0\n           t:      990\n          \u03b2':     3377\n           N: \u22482^700.4\n           m: \u22482^14.0",
+          "estimator_module_max_beta": {
+            "lwe_primal": 4096,
+            "lwe_dual": 4096
+          }
+        },
+        "mitm": {
+          "bits": 189.88264304936183,
+          "cost": "         rop: \u22482^189.9\n         mem: \u22482^183.1\n           m: \u22482^14.4\n           k: \u22482^13.0\n           \u21bb:      118",
+          "estimator_module_max_beta": {
+            "lwe_primal": 4096,
+            "lwe_dual": 4096
+          }
+        },
+        "bdd_hybrid": {
+          "bits": 369.31176712267876,
+          "cost": "         rop: \u22482^369.3\n         red: \u22482^36.9\n         svp: \u22482^369.3\n           \u03b2:       40\n           \u03b7:        1\n           \u03b6: \u22482^14.0\n         |S|: \u22482^352.3\n           d:       56\n        prob:        1\n           \u21bb:        1\n         tag:   hybrid",
+          "estimator_module_max_beta": {
+            "lwe_primal": 4096,
+            "lwe_dual": 4096
+          }
+        },
+        "bdd_mitm_hybrid": {
+          "bits": 139.94388914187635,
+          "cost": "         rop: \u22482^139.9\n         red: \u22482^138.0\n         svp: \u22482^139.5\n           \u03b2:      205\n           \u03b7:        2\n           \u03b6: \u22482^13.9\n         |S|: \u22482^138.2\n           d:     3160\n        prob: \u22482^-45.0\n           \u21bb: \u22482^47.2\n         tag:   hybrid",
+          "estimator_module_max_beta": {
+            "lwe_primal": 4096,
+            "lwe_dual": 4096
+          }
+        }
+      },
+      "public_block_secret_entropy_bits": 311.41934191261464,
+      "requested_attacks_complete": true,
+      "complete": true,
+      "weakest_requested_attack_bits": 139.94388914187635,
+      "weakest_bits": 139.94388914187635,
+      "passes_generic_screen": true
+    }
+  }
+}

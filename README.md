@@ -32,6 +32,240 @@ bitwise-forward parameter search. Neither option changes compiled C++ code.
 `--legacy-profile` reproduces the old
 untuned width-16 failure. An experimental correctness pass is not a failure bound.
 
+### Narrow CKKS parameter tuning
+
+The ePrint 2026/2119 narrow CKKS DD port is tuned here. Its average-case
+refresh screen uses the existing GL estimator's variance arithmetic:
+
+```sh
+python3 python/narrowCKKSnoise.py --n 512
+python3 python/narrowCKKSnoise.py --search --max-key-modulus 218
+python3 -m unittest discover -s python -p test_narrow_ckks_noise.py -v
+sage -python python/estimates/narrow_ckks_security.py --output /tmp/narrow-security.json
+```
+
+The noise search uses an average-case BSGS model for S2C and sparse
+encapsulation; FFT error and security remain excluded. It follows
+TFHEpp's default tensor-rescale-before-relinearization order and
+unsuppressed gadget-key noise. Pass `--relinearize-before-rescale` to screen
+the explicit DD API that switches the unscaled tensor at the input modulus
+then rounds its two-component ciphertext. Both orders exclude FFT error
+and have separate DD key levels; it must not inherit SEAL's hybrid-RNS
+noise behavior. An empty candidate list means that this bounded search found
+no candidate, not an impossibility result. The eight-RMS-plus-sine criterion
+is an engineering screen, not a Gaussian tail or whole-run failure proof.
+`--auxiliary-switch-bits` screens scale-raised DD automorphisms and a
+raised S2C/encapsulation pipeline. It preserves fresh input
+noise, includes final division rounding, and reports the largest evaluation
+key modulus and structured switch-key modulus. The narrow refresh pipeline
+supports this variant through the schedule's optional auxiliary scale. The
+screen still excludes FFT error and structured-secret security. Search bounds can be set with
+`--min-scale-bits`, `--max-scale-bits`, `--min-plain-bits`, and
+`--max-plain-bits`; defaults preserve the earlier search ranges.
+The factor screen includes the longest tail-alignment binary rotation chain,
+with one division per chain when the auxiliary scale is enabled. Earlier
+saved reports predate this term and remain historical measurements/screens.
+`python3 python/estimates/narrow_ckks_throughput_candidates.py` screens two
+prospective HT schedules with nine retained late-DD multiplications. Their
+operands are fresh encryptions of one, preserving the signal amplitude;
+the screen includes scale reduction, input/key error, final rounding, and
+complex-slot capacity. N=512 encrypted diagnostics in TFHEpp cover nine
+retained levels; validation at each configured full ring size is outstanding.
+The screen reports selector residency, raw and compact DD-chain storage, and
+raw and compact S2C coefficient storage separately. TFHEpp's optional
+file-backed selector source loads one group at a time. Its compact DD format
+stores balanced secondary digits at their signed integer width; compact S2C
+stores checked int64 coefficients and expands one BSGS group for evaluation.
+Both preserve the original arithmetic exactly. For HT15, DD-chain storage
+drops from about 630 GiB to 5.63 GiB, and S2C coefficient storage from 112 GiB
+to 8 GiB. Full-size encrypted validation remains outstanding. Evaluation
+keys, derived FFT/NTT caches, and temporary buffers are additional memory;
+the selector-only peak is not the whole process's memory budget.
+Derived cache payloads are also reported explicitly. The optional bounded
+tail-rotation evaluator reuses one binary FFT key across matching batch
+columns, applies bits in the original order, and divides the auxiliary lift
+once at the end. The C++ storage audit and Python model agree: LL14's six
+tail keys occupy 13.5 GiB together or 2.25 GiB one at a time; HT15's nine
+occupy about 195.65 GiB together or 21.74 GiB one at a time. Additional
+staging is needed for full HT15; full-ring accuracy requires encrypted
+validation independently of these storage estimates.
+Selector NTT caches can also be generated in chunks. The evaluator retains
+modular sums across chunks, then performs inverse NTT, CRT and rounding once
+for the complete group. `narrowCKKSnoise.py --selector-chunk-size 40
+--batch-columns 2` reports both transient NTT storage and those modular sums.
+For HT15, the 40-selector NTT payload is about 1.64 GiB versus 43.4 GiB for
+a whole group. Raw selector residency and other evaluation workspaces still
+count toward the process budget.
+The staged FFT evaluator keeps factor keys during factor extraction, releases
+them before preparing the product-tree keys, and releases those before output
+conjugation. Its caches belong to the evaluation call; the public setup stays
+unchanged. For full HT15, the largest derived-key phase is about 45.01 GiB.
+The prospective whole-process envelope is about 109.62 GiB with a 10 GiB
+reserve. Small-ring encrypted tests pass; full-size validation is outstanding.
+
+`noiseestimation.narrow_frequency_basis.minimum_positive_frequency_basis`
+plans the optional Section 7 construction for degrees 1 through 40. It finds
+a smallest positive basis by exhaustive search and returns each frequency's
+singleton or two-summand reconstruction. Degree 12 uses four blind rotations;
+degree 40 uses nine. The saved `python/estimates/narrow_ckks_frequency_basis.json`
+reports the plans. This construction needs one extra multiplication level and
+applies complex coefficients after reconstructing the unweighted roots.
+TFHEpp implements public ciphertext reconstruction with compact DD keys,
+fixed-point weights, and a conjugation key at the resulting output level.
+The output scale increases by the coefficient bit count. Gaussian h=31
+small-ring series and retained-square tests pass the unchanged 23-bit gate;
+full-ring basis validation and parameter qualification remain outstanding.
+The N=512, h=31 Gaussian basis path also passes sigmoid, GeLU and windowed
+tanh on [-4,4], including complex endpoints and retained DD squares, with
+the unchanged 23-bit evaluation/target gates. Its report is in TFHEpp at
+`docs/narrow-dd-small-gaussian-basis-fbs.json`.
+Run `python3 python/test_narrow_frequency_basis.py` to check coverage,
+small-degree minima against enumeration, and complex series reconstruction.
+
+`frequency_basis_schedule_budget` accounts for the extra product level,
+increased logical coefficient scale, fixed-point quantization at exact roots,
+and retained-square amplitude. It separately checks whether an output or its
+square can normalize to the existing refresh input. Saved prospective budgets
+are in `python/estimates/narrow_ckks_frequency_basis_budgets.json`; they exclude
+noise, FFT accuracy and security. The full-ring 505-bit selector candidate
+supports a guarded square but cannot refresh that square. The 536-bit candidate
+has the required normalization headroom and needs 640-bit native storage when
+including its optional packed key. Neither full-ring candidate is validated.
+
+TFHEpp's `ckks_narrow_benchmark --basis-storage [report.json]` reports the
+compiled full-ring 536-bit candidate's payloads. `--small-basis-fbs-file
+sigmoid|gelu|tanh|all new-cache-directory [report.json]` checks that candidate at
+N=512; `--basis-fbs-file` runs N=32768. These use staged FFT caches, file-backed
+selectors and all four or nine positive basis frequencies in each component's
+tile. The full candidate's conservative process estimate is 68.58 GiB with a
+10 GiB reserve; the proposed virtual-memory cap is 80 GiB. Its selector files
+occupy 199.69 GB, so use the workspace's NFS filesystem for full-size runs.
+The memory estimate is not measured full-size RSS. All three small-ring checks
+pass the 23-bit gates, retained squares and dense-input normalization; another
+nonlinear refresh also requires the squared values to fit its message domain.
+Four pinned generic dense attacks pass the 128-bit screen (weakest 199.79 bits
+at the optional packed modulus 590); sparse-switch proxy estimates are
+nonfinite. Structured-secret and circular/KDM security remain unvalidated.
+
+The `all` option generates one public setup and reuses one encrypted input for
+all three functions. The separate `--small-lean-basis-fbs-file all` profile
+uses 576-bit storage, primary digits of 18 bits and secondary digits of 8 bits;
+its selector/root/coefficient scales are 518/47/31 bits. All three N=512
+checks pass the same 23-bit gates, squares and dense normalization.
+`--lean-basis-storage` reports the full compiled layout; the conservative
+process envelope is 41.63 GiB with a proposed 48 GiB virtual-memory cap and
+179.72 GB of selector files. The full N=32768 `--lean-basis-fbs-file all` run passed the fixed 23-bit
+accuracy gates for all three functions, retained squares, and dense normalization;
+it exited successfully and cleaned up its selectors. Security remains unqualified.
+Independent layout and level checks are in `test_narrow_frequency_basis.py`;
+budget, noise and dense-screen results are saved in
+`python/estimates/narrow_ckks_lean_basis_{budget,noise,security}.json`.
+The unchanged sparse-switch modulus of 92 bits retains the inconclusive
+uniform-sparse proxy result. Generic dense screens at moduli 572 and 523 bits
+do not qualify the structured secret or ring and circular/KDM assumptions.
+
+`python/estimates/narrow_ckks_throughput_candidates.py --lean-dd` keeps the
+HT level schedules unchanged while screening primary18/secondary8 digits.
+Both N=512 HT diagnostics pass all nine retained products after disabling
+GNU IPA-ICF for TFHEpp's benchmark target; full-ring checks remain pending.
+The independent compiled-layout envelopes are 17.43 GiB for HT14 and
+61.06 GiB for HT15, including a 10 GiB runtime reserve.
+
+`python/estimates/narrow_ckks_ll14_fbs_plaintext_candidate.py` screens an LL14
+FBS candidate with selector385/rootDelta48/plain37, outputQ108 and optional
+packedQ436. It preserves the 437-bit modulus budget and a guarded square.
+The unweighted factor/tree RMS excludes trigonometric coefficient
+amplification and FFT error. Encrypted validation is tracked separately;
+the full-ring GeLU baseline's 22.63-bit result remains a failed 23-bit control.
+
+The plain37 script accepts repeated `--validation-report REPORT` arguments
+and `--output PATH`. It independently checks the full N=16384 schedule,
+fixed 23-bit target/evaluation gates, complex uniform approximation bound,
+and propagated square gates. Missing functions keep aggregate encrypted
+validation false; a failed report also returns exit status 1. Use a separate
+output path when checking a repeat so the original failure evidence remains
+available. Full GeLU and the untraced sigmoid repeat pass these checks; the
+original plain37 sigmoid report fails and its cause remains unresolved.
+Full tanh now passes the fixed 23-bit refresh/evaluation, complex uniform-bound,
+and propagated-square checks. The complete repeat aggregate is recorded in
+`python/estimates/narrow_ckks_ll14_plain37_repeat_validation.json`; the
+original-report aggregate in `narrow_ckks_ll14_plain37_original_validation.json`
+retains the sigmoid failure. Both contain all three functions with none
+missing. The repeat aggregate is an accuracy result and does not establish
+the original failure's cause. These checks do not qualify security.
+
+`python/estimates/narrow_ckks_ll13_fbs_candidate.py` screens the low precision
+FBS schedule selector217/rootDelta27/plain24/outputQ58 on [-4,4]. It uses
+expanded selectors: optional packedQ254 exceeds the 218-bit LL13 budget.
+It normalizes three bits before sigmoid/tanh squares and six before GeLU,
+leaving productQ31 with scales24/21 and three guard bits. Fixed paper
+precision gates are9.04/7.89/7.17 bits, respectively. The earlier key218
+candidate passed small accuracy tests but its generic dense screen fell
+below128 bits; those controls are retained. Dense217 passes the generic
+screen at128.30 bits. Sparse-switch49 has an incomplete uniform-sparse
+proxy result and does not qualify the public block constraint. Full encrypted
+sigmoid validation passes at N=8192 with9.41 bits versus9.04 required,
+including its retained square. Full GeLU also passes at8.18 bits versus7.17
+required. Full tanh passes at 8.45 bits versus 7.89 required, including its
+retained square. All three full-ring accuracy checks pass; structured-secret
+security remains incomplete.
+
+The candidate script also accepts repeated `--validation-report REPORT`
+arguments and an optional `--output PATH`. It checks full N=8192 profile
+metadata and the fixed target/evaluation and propagated square gates.
+Partial results list missing functions; `encrypted_validation_passed` becomes
+true only when sigmoid, GeLU, and tanh all pass. This flag covers accuracy;
+`security_validated` remains false. It rejects small-ring or altered-gate
+reports instead of promoting them to full-profile evidence.
+
+To reproduce the LL13 process envelope, generate TFHEpp's `--storage REPORT`
+and pass it to the candidate script with `--storage REPORT --memory-report
+OUTPUT`. The script rejects a different schedule or a mismatch between the
+compiled factor/DD/group payloads and the independent model. The current
+estimate is12.91 GiB including10 GiB reserve, with a proposed16 GiB limit;
+it is not measured full-ring RSS.
+
+The security script defaults to
+this repository's pinned lattice-estimator and keeps incomplete sparse-secret
+proxy results separate from the dense-key screens. Full encrypted measurements
+remain in TFHEpp's opt-in `ckks_narrow_benchmark` executable.
+
+The streamed LL14 candidate search is reproducible with:
+
+```sh
+python3 python/narrowCKKSnoise.py --n 16384 --source-bits 48 --input-scale-bits 41 \
+  --s2c-bits 37 --search --target-precision 16 --max-key-modulus 437 --streamed
+```
+
+The first candidate has selector modulus 379 bits, tree scale 49 bits,
+plaintext scale 34 bits, and a 427-bit packed-key modulus. Its full NTT
+cache would occupy about 223 GiB; preparing one public block at a time
+needs about 6.2 GiB of cache. This estimate excludes ciphertext/key storage
+and temporary arithmetic scratch. Smaller-ring Gaussian validation passed
+in TFHEpp; security-sized encrypted validation remains required.
+
+Functional outputs need an amplitude budget for the retained multiplication
+level. A fixed-scale DD square leaves centered coefficient capacity
+`2^(Qout - 2*scale_bits - 1)`. For real and imaginary slot components bounded
+by `R`, a conservative square coefficient bound is `2*R^2`. This check is
+separate from the standard sine refresh noise model:
+
+```sh
+python3 python/narrowCKKSnoise.py --n 16384 --source-bits 48 --input-scale-bits 44 \
+  --s2c-bits 37 --selector-bits 379 --scale-bits 49 --plain-bits 34 \
+  --message-bound 4 --range-only --retained-component-bound 4.01
+```
+
+The existing 100-bit output modulus fails this range check. Three guard bits
+select output modulus 108, selector modulus 387, and packed-key modulus 435
+at N=16384. These values fit the 437-bit modulus budget but require new
+noise/security validation. `--retained-component-bound` also constrains the
+ordinary parameter search and adds range evidence to single-profile reports.
+Include approximation and encrypted evaluation error in the component bound.
+The `dd_ll14_fbs_dense_selectors` and `dd_ll14_fbs_dense_packed_setup` security
+cases screen the revised exposed key moduli; structured-secret security is
+still a separate assessment.
+
 ### Prerequisites
 
 - [Apptainer](https://apptainer.org/) (or Singularity) installed on your system

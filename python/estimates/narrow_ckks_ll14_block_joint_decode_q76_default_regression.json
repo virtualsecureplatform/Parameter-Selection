@@ -1,0 +1,356 @@
+{
+  "utc": "2026-10-09T05:46:46.908549+00:00",
+  "scope": "Structured ring joint-decoding sensitivity from posterior rotation histograms.\n\nCompares common decoding outcomes, conditional decoding independence, and an\noptimistic union bound. None establishes actual correlations or security.\nThe full square-root speedup on labelled dictionaries remains a heuristic.\n",
+  "source_sha256": "7c6c6bacd218bfcfb41074d9ec9e2901f58e8664a3cf4984c11afd64004d7259",
+  "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+  "profile_sha256": "97d7e5cdc365d267d09f60f873a7f3580c7bb5f4c1e85fadc6c0ebe2024d4aef",
+  "probability_report": "python/estimates/narrow_ckks_ll14_block_rotation_histogram.json",
+  "probability_report_sha256": "22b55047cc5eef032cc7db894630d1cf64c720d65a2ff1316d30bd73509eb10e",
+  "probability_seed": 2119,
+  "n": 16384,
+  "log_q": 76,
+  "profile_log_q": 76,
+  "candidate_modulus": false,
+  "zeta": 14688,
+  "weight": 11,
+  "layout": "saturated-5-prefix",
+  "histogram_samples": 4000,
+  "beta_offsets": [
+    24
+  ],
+  "d_offsets": [
+    -320
+  ],
+  "scenarios": {
+    "BDGL16": {
+      "points": [
+        {
+          "beta": 206,
+          "d": 3095,
+          "decode_marginal": "0.760611708622978333060871136694913730025291442871093750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "joint_success_common": "1.48315095150925940047222844933811837786121836992483644742352390712639859296598861920237005831341392379357560502940809142583120622966095365861669293771030e-10",
+          "joint_success_independent": "1.83557099226829448942842523662573407440833296602203139570077546272310597008992962649189573827918560739807079726274912466546830111747600897893591685596562e-10",
+          "joint_success_upper_bound": "1.94994493865256929890693740994823087165803661304029608222686347247606738388270902768343481964586531668963414550128677609583447505594444401213889021951482e-10",
+          "costs": {
+            "common_decoder": {
+              "bits": 129.00859505028248,
+              "cost": "         rop: \u22482^129.0\n         red: \u22482^126.0\n         svp: \u22482^128.8\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.7\n           \u21bb: \u22482^34.9",
+              "parameters": {
+                "beta": 206,
+                "zeta": 14688,
+                "d": 3095,
+                "eta": 2
+              }
+            },
+            "independent_decoder": {
+              "bits": 128.70103157654742,
+              "cost": "         rop: \u22482^128.7\n         red: \u22482^125.7\n         svp: \u22482^128.5\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.3\n           \u21bb: \u22482^34.5",
+              "parameters": {
+                "beta": 206,
+                "zeta": 14688,
+                "d": 3095,
+                "eta": 2
+              }
+            },
+            "optimistic_joint_bound": {
+              "bits": 128.6138271029078,
+              "cost": "         rop: \u22482^128.6\n         red: \u22482^125.6\n         svp: \u22482^128.4\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.3\n           \u21bb: \u22482^34.5",
+              "parameters": {
+                "beta": 206,
+                "zeta": 14688,
+                "d": 3095,
+                "eta": 2
+              }
+            },
+            "common_decoder_iid95": {
+              "bits": 128.83203029980544,
+              "cost": "         rop: \u22482^128.8\n         red: \u22482^125.8\n         svp: \u22482^128.6\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.5\n           \u21bb: \u22482^34.7",
+              "parameters": {
+                "beta": 206,
+                "zeta": 14688,
+                "d": 3095,
+                "eta": 2
+              }
+            },
+            "independent_decoder_iid95": {
+              "bits": 128.5567321585088,
+              "cost": "         rop: \u22482^128.6\n         red: \u22482^125.5\n         svp: \u22482^128.4\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.2\n           \u21bb: \u22482^34.4",
+              "parameters": {
+                "beta": 206,
+                "zeta": 14688,
+                "d": 3095,
+                "eta": 2
+              }
+            },
+            "optimistic_joint_bound_iid95": {
+              "bits": 128.43726235249497,
+              "cost": "         rop: \u22482^128.4\n         red: \u22482^125.4\n         svp: \u22482^128.2\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.1\n           \u21bb: \u22482^34.3",
+              "parameters": {
+                "beta": 206,
+                "zeta": 14688,
+                "d": 3095,
+                "eta": 2
+              }
+            }
+          }
+        }
+      ],
+      "best": {
+        "common_decoder": {
+          "bits": 129.00859505028248,
+          "cost": "         rop: \u22482^129.0\n         red: \u22482^126.0\n         svp: \u22482^128.8\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.7\n           \u21bb: \u22482^34.9",
+          "parameters": {
+            "beta": 206,
+            "zeta": 14688,
+            "d": 3095,
+            "eta": 2
+          },
+          "beta": 206,
+          "d": 3095,
+          "decode_marginal": "0.760611708622978333060871136694913730025291442871093750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "independent_decoder": {
+          "bits": 128.70103157654742,
+          "cost": "         rop: \u22482^128.7\n         red: \u22482^125.7\n         svp: \u22482^128.5\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.3\n           \u21bb: \u22482^34.5",
+          "parameters": {
+            "beta": 206,
+            "zeta": 14688,
+            "d": 3095,
+            "eta": 2
+          },
+          "beta": 206,
+          "d": 3095,
+          "decode_marginal": "0.760611708622978333060871136694913730025291442871093750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "optimistic_joint_bound": {
+          "bits": 128.6138271029078,
+          "cost": "         rop: \u22482^128.6\n         red: \u22482^125.6\n         svp: \u22482^128.4\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.3\n           \u21bb: \u22482^34.5",
+          "parameters": {
+            "beta": 206,
+            "zeta": 14688,
+            "d": 3095,
+            "eta": 2
+          },
+          "beta": 206,
+          "d": 3095,
+          "decode_marginal": "0.760611708622978333060871136694913730025291442871093750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "common_decoder_iid95": {
+          "bits": 128.83203029980544,
+          "cost": "         rop: \u22482^128.8\n         red: \u22482^125.8\n         svp: \u22482^128.6\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.5\n           \u21bb: \u22482^34.7",
+          "parameters": {
+            "beta": 206,
+            "zeta": 14688,
+            "d": 3095,
+            "eta": 2
+          },
+          "beta": 206,
+          "d": 3095,
+          "decode_marginal": "0.760611708622978333060871136694913730025291442871093750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "independent_decoder_iid95": {
+          "bits": 128.5567321585088,
+          "cost": "         rop: \u22482^128.6\n         red: \u22482^125.5\n         svp: \u22482^128.4\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.2\n           \u21bb: \u22482^34.4",
+          "parameters": {
+            "beta": 206,
+            "zeta": 14688,
+            "d": 3095,
+            "eta": 2
+          },
+          "beta": 206,
+          "d": 3095,
+          "decode_marginal": "0.760611708622978333060871136694913730025291442871093750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "optimistic_joint_bound_iid95": {
+          "bits": 128.43726235249497,
+          "cost": "         rop: \u22482^128.4\n         red: \u22482^125.4\n         svp: \u22482^128.2\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.1\n           \u21bb: \u22482^34.3",
+          "parameters": {
+            "beta": 206,
+            "zeta": 14688,
+            "d": 3095,
+            "eta": 2
+          },
+          "beta": 206,
+          "d": 3095,
+          "decode_marginal": "0.760611708622978333060871136694913730025291442871093750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        }
+      }
+    },
+    "MATZOV": {
+      "points": [
+        {
+          "beta": 206,
+          "d": 3095,
+          "decode_marginal": "0.760611708622978333060871136694913730025291442871093750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "joint_success_common": "1.48315095150925940047222844933811837786121836992483644742352390712639859296598861920237005831341392379357560502940809142583120622966095365861669293771030e-10",
+          "joint_success_independent": "1.83557099226829448942842523662573407440833296602203139570077546272310597008992962649189573827918560739807079726274912466546830111747600897893591685596562e-10",
+          "joint_success_upper_bound": "1.94994493865256929890693740994823087165803661304029608222686347247606738388270902768343481964586531668963414550128677609583447505594444401213889021951482e-10",
+          "costs": {
+            "common_decoder": {
+              "bits": 128.9598942549671,
+              "cost": "         rop: \u22482^129.0\n         red: \u22482^125.6\n         svp: \u22482^128.8\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.7\n           \u21bb: \u22482^34.9",
+              "parameters": {
+                "beta": 206,
+                "zeta": 14688,
+                "d": 3095,
+                "eta": 2
+              }
+            },
+            "independent_decoder": {
+              "bits": 128.65233078123205,
+              "cost": "         rop: \u22482^128.7\n         red: \u22482^125.2\n         svp: \u22482^128.5\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.3\n           \u21bb: \u22482^34.5",
+              "parameters": {
+                "beta": 206,
+                "zeta": 14688,
+                "d": 3095,
+                "eta": 2
+              }
+            },
+            "optimistic_joint_bound": {
+              "bits": 128.56512630759244,
+              "cost": "         rop: \u22482^128.6\n         red: \u22482^125.2\n         svp: \u22482^128.4\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.3\n           \u21bb: \u22482^34.5",
+              "parameters": {
+                "beta": 206,
+                "zeta": 14688,
+                "d": 3095,
+                "eta": 2
+              }
+            },
+            "common_decoder_iid95": {
+              "bits": 128.78332950449007,
+              "cost": "         rop: \u22482^128.8\n         red: \u22482^125.4\n         svp: \u22482^128.6\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.5\n           \u21bb: \u22482^34.7",
+              "parameters": {
+                "beta": 206,
+                "zeta": 14688,
+                "d": 3095,
+                "eta": 2
+              }
+            },
+            "independent_decoder_iid95": {
+              "bits": 128.50803136319342,
+              "cost": "         rop: \u22482^128.5\n         red: \u22482^125.1\n         svp: \u22482^128.4\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.2\n           \u21bb: \u22482^34.4",
+              "parameters": {
+                "beta": 206,
+                "zeta": 14688,
+                "d": 3095,
+                "eta": 2
+              }
+            },
+            "optimistic_joint_bound_iid95": {
+              "bits": 128.3885615571796,
+              "cost": "         rop: \u22482^128.4\n         red: \u22482^125.0\n         svp: \u22482^128.2\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.1\n           \u21bb: \u22482^34.3",
+              "parameters": {
+                "beta": 206,
+                "zeta": 14688,
+                "d": 3095,
+                "eta": 2
+              }
+            }
+          }
+        }
+      ],
+      "best": {
+        "common_decoder": {
+          "bits": 128.9598942549671,
+          "cost": "         rop: \u22482^129.0\n         red: \u22482^125.6\n         svp: \u22482^128.8\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.7\n           \u21bb: \u22482^34.9",
+          "parameters": {
+            "beta": 206,
+            "zeta": 14688,
+            "d": 3095,
+            "eta": 2
+          },
+          "beta": 206,
+          "d": 3095,
+          "decode_marginal": "0.760611708622978333060871136694913730025291442871093750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "independent_decoder": {
+          "bits": 128.65233078123205,
+          "cost": "         rop: \u22482^128.7\n         red: \u22482^125.2\n         svp: \u22482^128.5\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.3\n           \u21bb: \u22482^34.5",
+          "parameters": {
+            "beta": 206,
+            "zeta": 14688,
+            "d": 3095,
+            "eta": 2
+          },
+          "beta": 206,
+          "d": 3095,
+          "decode_marginal": "0.760611708622978333060871136694913730025291442871093750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "optimistic_joint_bound": {
+          "bits": 128.56512630759244,
+          "cost": "         rop: \u22482^128.6\n         red: \u22482^125.2\n         svp: \u22482^128.4\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.3\n           \u21bb: \u22482^34.5",
+          "parameters": {
+            "beta": 206,
+            "zeta": 14688,
+            "d": 3095,
+            "eta": 2
+          },
+          "beta": 206,
+          "d": 3095,
+          "decode_marginal": "0.760611708622978333060871136694913730025291442871093750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "common_decoder_iid95": {
+          "bits": 128.78332950449007,
+          "cost": "         rop: \u22482^128.8\n         red: \u22482^125.4\n         svp: \u22482^128.6\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.5\n           \u21bb: \u22482^34.7",
+          "parameters": {
+            "beta": 206,
+            "zeta": 14688,
+            "d": 3095,
+            "eta": 2
+          },
+          "beta": 206,
+          "d": 3095,
+          "decode_marginal": "0.760611708622978333060871136694913730025291442871093750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "independent_decoder_iid95": {
+          "bits": 128.50803136319342,
+          "cost": "         rop: \u22482^128.5\n         red: \u22482^125.1\n         svp: \u22482^128.4\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.2\n           \u21bb: \u22482^34.4",
+          "parameters": {
+            "beta": 206,
+            "zeta": 14688,
+            "d": 3095,
+            "eta": 2
+          },
+          "beta": 206,
+          "d": 3095,
+          "decode_marginal": "0.760611708622978333060871136694913730025291442871093750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "optimistic_joint_bound_iid95": {
+          "bits": 128.3885615571796,
+          "cost": "         rop: \u22482^128.4\n         red: \u22482^125.0\n         svp: \u22482^128.2\n           \u03b2:      206\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3095\n        prob: \u22482^-32.1\n           \u21bb: \u22482^34.3",
+          "parameters": {
+            "beta": 206,
+            "zeta": 14688,
+            "d": 3095,
+            "eta": 2
+          },
+          "beta": 206,
+          "d": 3095,
+          "decode_marginal": "0.760611708622978333060871136694913730025291442871093750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        }
+      }
+    }
+  },
+  "complete": true,
+  "security_validated": false,
+  "complete_attack_optimization": false,
+  "posterior_uncertainty": {
+    "method": "one-sample DKW-Massart empirical-CDF bound",
+    "confidence": 0.95,
+    "cdf_radius": "0.0214734704173368781032242841342038503466515669369749345308620141575750989049906340350342649576978382986809972591505233378802094130578198842907135936421776",
+    "theorem_source": "https://arxiv.org/abs/1107.5356",
+    "formula": "epsilon=sqrt(log(2/0.05)/(2*samples))",
+    "simultaneous_scope": "All decoder marginals and beta/d choices using this same fixed-layout posterior histogram",
+    "expectation_bound": "epsilon for 1/K; p*epsilon for h_p(K)=(1-(1-p)^K)/K by monotone summation by parts",
+    "excludes": "Other layouts, weights, zeta, seeds, decoding-correlation hypotheses, and security certification"
+  },
+  "limitations": [
+    "Decoder marginal uses scalar GSA Babai and MITM probabilities; actual cross-rotation correlations unmodeled",
+    "Conditional decoder independence and optimistic union bound are sensitivities, not established attacks",
+    "Only one zeta/layout/weight and supplied beta/d offsets; no global optimum",
+    "Full square-root work on labelled dictionaries assumed; compatible decompositions not constructed",
+    "Posterior finite-sample uncertainty is not a security confidence interval",
+    "Candidate modulus overrides do not establish matching C++ accuracy or exposed-key security",
+    "Correlated evaluation keys remain unqualified"
+  ]
+}

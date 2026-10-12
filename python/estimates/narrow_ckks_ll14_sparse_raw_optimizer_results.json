@@ -1,0 +1,51 @@
+{
+  "utc": "2026-10-09T01:08:42.227652+00:00",
+  "estimator_source": "https://github.com/malb/lattice-estimator",
+  "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+  "cost_model": "RC.BDGL16 classical",
+  "samples": "unbounded",
+  "estimator_global_max_beta": 1754,
+  "nonfinite_costs_establish_security": false,
+  "scope": "Generic LWE and uniform-sparse proxies; excludes public block constraints, ring structure, and circular/KDM security",
+  "security_validated": false,
+  "cases": {
+    "dd_ll14_auxiliary_sparse_switch_uniform_proxy": {
+      "n": 16384,
+      "log_q": 76,
+      "sigma": 3.2,
+      "secret": "uniform sparse ternary proxy (16 positive, 15 negative)",
+      "attacks": {
+        "primal_usvp": {
+          "error": "ValueError: nonfinite attack cost",
+          "status": "nonfinite_optimizer_result",
+          "nonfinite_kind": "positive_infinity",
+          "rop": "+Infinity",
+          "cost": "         rop:  \u22482^inf\n         tag:     usvp"
+        },
+        "primal_bdd": {
+          "error": "ValueError: nonfinite attack cost",
+          "status": "nonfinite_optimizer_result",
+          "nonfinite_kind": "positive_infinity",
+          "rop": "+Infinity",
+          "cost": "         rop:  \u22482^inf\n         tag:      bdd"
+        },
+        "dual": {
+          "error": "ValueError: nonfinite attack cost",
+          "status": "nonfinite_optimizer_result",
+          "nonfinite_kind": "positive_infinity",
+          "rop": "+Infinity",
+          "cost": "         rop:  \u22482^inf\n         mem:  \u22482^inf\n           m:  \u22482^inf\n           \u03b2:       47\n         tag:     dual"
+        },
+        "dual_hybrid": {
+          "error": "ValueError: nonfinite attack cost",
+          "status": "nonfinite_optimizer_result",
+          "nonfinite_kind": "positive_infinity",
+          "rop": "+Infinity",
+          "cost": "         rop:  \u22482^inf\n         red:  \u22482^inf\n       guess: \u22482^6314279255357723.0\n           \u03b2:     1753\n           p:        2\n           \u03b6:        0\n           t:        0\n          \u03b2':     1753\n           N: \u22482^6314279255357714.0\n           m: \u22482^14.0"
+        }
+      },
+      "public_block_secret_entropy_bits": 311.41934191261464,
+      "complete": false
+    }
+  }
+}

@@ -1,0 +1,469 @@
+{
+  "utc": "2026-10-09T06:53:33.572015+00:00",
+  "scope": "Construct signed projection dictionaries for each actual public rotation.\n\nThis establishes per-rotation compatibility and exact coordinates/signs only.\nIt does not construct a Babai collision search or reuse dictionaries isometrically.\n",
+  "sources": {
+    "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace/Parameter-Selection/python/estimates/narrow_ckks_block_rotated_dictionaries.py": "5c8d225e5e583f885b57176aaaab06648267cdd974e9d23d43a8e1098316215c",
+    "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace/Parameter-Selection/python/estimates/narrow_ckks_block_mitm_dictionaries.py": "11d98dd59643d98d196e9cb8cbbb1ed8f88543d6b79dc91f08bd5ebc6833a5e6",
+    "python/estimates/narrow_ckks_ll14_block_saturated_layouts.json": "97d7e5cdc365d267d09f60f873a7f3580c7bb5f4c1e85fadc6c0ebe2024d4aef",
+    "python/estimates/narrow_ckks_ll14_block_rotation_weight10.json": "b839058897a1f1ddfeea12e045a9adfb5d589ed1ebb9d87153bf26a97db35eda"
+  },
+  "n": 16384,
+  "h": 31,
+  "weight": 10,
+  "zeta": 14688,
+  "toy_cases": 170,
+  "unique_count_geometries": 2466,
+  "rotation_count": 16384,
+  "points": null,
+  "points_omitted": true,
+  "samples": [
+    {
+      "rotation": 0,
+      "side": "left",
+      "rank": "1156876370187866480",
+      "entry": [
+        [
+          0,
+          264,
+          1
+        ],
+        [
+          1,
+          0,
+          -1
+        ],
+        [
+          28,
+          0,
+          -1
+        ],
+        [
+          29,
+          0,
+          -1
+        ],
+        [
+          30,
+          0,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          264,
+          1
+        ],
+        [
+          529,
+          -1
+        ],
+        [
+          14812,
+          -1
+        ],
+        [
+          15341,
+          -1
+        ],
+        [
+          15870,
+          -1
+        ]
+      ]
+    },
+    {
+      "rotation": 0,
+      "side": "right",
+      "rank": "165155277921715056",
+      "entry": [
+        [
+          2,
+          264,
+          1
+        ],
+        [
+          3,
+          0,
+          -1
+        ],
+        [
+          4,
+          0,
+          -1
+        ],
+        [
+          29,
+          0,
+          -1
+        ],
+        [
+          30,
+          0,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          1322,
+          1
+        ],
+        [
+          1587,
+          -1
+        ],
+        [
+          2116,
+          -1
+        ],
+        [
+          15341,
+          -1
+        ],
+        [
+          15870,
+          -1
+        ]
+      ]
+    },
+    {
+      "rotation": 1,
+      "side": "left",
+      "rank": "1156876370187866480",
+      "entry": [
+        [
+          0,
+          264,
+          1
+        ],
+        [
+          1,
+          0,
+          -1
+        ],
+        [
+          28,
+          0,
+          -1
+        ],
+        [
+          29,
+          0,
+          -1
+        ],
+        [
+          30,
+          0,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          265,
+          1
+        ],
+        [
+          530,
+          -1
+        ],
+        [
+          14813,
+          -1
+        ],
+        [
+          15342,
+          -1
+        ],
+        [
+          15871,
+          -1
+        ]
+      ]
+    },
+    {
+      "rotation": 1,
+      "side": "right",
+      "rank": "165155277921715056",
+      "entry": [
+        [
+          2,
+          264,
+          1
+        ],
+        [
+          3,
+          0,
+          -1
+        ],
+        [
+          4,
+          0,
+          -1
+        ],
+        [
+          29,
+          0,
+          -1
+        ],
+        [
+          30,
+          0,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          1323,
+          1
+        ],
+        [
+          1588,
+          -1
+        ],
+        [
+          2117,
+          -1
+        ],
+        [
+          15342,
+          -1
+        ],
+        [
+          15871,
+          -1
+        ]
+      ]
+    },
+    {
+      "rotation": 8192,
+      "side": "left",
+      "rank": "1156875622743749120",
+      "entry": [
+        [
+          5,
+          394,
+          1
+        ],
+        [
+          9,
+          233,
+          -1
+        ],
+        [
+          16,
+          110,
+          -1
+        ],
+        [
+          17,
+          275,
+          1
+        ],
+        [
+          23,
+          288,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          382,
+          1
+        ],
+        [
+          1076,
+          -1
+        ],
+        [
+          4328,
+          1
+        ],
+        [
+          11296,
+          1
+        ],
+        [
+          13252,
+          -1
+        ]
+      ]
+    },
+    {
+      "rotation": 8192,
+      "side": "right",
+      "rank": "165155242393101696",
+      "entry": [
+        [
+          7,
+          250,
+          1
+        ],
+        [
+          18,
+          501,
+          1
+        ],
+        [
+          19,
+          52,
+          -1
+        ],
+        [
+          20,
+          44,
+          1
+        ],
+        [
+          28,
+          82,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          1831,
+          -1
+        ],
+        [
+          1911,
+          1
+        ],
+        [
+          2432,
+          -1
+        ],
+        [
+          6702,
+          1
+        ],
+        [
+          12210,
+          1
+        ]
+      ]
+    },
+    {
+      "rotation": 16383,
+      "side": "left",
+      "rank": "1322034966155215072",
+      "entry": [
+        [
+          1,
+          302,
+          -1
+        ],
+        [
+          2,
+          196,
+          -1
+        ],
+        [
+          12,
+          323,
+          1
+        ],
+        [
+          26,
+          288,
+          -1
+        ],
+        [
+          27,
+          88,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          830,
+          1
+        ],
+        [
+          1253,
+          1
+        ],
+        [
+          6671,
+          -1
+        ],
+        [
+          14042,
+          1
+        ],
+        [
+          14371,
+          1
+        ]
+      ]
+    },
+    {
+      "rotation": 16383,
+      "side": "right",
+      "rank": "1322034966155215072",
+      "entry": [
+        [
+          3,
+          302,
+          -1
+        ],
+        [
+          4,
+          196,
+          -1
+        ],
+        [
+          12,
+          323,
+          1
+        ],
+        [
+          26,
+          288,
+          -1
+        ],
+        [
+          27,
+          88,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          1888,
+          1
+        ],
+        [
+          2311,
+          1
+        ],
+        [
+          6671,
+          -1
+        ],
+        [
+          14042,
+          1
+        ],
+        [
+          14371,
+          1
+        ]
+      ]
+    }
+  ],
+  "labelled_support_count": "1315935788622783250403310766739157015552",
+  "rotation_support_sequence_sha256": "ac65777db03263613d1668bec202f8e7d14843750693cd441e5b612c31857cf9",
+  "separate_dictionary_entry_sum": "48182128925581201997024",
+  "separate_dictionary_entry_sum_log2": 75.35091622793361,
+  "square_root_labelled_support_log2": 64.97564239738742,
+  "separate_square_root_support_sum_log2": 71.91693567126877,
+  "complete": true,
+  "security_validated": false,
+  "full_attack_constructed": false,
+  "ring_dictionary_reuse_established": false,
+  "limitations": [
+    "Exact per-rotation projection decomposition only; no Babai collision search",
+    "Separate enumeration is a concrete construction, not a lower bound on shared work",
+    "Entry counts exclude lattice reduction, vector arithmetic, hashing and collision filtering",
+    "Reported enumeration overhead is not a security margin; existing cost screen is unchanged"
+  ]
+}

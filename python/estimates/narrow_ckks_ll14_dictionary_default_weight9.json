@@ -1,0 +1,333 @@
+{
+  "utc": "2026-10-09T06:43:01.410961+00:00",
+  "scope": "Exact compatible sparse dictionaries; no lattice attack or ring reuse claim.\n\nForced blocks have no zero projection. Assign each forced block to one side,\nthen split the remaining nonzero entries between two partial dictionaries.\nFilter pairs sharing a block. Every full projection has exactly binomial(w-s,k)\ncompatible decompositions, including signs and positions. Rank/unrank constructs\nindividual entries without materializing the astronomically large dictionaries.\n",
+  "source_sha256": "11d98dd59643d98d196e9cb8cbbb1ed8f88543d6b79dc91f08bd5ebc6833a5e6",
+  "profile_report": "python/estimates/narrow_ckks_ll14_block_saturated_layouts.json",
+  "profile_sha256": "97d7e5cdc365d267d09f60f873a7f3580c7bb5f4c1e85fadc6c0ebe2024d4aef",
+  "n": 16384,
+  "h": 31,
+  "zeta": 14688,
+  "rotation": 0,
+  "weight": 9,
+  "widths": [
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    514
+  ],
+  "guessed_per_block": [
+    529,
+    529,
+    529,
+    529,
+    529,
+    464,
+    464,
+    464,
+    464,
+    464,
+    464,
+    464,
+    464,
+    464,
+    464,
+    464,
+    464,
+    464,
+    464,
+    464,
+    464,
+    464,
+    464,
+    463,
+    463,
+    463,
+    463,
+    463,
+    463,
+    463,
+    450
+  ],
+  "split": {
+    "forced_blocks": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "left_forced_blocks": [],
+    "right_forced_blocks": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "left_weight": 4,
+    "right_weight": 5,
+    "left_entries": "11010398749044176",
+    "right_entries": "1325648358836768",
+    "enumerated_entries": "12336047107880944",
+    "full_projection_count": "14595917031808815324303205063168",
+    "compatible_decompositions_per_projection": 1,
+    "compatible_pair_count": "14595917031808815324303205063168",
+    "all_pair_count": "14595917031808815324303205063168",
+    "enumeration_log2": 53.45372969781893,
+    "square_root_support_log2": 51.762667898396934,
+    "enumeration_over_square_root_support_bits": 1.6910617994219947,
+    "optimization_scope": "All side weights and contiguous splits of the public forced-block order only"
+  },
+  "samples": [
+    {
+      "side": "left",
+      "rank": "0",
+      "entry": [
+        [
+          27,
+          0,
+          -1
+        ],
+        [
+          28,
+          0,
+          -1
+        ],
+        [
+          29,
+          0,
+          -1
+        ],
+        [
+          30,
+          0,
+          -1
+        ]
+      ],
+      "coefficient_positions": [
+        14283,
+        14812,
+        15341,
+        15870
+      ]
+    },
+    {
+      "side": "left",
+      "rank": "5505199374522088",
+      "entry": [
+        [
+          8,
+          50,
+          1
+        ],
+        [
+          9,
+          245,
+          1
+        ],
+        [
+          15,
+          419,
+          -1
+        ],
+        [
+          22,
+          175,
+          -1
+        ]
+      ],
+      "coefficient_positions": [
+        4282,
+        5006,
+        8354,
+        11813
+      ]
+    },
+    {
+      "side": "left",
+      "rank": "11010398749044175",
+      "entry": [
+        [
+          5,
+          463,
+          1
+        ],
+        [
+          6,
+          463,
+          1
+        ],
+        [
+          7,
+          463,
+          1
+        ],
+        [
+          8,
+          463,
+          1
+        ]
+      ],
+      "coefficient_positions": [
+        3108,
+        3637,
+        4166,
+        4695
+      ]
+    },
+    {
+      "side": "right",
+      "rank": "0",
+      "entry": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          1,
+          0,
+          -1
+        ],
+        [
+          2,
+          0,
+          -1
+        ],
+        [
+          3,
+          0,
+          -1
+        ],
+        [
+          4,
+          0,
+          -1
+        ]
+      ],
+      "coefficient_positions": [
+        0,
+        529,
+        1058,
+        1587,
+        2116
+      ]
+    },
+    {
+      "side": "right",
+      "rank": "662824179418384",
+      "entry": [
+        [
+          0,
+          264,
+          1
+        ],
+        [
+          1,
+          0,
+          -1
+        ],
+        [
+          2,
+          0,
+          -1
+        ],
+        [
+          3,
+          0,
+          -1
+        ],
+        [
+          4,
+          0,
+          -1
+        ]
+      ],
+      "coefficient_positions": [
+        264,
+        529,
+        1058,
+        1587,
+        2116
+      ]
+    },
+    {
+      "side": "right",
+      "rank": "1325648358836767",
+      "entry": [
+        [
+          0,
+          528,
+          1
+        ],
+        [
+          1,
+          528,
+          1
+        ],
+        [
+          2,
+          528,
+          1
+        ],
+        [
+          3,
+          528,
+          1
+        ],
+        [
+          4,
+          528,
+          1
+        ]
+      ],
+      "coefficient_positions": [
+        528,
+        1057,
+        1586,
+        2115,
+        2644
+      ]
+    }
+  ],
+  "exhaustive_toy_cases": 30,
+  "complete": true,
+  "security_validated": false,
+  "full_attack_constructed": false,
+  "ring_dictionary_reuse_established": false,
+  "limitations": [
+    "Constructs exact signed projection dictionaries at rotation zero only",
+    "Pair compatibility filters overlapping blocks; this is not a Babai collision search",
+    "Enumerated entries exclude vector arithmetic, hashing, collisions, decoding and lattice reduction",
+    "No square-root speedup over all rotation-labelled candidates is established",
+    "The entry-count overhead is not a security margin or a lower bound on other attack algorithms",
+    "The dictionaries are represented implicitly; full sizes are not materialized"
+  ]
+}

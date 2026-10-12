@@ -1,0 +1,114 @@
+{
+  "parameters": {
+    "n": 32768,
+    "h": 31,
+    "selector_bits": 669,
+    "scale_bits": 46,
+    "plain_bits": 39,
+    "source_bits": 50,
+    "input_scale_bits": 43,
+    "s2c_bits": 39,
+    "primary_bits": 4,
+    "bbar_bits": 4,
+    "sigma": 3.2,
+    "message_bound": 0.125
+  },
+  "estimate": {
+    "scope": "Average-case factor/tree screen for ePrint 2026/2119's TFHEpp DD port.\n\nThis supports TFHEpp DD multiplication with rescaling before or after\nrelinearization, without a hybrid P modulus. Bbar limbs are exact arithmetic and introduce no\nindependent encryption error. It reuses the GL estimator's variance arithmetic.\nOptional auxiliary switching lifts its modulus and scale before DD switching\nand divides afterward; S2C uses a whole-pipeline lift screen.\nS2C/encapsulation use an average-case BSGS variance screen. FFT error and\nstructured-secret security are excluded. This is not a correctness certificate.\n",
+    "model": "independent",
+    "security_validated": false,
+    "multiplication_order": "relinearize-then-rescale",
+    "output_bits": 400,
+    "packed_bits": 723,
+    "auxiliary_switch_bits": 212,
+    "structured_switch_key_bits": 262,
+    "maximum_evaluation_key_bits": 842,
+    "selector_memory": {
+      "scope": "Selector torus/NTT storage only; excludes evaluation keys, their FFT caches, batches, and allocator overhead",
+      "inferred_torus_storage_bits": 896,
+      "expanded_torus_bytes": 279567138816,
+      "one_group_torus_bytes": 7765753856,
+      "file_backed_torus_and_ntt_peak_bytes": 54360276992,
+      "in_memory_streamed_torus_and_ntt_peak_bytes": 326161661952
+    },
+    "chunked_selector_memory": {
+      "scope": "Loaded selector group, bounded NTT chunk and modular batch sums only; excludes evaluation keys, FFT caches and other workspaces",
+      "selector_chunk_size": 40,
+      "batch_columns": 2,
+      "ntt_chunk_bytes": 1761607680,
+      "modular_sum_bytes": 176160768,
+      "file_backed_group_chunk_and_sums_bytes": 9703522304
+    },
+    "raw_dd_chain_torus_bytes": 676589469696,
+    "compact_dd_chain_digit_bytes": 6040977408,
+    "dense_s2c_plaintext_polynomial_bytes": 120259084288,
+    "compact_s2c_plaintext_coefficient_bytes": 8589934592,
+    "prepared_fft_memory": {
+      "scope": "Derived key payloads only; excludes raw keys, selectors, transform plans and workspaces",
+      "factor_automorphism_bytes": 23341826048,
+      "output_automorphism_bytes": 12273057792,
+      "dd_chain_bytes": 48327819264,
+      "tail_rotation_binary_keys": 9,
+      "tail_rotation_bytes": 210076434432,
+      "bounded_tail_rotation_peak_bytes": 23341826048,
+      "staged_factor_phase_bytes": 46683652096,
+      "staged_product_tree_phase_bytes": 48327819264,
+      "staged_output_phase_bytes": 12273057792,
+      "staged_peak_bytes": 48327819264
+    },
+    "factor_log2_variance": -61.92940587696485,
+    "levels": [
+      {
+        "output_bits": 584,
+        "tensor_rounding_log2_variance": -66.1698589616159,
+        "relin_log2_variance": -138.91381068689552
+      },
+      {
+        "output_bits": 538,
+        "tensor_rounding_log2_variance": -66.1698589616159,
+        "relin_log2_variance": -139.0277668761926
+      },
+      {
+        "output_bits": 492,
+        "tensor_rounding_log2_variance": -66.1698589616159,
+        "relin_log2_variance": -139.1407758380218
+      },
+      {
+        "output_bits": 446,
+        "tensor_rounding_log2_variance": -66.1698589616159,
+        "relin_log2_variance": -139.2750769297334
+      },
+      {
+        "output_bits": 400,
+        "tensor_rounding_log2_variance": -66.1698589616159,
+        "relin_log2_variance": -139.410236513015
+      }
+    ],
+    "maximum_tail_rotation_switches": 9,
+    "tail_rotation_log2_variance": -66.1698589616159,
+    "complex_factor_tree_rms": 7.822887768977566e-08,
+    "factor_tree_rms_precision_bits": 23.607723491600666,
+    "ntt_cache_bytes_upper_bound": 1677402832896,
+    "ntt_cache_peak_bytes": 46594523136,
+    "s2c_coefficient_rms": 6.656544094136241e-11,
+    "s2c_log2_variances": {
+      "fresh": -67.64385618977472,
+      "input_conjugation": -466.96966392162904,
+      "baby_rotations": -465.16230899957145,
+      "giant_rotations": -471.3658423936566,
+      "encapsulation": -481.17319731571416,
+      "rescale": -491.1698589616159,
+      "diagonal_encoding": -73.16992500144231,
+      "auxiliary_final_rounding": -84.58496250072116
+    },
+    "complex_refresh_rms": 7.822893433070488e-08,
+    "real_sine_error_bound": 7.843656858674175e-07,
+    "complex_sine_error_bound": 1.1092605908137766e-06,
+    "eight_rms_plus_sine_screen": 1.7350920654594157e-06,
+    "screen_note": "Eight RMS is an engineering screen, not a tail/failure proof",
+    "excluded": [
+      "FFT error",
+      "security"
+    ]
+  }
+}

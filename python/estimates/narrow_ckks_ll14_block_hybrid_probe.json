@@ -1,0 +1,280 @@
+{
+  "utc": "2026-10-09T03:36:07.436058+00:00",
+  "scope": "Exact public-block guessing counts with a bounded hybrid-cost sensitivity probe.\n\nThe count model matches independent uniform positions and signs in each public\nblock. Lattice geometry uses average marginal variance and the pinned estimator's\nheuristics. A fixed-parameter probe is not a complete attack optimization or a\nsecurity certificate. Run --self-test with ordinary Python; run the probe in Sage.\n",
+  "source_sha256": "964a774b8829300e7625b09b5be652baa11475efb373ecc9e1c5b67a925b1d44",
+  "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+  "n": 16384,
+  "h": 31,
+  "log_q": 76,
+  "sigma": 3.2,
+  "block_widths": [
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    529,
+    514
+  ],
+  "max_beta": 4096,
+  "exact_count_self_test_passed": true,
+  "attacks": {
+    "bdd_hybrid": {
+      "uniform_baseline": {
+        "bits": 153.30636260086652,
+        "cost": "         rop: \u22482^153.3\n         red: \u22482^152.2\n         svp: \u22482^152.4\n           \u03b2:      162\n           \u03b7:       17\n           \u03b6: \u22482^13.8\n         |S|: \u22482^54.7\n           d:     3536\n        prob: \u22482^-71.5\n           \u21bb: \u22482^73.7\n         tag:   hybrid",
+        "parameters": {
+          "beta": 162,
+          "zeta": 14548,
+          "d": 3536,
+          "eta": 17
+        }
+      },
+      "layouts": {
+        "balanced": {
+          "guessed_per_block": [
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            470,
+            469,
+            469,
+            469,
+            469,
+            469,
+            469,
+            469,
+            469,
+            456
+          ],
+          "best_fixed_parameter_cost": {
+            "bits": 152.92520778624157,
+            "cost": "         rop: \u22482^152.9\n         red: \u22482^152.0\n         svp: \u22482^151.8\n           \u03b2:      162\n           \u03b7:       17\n           \u03b6: \u22482^13.8\n         |S|: \u22482^54.4\n           d:     3536\n        prob: \u22482^-71.3\n           \u21bb: \u22482^73.5",
+            "parameters": {
+              "beta": 162,
+              "zeta": 14548,
+              "d": 3536,
+              "eta": 17
+            },
+            "maximum_guessed_weight": 4,
+            "candidate_count": "24421808289519657",
+            "hit_probability_numerator": "559567821741374404099694736913621820064189172836830374737600000",
+            "hit_probability_denominator": "1298982452519736515156128856786707693858862042714672337209717650500847003137703039457"
+          }
+        },
+        "prefix": {
+          "guessed_per_block": [
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            265,
+            0,
+            0,
+            0
+          ],
+          "best_fixed_parameter_cost": {
+            "bits": 298.49795515078347,
+            "cost": "         rop: \u22482^298.5\n         red: \u22482^81.8\n         svp: \u22482^298.5\n           \u03b2:      162\n           \u03b7:       17\n           \u03b6: \u22482^13.8\n         |S|: \u22482^271.3\n           d:     3536\n        prob: 0.39777750804517015\n           \u21bb:       10",
+            "parameters": {
+              "beta": 162,
+              "zeta": 14548,
+              "d": 3536,
+              "eta": 17
+            },
+            "maximum_guessed_weight": 27,
+            "candidate_count": "4582611365466085830471662174776924782393064011391995152093718983626214192030154752",
+            "hit_probability_numerator": "264",
+            "hit_probability_denominator": "529"
+          }
+        }
+      }
+    },
+    "bdd_mitm_hybrid": {
+      "uniform_baseline": {
+        "bits": 134.67162119260712,
+        "cost": "         rop: \u22482^134.7\n         red: \u22482^132.8\n         svp: \u22482^134.2\n           \u03b2:      186\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^126.6\n           d:     3607\n        prob: \u22482^-45.1\n           \u21bb: \u22482^47.3\n         tag:   hybrid",
+        "parameters": {
+          "beta": 186,
+          "zeta": 14624,
+          "d": 3607,
+          "eta": 2
+        }
+      },
+      "layouts": {
+        "balanced": {
+          "guessed_per_block": [
+            473,
+            473,
+            473,
+            473,
+            473,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            472,
+            459
+          ],
+          "best_fixed_parameter_cost": {
+            "bits": 133.79224773502924,
+            "cost": "         rop: \u22482^133.8\n         red: \u22482^132.7\n         svp: \u22482^132.9\n           \u03b2:      186\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^124.2\n           d:     3607\n        prob: \u22482^-44.9\n           \u21bb: \u22482^47.2",
+            "parameters": {
+              "beta": 186,
+              "zeta": 14624,
+              "d": 3607,
+              "eta": 2
+            },
+            "maximum_guessed_weight": 10,
+            "candidate_count": "24800051576976551545473307949199825493",
+            "hit_probability_numerator": "3821986834426876197068832783616569005971746522705873120754843828502727",
+            "hit_probability_denominator": "56477497935640718050266472034204682341689654031072710313465984804384652310334914759"
+          }
+        },
+        "prefix": {
+          "guessed_per_block": [
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            529,
+            341,
+            0,
+            0,
+            0
+          ],
+          "best_fixed_parameter_cost": {
+            "bits": 164.0766951511721,
+            "cost": "         rop: \u22482^164.1\n         red: \u22482^90.3\n         svp: \u22482^164.1\n           \u03b2:      186\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^271.3\n           d:     3607\n        prob: 0.1546633968301674\n           \u21bb:       28",
+            "parameters": {
+              "beta": 186,
+              "zeta": 14624,
+              "d": 3607,
+              "eta": 2
+            },
+            "maximum_guessed_weight": 27,
+            "candidate_count": "4582611365466085830471662174776924782393064011391995152093718983626214192030154752",
+            "hit_probability_numerator": "188",
+            "hit_probability_denominator": "529"
+          }
+        }
+      }
+    }
+  },
+  "security_validated": false,
+  "complete_attack_optimization": false,
+  "limitations": [
+    "Fixed uniform-proxy beta/zeta/d parameters; no optimization over block layouts or lattice parameters",
+    "Average unconditional marginal variance used in GSA; per-block and conditional variances not modeled",
+    "Estimator Babai/MITM probabilities and square-root speedup remain heuristic",
+    "Ring-specific and circular/correlated-key attacks are not modeled"
+  ],
+  "fixed_parameter_probe_complete": true
+}

@@ -1,0 +1,136 @@
+{
+  "utc": "2026-10-06T03:13:36.407541+00:00",
+  "estimator_source": "https://github.com/malb/lattice-estimator",
+  "estimator_revision": "53da5982597709ba0fdf94ea37a84d822310fd84",
+  "cost_model": "RC.BDGL16 classical",
+  "samples": "unbounded",
+  "scope": "Generic LWE and uniform-sparse proxies; excludes public block constraints, ring structure, and circular/KDM security",
+  "security_validated": false,
+  "structured_secret_entropy_bits": 280.41431972079147,
+  "cases": {
+    "dd_dense_selectors": {
+      "n": 8192,
+      "log_q": 184,
+      "sigma": 3.2,
+      "secret": "dense ternary",
+      "attacks": {
+        "primal_usvp": {
+          "bits": 154.55978243070308,
+          "cost": "         rop: \u22482^154.6\n         red: \u22482^154.6\n           \u03b4: 1.003882\n           \u03b2:      415\n           d:    16156\n         tag:     usvp"
+        },
+        "dual": {
+          "bits": 155.1620614856364,
+          "cost": "         rop: \u22482^155.2\n         mem: \u22482^95.2\n           m: \u22482^13.0\n           \u03b2:      417\n           d:    16362\n           \u21bb:        1\n         tag:     dual"
+        },
+        "primal_bdd": {
+          "bits": 154.26134632571382,
+          "cost": "         rop: \u22482^154.3\n         red: \u22482^154.2\n         svp: \u22482^147.5\n           \u03b2:      414\n           \u03b7:      448\n           d:    15935\n         tag:      bdd"
+        },
+        "dual_hybrid": {
+          "bits": 153.989824180957,
+          "cost": "         rop: \u22482^154.0\n         red: \u22482^154.0\n       guess: \u22482^133.8\n           \u03b2:      413\n           p:        3\n           \u03b6:       10\n           t:       60\n          \u03b2':      413\n           N: \u22482^82.7\n           m: \u22482^13.0"
+        }
+      },
+      "complete": true,
+      "weakest_bits": 153.989824180957,
+      "passes_generic_screen": true
+    },
+    "dd_dense_packed_setup": {
+      "n": 8192,
+      "log_q": 217,
+      "sigma": 3.2,
+      "secret": "dense ternary",
+      "attacks": {
+        "primal_usvp": {
+          "bits": 128.8336443565857,
+          "cost": "         rop: \u22482^128.8\n         red: \u22482^128.8\n           \u03b4: 1.004571\n           \u03b2:      327\n           d:    15822\n         tag:     usvp"
+        },
+        "dual": {
+          "bits": 129.17564773652836,
+          "cost": "         rop: \u22482^129.2\n         mem: \u22482^76.4\n           m: \u22482^13.0\n           \u03b2:      328\n           d:    16380\n           \u21bb:        1\n         tag:     dual"
+        },
+        "primal_bdd": {
+          "bits": 128.53976166808664,
+          "cost": "         rop: \u22482^128.5\n         red: \u22482^128.3\n         svp: \u22482^125.9\n           \u03b2:      325\n           \u03b7:      374\n           d:    16242\n         tag:      bdd"
+        },
+        "dual_hybrid": {
+          "bits": 128.2976726330778,
+          "cost": "         rop: \u22482^128.3\n         red: \u22482^128.3\n       guess: \u22482^118.9\n           \u03b2:      325\n           p:        4\n           \u03b6:       20\n           t:       30\n          \u03b2':      325\n           N: \u22482^65.8\n           m: \u22482^13.0"
+        }
+      },
+      "complete": true,
+      "weakest_bits": 128.2976726330778,
+      "passes_generic_screen": true
+    },
+    "dd_structured_source_uniform_sparse_proxy": {
+      "n": 8192,
+      "log_q": 25,
+      "sigma": 3.2,
+      "secret": "uniform sparse ternary proxy (16 positive, 15 negative)",
+      "attacks": {
+        "primal_usvp": {
+          "error": "ValueError: nonfinite attack cost"
+        },
+        "primal_bdd": {
+          "error": "ValueError: nonfinite attack cost"
+        },
+        "dual": {
+          "error": "ValueError: nonfinite attack cost"
+        },
+        "dual_hybrid": {
+          "error": "ValueError: nonfinite attack cost"
+        }
+      },
+      "complete": false
+    },
+    "paper_ll13_dense_reference": {
+      "n": 8192,
+      "log_q": 218,
+      "sigma": 3.2,
+      "secret": "dense ternary",
+      "attacks": {
+        "primal_usvp": {
+          "bits": 128.24104760634057,
+          "cost": "         rop: \u22482^128.2\n         red: \u22482^128.2\n           \u03b4: 1.004590\n           \u03b2:      325\n           d:    15728\n         tag:     usvp"
+        },
+        "primal_bdd": {
+          "bits": 127.76837580739206,
+          "cost": "         rop: \u22482^127.8\n         red: \u22482^127.7\n         svp: \u22482^123.3\n           \u03b2:      323\n           \u03b7:      365\n           d:    16237\n         tag:      bdd"
+        },
+        "dual": {
+          "bits": 128.5920880524301,
+          "cost": "         rop: \u22482^128.6\n         mem: \u22482^76.0\n           m: \u22482^13.0\n           \u03b2:      326\n           d:    16385\n           \u21bb:        1\n         tag:     dual"
+        },
+        "dual_hybrid": {
+          "bits": 127.7121361765293,
+          "cost": "         rop: \u22482^127.7\n         red: \u22482^127.7\n       guess: \u22482^117.7\n           \u03b2:      323\n           p:        3\n           \u03b6:       10\n           t:       50\n          \u03b2':      323\n           N: \u22482^65.2\n           m: \u22482^13.0"
+        }
+      },
+      "complete": true,
+      "weakest_bits": 127.7121361765293,
+      "passes_generic_screen": false
+    },
+    "paper_ll13_sparse_reference_proxy": {
+      "n": 8192,
+      "log_q": 55,
+      "sigma": 3.2,
+      "secret": "uniform sparse ternary proxy (16 positive, 15 negative)",
+      "attacks": {
+        "primal_usvp": {
+          "error": "ValueError: nonfinite attack cost"
+        },
+        "primal_bdd": {
+          "bits": 531.4739280948874,
+          "cost": "         rop: \u22482^531.5\n         red: \u22482^485.1\n         svp: \u22482^531.5\n           \u03b2:     1540\n           \u03b7:     1755\n           d:    13741\n         tag:      bdd"
+        },
+        "dual": {
+          "error": "ValueError: nonfinite attack cost"
+        },
+        "dual_hybrid": {
+          "error": "ValueError: nonfinite attack cost"
+        }
+      },
+      "complete": false
+    }
+  }
+}

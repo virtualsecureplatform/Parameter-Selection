@@ -1,0 +1,65 @@
+{
+  "utc": "2026-10-06T20:25:03.279126+00:00",
+  "estimator_source": "https://github.com/malb/lattice-estimator",
+  "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+  "cost_model": "RC.BDGL16 classical",
+  "samples": "unbounded",
+  "scope": "Generic LWE and uniform-sparse proxies; excludes public block constraints, ring structure, and circular/KDM security",
+  "security_validated": false,
+  "cases": {
+    "dd_lean_basis_dense_packed_setup": {
+      "n": 32768,
+      "log_q": 572,
+      "sigma": 3.2,
+      "secret": "dense ternary",
+      "attacks": {
+        "primal_usvp": {
+          "bits": 207.3535588459491,
+          "cost": "         rop: \u22482^207.4\n         red: \u22482^207.4\n           \u03b4: 1.003026\n           \u03b2:      589\n           d:    63990\n         tag:     usvp"
+        },
+        "dual": {
+          "bits": 207.67920728619953,
+          "cost": "         rop: \u22482^207.7\n         mem: \u22482^131.6\n           m: \u22482^15.0\n           \u03b2:      590\n           d:    65500\n           \u21bb:        1\n         tag:     dual"
+        },
+        "dual_hybrid": {
+          "bits": 207.0937045637354,
+          "cost": "         rop: \u22482^207.1\n         red: \u22482^207.1\n       guess: \u22482^193.6\n           \u03b2:      588\n           p:        3\n           \u03b6:        0\n           t:      110\n          \u03b2':      588\n           N: \u22482^99.5\n           m: \u22482^15.0"
+        },
+        "primal_bdd": {
+          "bits": 207.12768822673465,
+          "cost": "         rop: \u22482^207.1\n         red: \u22482^207.1\n         svp: \u22482^201.8\n           \u03b2:      588\n           \u03b7:      634\n           d:    65300\n         tag:      bdd"
+        }
+      },
+      "complete": true,
+      "weakest_bits": 207.0937045637354,
+      "passes_generic_screen": true
+    },
+    "dd_lean_basis_dense_factor_keys": {
+      "n": 32768,
+      "log_q": 523,
+      "sigma": 3.2,
+      "secret": "dense ternary",
+      "attacks": {
+        "primal_usvp": {
+          "bits": 229.8330652742093,
+          "cost": "         rop: \u22482^229.8\n         red: \u22482^229.8\n           \u03b4: 1.002767\n           \u03b2:      666\n           d:    63791\n         tag:     usvp"
+        },
+        "dual": {
+          "bits": 230.16278873379926,
+          "cost": "         rop: \u22482^230.2\n         mem: \u22482^147.8\n           m: \u22482^15.0\n           \u03b2:      667\n           d:    65481\n           \u21bb:        1\n         tag:     dual"
+        },
+        "primal_bdd": {
+          "bits": 229.56697517734105,
+          "cost": "         rop: \u22482^229.6\n         red: \u22482^229.6\n         svp: \u22482^222.0\n           \u03b2:      665\n           \u03b7:      703\n           d:    64612\n         tag:      bdd"
+        },
+        "dual_hybrid": {
+          "bits": 229.28535764778235,
+          "cost": "         rop: \u22482^229.3\n         red: \u22482^229.3\n       guess: \u22482^209.6\n           \u03b2:      664\n           p:        3\n           \u03b6:        0\n           t:      120\n          \u03b2':      664\n           N: \u22482^129.9\n           m: \u22482^15.0"
+        }
+      },
+      "complete": true,
+      "weakest_bits": 229.28535764778235,
+      "passes_generic_screen": true
+    }
+  }
+}

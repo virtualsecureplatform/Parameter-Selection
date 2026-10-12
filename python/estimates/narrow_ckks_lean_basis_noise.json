@@ -1,0 +1,98 @@
+{
+  "scope": "Average-case factor/tree screen for ePrint 2026/2119's TFHEpp DD port.\n\nThis supports TFHEpp DD multiplication with rescaling before or after\nrelinearization, without a hybrid P modulus. Bbar limbs are exact arithmetic and introduce no\nindependent encryption error. It reuses the GL estimator's variance arithmetic.\nOptional auxiliary switching lifts its modulus and scale before DD switching\nand divides afterward; S2C uses a whole-pipeline lift screen.\nS2C/encapsulation use an average-case BSGS variance screen. FFT error and\nstructured-secret security are excluded. This is not a correctness certificate.\n",
+  "model": "independent",
+  "security_validated": false,
+  "multiplication_order": "relinearize-then-rescale",
+  "output_bits": 244,
+  "packed_bits": 572,
+  "auxiliary_switch_bits": 44,
+  "structured_switch_key_bits": 92,
+  "maximum_evaluation_key_bits": 572,
+  "selector_memory": {
+    "scope": "Selector torus/NTT storage only; excludes evaluation keys, their FFT caches, batches, and allocator overhead",
+    "inferred_torus_storage_bits": 576,
+    "expanded_torus_bytes": 179721732096,
+    "one_group_torus_bytes": 4992270336,
+    "file_backed_torus_and_ntt_peak_bytes": 41602252800,
+    "in_memory_streamed_torus_and_ntt_peak_bytes": 216331714560
+  },
+  "chunked_selector_memory": {
+    "scope": "Loaded selector group, bounded NTT chunk and modular batch sums only; excludes evaluation keys, FFT caches and other workspaces",
+    "selector_chunk_size": 40,
+    "batch_columns": 9,
+    "ntt_chunk_bytes": 1384120320,
+    "modular_sum_bytes": 622854144,
+    "file_backed_group_chunk_and_sums_bytes": 6999244800
+  },
+  "raw_dd_chain_torus_bytes": 25669140480,
+  "compact_dd_chain_digit_bytes": 356515840,
+  "dense_s2c_plaintext_polynomial_bytes": 77309411328,
+  "compact_s2c_plaintext_coefficient_bytes": 8589934592,
+  "prepared_fft_memory": {
+    "scope": "Derived key payloads only; excludes raw keys, selectors, transform plans and workspaces",
+    "factor_automorphism_bytes": 2283798528,
+    "output_automorphism_bytes": 679477248,
+    "dd_chain_bytes": 2852126720,
+    "tail_rotation_binary_keys": 9,
+    "tail_rotation_bytes": 20554186752,
+    "bounded_tail_rotation_peak_bytes": 2283798528,
+    "staged_factor_phase_bytes": 4567597056,
+    "staged_product_tree_phase_bytes": 2852126720,
+    "staged_output_phase_bytes": 679477248,
+    "staged_peak_bytes": 4567597056
+  },
+  "factor_log2_variance": -63.367593049130015,
+  "levels": [
+    {
+      "output_bits": 432,
+      "tensor_rounding_log2_variance": -68.1698589616159,
+      "relin_log2_variance": -117.47393118829042
+    },
+    {
+      "output_bits": 385,
+      "tensor_rounding_log2_variance": -68.1698589616159,
+      "relin_log2_variance": -117.64385618973274
+    },
+    {
+      "output_bits": 338,
+      "tensor_rounding_log2_variance": -68.1698589616159,
+      "relin_log2_variance": -117.76938707181661
+    },
+    {
+      "output_bits": 291,
+      "tensor_rounding_log2_variance": -68.1698589616159,
+      "relin_log2_variance": -117.98089117701032
+    },
+    {
+      "output_bits": 244,
+      "tensor_rounding_log2_variance": -68.1698589616159,
+      "relin_log2_variance": -118.14135584920355
+    }
+  ],
+  "maximum_tail_rotation_switches": 9,
+  "tail_rotation_log2_variance": -68.1698589616159,
+  "complex_factor_tree_rms": 5.9099242993677175e-09,
+  "factor_tree_rms_precision_bits": 27.33421320304644,
+  "ntt_cache_bytes_upper_bound": 1317959368704,
+  "ntt_cache_peak_bytes": 36609982464,
+  "s2c_coefficient_rms": 1.2421999170340696e-09,
+  "s2c_log2_variances": {
+    "fresh": -69.64385618977472,
+    "input_conjugation": -127.14131182235872,
+    "baby_rotations": -125.33395690030112,
+    "giant_rotations": -131.8364572408303,
+    "encapsulation": -141.6438121628879,
+    "rescale": -157.1698589616159,
+    "diagonal_encoding": -59.16992500144231,
+    "auxiliary_final_rounding": -86.58496250072116
+  },
+  "complex_refresh_rms": 6.1654948294533405e-09,
+  "real_sine_error_bound": 1.6449340668482264,
+  "complex_sine_error_bound": 2.3262880665462933,
+  "eight_rms_plus_sine_screen": 2.326288115870252,
+  "screen_note": "Eight RMS is an engineering screen, not a tail/failure proof",
+  "excluded": [
+    "FFT error",
+    "security"
+  ]
+}

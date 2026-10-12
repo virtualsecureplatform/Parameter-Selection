@@ -1,0 +1,183 @@
+{
+  "scope": "LL14 FBS candidate improving table encoding precision within log(PQ)=437.\n\nThe factor/tree model excludes the trigonometric coefficients and FFT error;\nits RMS is not a complete nonlinear-function accuracy certificate.\n",
+  "profile": "ll14-fbs-plain37-dd",
+  "parameters": {
+    "n": 16384,
+    "h": 31,
+    "selector_bits": 385,
+    "scale_bits": 48,
+    "plain_bits": 37,
+    "source_bits": 48,
+    "input_scale_bits": 44,
+    "s2c_bits": 37,
+    "primary_bits": 4,
+    "bbar_bits": 4,
+    "sigma": 3.2,
+    "message_bound": 4
+  },
+  "auxiliary_switch_bits": 28,
+  "maximum_key_modulus_budget": 437,
+  "target_precision_bits": 23,
+  "output_bits": 108,
+  "retained_square": {
+    "scope": "Worst-case complex slot amplitude after one fixed-scale DD square; excludes noise/security",
+    "component_bound": 4.01,
+    "guard_bits": 3,
+    "square_log_q": 60,
+    "square_log_delta": 48,
+    "square_coefficient_bound_log2": 5.007204473360391,
+    "centered_coefficient_capacity_log2": 11,
+    "amplitude_fits": true,
+    "minimum_output_bits": 106,
+    "guarded_range_passed": true
+  },
+  "budget_passed": true,
+  "factor_tree_model": {
+    "scope": "Average-case factor/tree screen for ePrint 2026/2119's TFHEpp DD port.\n\nThis supports TFHEpp DD multiplication with rescaling before or after\nrelinearization, without a hybrid P modulus. Bbar limbs are exact arithmetic and introduce no\nindependent encryption error. It reuses the GL estimator's variance arithmetic.\nOptional auxiliary switching lifts its modulus and scale before DD switching\nand divides afterward; S2C uses a whole-pipeline lift screen.\nS2C/encapsulation use an average-case BSGS variance screen. FFT error and\nstructured-secret security are excluded. This is not a correctness certificate.\n",
+    "model": "independent",
+    "security_validated": false,
+    "multiplication_order": "relinearize-then-rescale",
+    "output_bits": 108,
+    "packed_bits": 436,
+    "auxiliary_switch_bits": 28,
+    "structured_switch_key_bits": 76,
+    "maximum_evaluation_key_bits": 436,
+    "selector_memory": {
+      "scope": "Selector torus/NTT storage only; excludes evaluation keys, their FFT caches, batches, and allocator overhead",
+      "inferred_torus_storage_bits": 448,
+      "expanded_torus_bytes": 34945892352,
+      "one_group_torus_bytes": 970719232,
+      "file_backed_torus_and_ntt_peak_bytes": 7904428032,
+      "in_memory_streamed_torus_and_ntt_peak_bytes": 41879601152
+    },
+    "chunked_selector_memory": {
+      "scope": "Loaded selector group, bounded NTT chunk and modular batch sums only; excludes evaluation keys, FFT caches and other workspaces",
+      "selector_chunk_size": 40,
+      "batch_columns": 12,
+      "ntt_chunk_bytes": 524288000,
+      "modular_sum_bytes": 314572800,
+      "file_backed_group_chunk_and_sums_bytes": 1809580032
+    },
+    "raw_dd_chain_torus_bytes": 39058145280,
+    "compact_dd_chain_digit_bytes": 697466880,
+    "dense_s2c_plaintext_polynomial_bytes": 15032385536,
+    "compact_s2c_plaintext_coefficient_bytes": 2147483648,
+    "prepared_fft_memory": {
+      "scope": "Derived key payloads only; excludes raw keys, selectors, transform plans and workspaces",
+      "factor_automorphism_bytes": 2316304384,
+      "output_automorphism_bytes": 303038464,
+      "dd_chain_bytes": 5579735040,
+      "tail_rotation_binary_keys": 6,
+      "tail_rotation_bytes": 13897826304,
+      "bounded_tail_rotation_peak_bytes": 2316304384,
+      "staged_factor_phase_bytes": 4632608768,
+      "staged_product_tree_phase_bytes": 5579735040,
+      "staged_output_phase_bytes": 303038464,
+      "staged_peak_bytes": 5579735040
+    },
+    "factor_log2_variance": -61.57010245488737,
+    "levels": [
+      {
+        "output_bits": 300,
+        "tensor_rounding_log2_variance": -72.16979292481234,
+        "relin_log2_variance": -149.77464793922388
+      },
+      {
+        "output_bits": 252,
+        "tensor_rounding_log2_variance": -72.16979292481234,
+        "relin_log2_variance": -149.98877274457675
+      },
+      {
+        "output_bits": 204,
+        "tensor_rounding_log2_variance": -72.16979292481234,
+        "relin_log2_variance": -150.2403115115727
+      },
+      {
+        "output_bits": 156,
+        "tensor_rounding_log2_variance": -72.16979292481234,
+        "relin_log2_variance": -150.54516609310113
+      },
+      {
+        "output_bits": 108,
+        "tensor_rounding_log2_variance": -72.16979292481234,
+        "relin_log2_variance": -150.9321892162104
+      }
+    ],
+    "maximum_tail_rotation_switches": 6,
+    "tail_rotation_log2_variance": -72.16979292476759,
+    "complex_factor_tree_rms": 1.0840369011010949e-08,
+    "factor_tree_rms_precision_bits": 26.4590108915866,
+    "ntt_cache_bytes_upper_bound": 249613516800,
+    "ntt_cache_peak_bytes": 6933708800,
+    "s2c_coefficient_rms": 8.78367987376655e-10,
+    "s2c_log2_variances": {
+      "fresh": -70.64385618977472,
+      "input_conjugation": -104.35961043994504,
+      "baby_rotations": -102.77464793922388,
+      "giant_rotations": -108.16230899957144,
+      "encapsulation": -117.96966392162904,
+      "rescale": -126.16979292481234,
+      "diagonal_encoding": -60.16992500144231,
+      "auxiliary_final_rounding": -86.58496250072116
+    },
+    "complex_refresh_rms": 1.0911308855374888e-08,
+    "real_sine_error_bound": 1.6449340668482264,
+    "complex_sine_error_bound": 2.3262880665462933,
+    "eight_rms_plus_sine_screen": 2.326288153836764,
+    "screen_note": "Eight RMS is an engineering screen, not a tail/failure proof",
+    "excluded": [
+      "FFT error",
+      "security"
+    ]
+  },
+  "encrypted_validation_passed": true,
+  "security_validated": false,
+  "full_encrypted_validation": {
+    "gelu": {
+      "report": "TFHEpp/docs/narrow-dd-ll14-plain37-gelu.json",
+      "target_precision_bits": 23,
+      "accuracy_passed": true,
+      "max_error": 1.9915769344153477e-08,
+      "evaluation_max_error": 2.0431221806674293e-08,
+      "fresh_input_max_error": 6.338229454242972e-11,
+      "approximation_uniform_bound": 4.160447868328025e-10,
+      "post_refresh_product_max_error": 1.4531582850007747e-07,
+      "post_refresh_product_evaluation_max_error": 1.4229819554101658e-07,
+      "rms_error": 6.675491996196292e-09,
+      "target_tolerance": 1.1920928955078125e-07,
+      "product_tolerance": 1.467865741133231e-06,
+      "product_evaluation_tolerance_lower_bound": 1.467865740992951e-06
+    },
+    "sigmoid": {
+      "report": "TFHEpp/docs/narrow-dd-ll14-plain37-sigmoid-untraced-repeat.json",
+      "target_precision_bits": 23,
+      "accuracy_passed": true,
+      "max_error": 4.657702189393599e-09,
+      "evaluation_max_error": 3.999560507672244e-09,
+      "fresh_input_max_error": 6.539019849941994e-11,
+      "approximation_uniform_bound": 7.646348227439392e-10,
+      "post_refresh_product_max_error": 1.0130629772899139e-08,
+      "post_refresh_product_evaluation_max_error": 8.287172059765508e-09,
+      "rms_error": 1.4150680779507435e-09,
+      "target_tolerance": 1.1920928955078125e-07,
+      "product_tolerance": 4.50319595316329e-07,
+      "product_evaluation_tolerance_lower_bound": 4.503195950585134e-07
+    },
+    "tanh": {
+      "report": "TFHEpp/docs/narrow-dd-ll14-plain37-tanh.json",
+      "target_precision_bits": 23,
+      "accuracy_passed": true,
+      "max_error": 2.0260509754987443e-08,
+      "evaluation_max_error": 7.076791885100488e-09,
+      "fresh_input_max_error": 7.966908301858371e-11,
+      "approximation_uniform_bound": 1.0818835660889178e-08,
+      "post_refresh_product_max_error": 5.696404848423923e-08,
+      "post_refresh_product_evaluation_max_error": 1.9204751450648496e-08,
+      "rms_error": 1.1010021001852943e-08,
+      "target_tolerance": 1.1920928955078125e-07,
+      "product_tolerance": 4.5615794863043815e-07,
+      "product_evaluation_tolerance_lower_bound": 4.5615794498259955e-07
+    }
+  },
+  "missing_full_validation_functions": []
+}

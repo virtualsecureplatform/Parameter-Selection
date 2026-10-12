@@ -1,0 +1,548 @@
+{
+  "utc": "2026-10-09T06:24:42.342387+00:00",
+  "scope": "Structured ring joint-decoding sensitivity from posterior rotation histograms.\n\nCompares common decoding outcomes, conditional decoding independence, and an\noptimistic union bound. None establishes actual correlations or security.\nThe full square-root speedup on labelled dictionaries remains a heuristic.\n",
+  "source_sha256": "1cbe05e0c37e6503cd530c697de01449f8d9ac2bb967a10088db712cd84a59b1",
+  "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+  "profile_sha256": "e032cb186acb50e6547481ad65b5848038632e2f1273e96a0344e14ed282114b",
+  "probability_report": "python/estimates/narrow_ckks_ll14_rotation_z14560-s5.json",
+  "probability_report_sha256": "f72d1361b2ef2b99a793cb84e3b3cd6da09abdefb3ce5f10827e879ec5c01bd8",
+  "probability_seed": 2119,
+  "n": 16384,
+  "log_q": 64,
+  "profile_log_q": 76,
+  "candidate_modulus": true,
+  "zeta": 14560,
+  "weight": 12,
+  "layout": "saturated-5-prefix",
+  "histogram_samples": 4000,
+  "beta_offsets": [
+    -8
+  ],
+  "d_offsets": [
+    256
+  ],
+  "scenarios": {
+    "BDGL16": {
+      "points": [
+        {
+          "beta": 174,
+          "d": 3671,
+          "decode_marginal": "7.57334845100193411675449212754751861017953154537488428237740936239712996298522183406142875977951351451810307771643924875085263535688987546648526120604320e-324",
+          "joint_success_common": "8.48548807177396816545135807532114414473255778187933172875989471269778615849313921271621411227743640774923389547002181798576869599746477865214058531259883e-332",
+          "joint_success_independent": "6.68664255481732585814124172835217709258259222560003705777049169281440323728504247490394117823271139962093325684984472041184280517512630247028455830481459e-331",
+          "joint_success_upper_bound": "6.68664255481732585814124172835217709258259222560003705777049169281440323728504247490394117823271139962093325684984472041184280517512630247028455830481459e-331",
+          "costs": {
+            "common_decoder": {
+              "bits": 1202.0670647035831,
+              "cost": "         rop: \u22482^1202.1\n         red: \u22482^1184.0\n         svp: \u22482^1202.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1099.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+              "parameters": {
+                "beta": 174,
+                "zeta": 14560,
+                "d": 3671,
+                "eta": 2
+              },
+              "backend_result": {
+                "bits": null,
+                "cost": "         rop:  \u22482^inf",
+                "parameters": {}
+              },
+              "backend_probability": "0.0",
+              "backend_probability_parent": "Real Double Field",
+              "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification"
+            },
+            "independent_decoder": {
+              "bits": 1199.0888522545667,
+              "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.1\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+              "parameters": {
+                "beta": 174,
+                "zeta": 14560,
+                "d": 3671,
+                "eta": 2
+              },
+              "backend_result": {
+                "bits": null,
+                "cost": "         rop:  \u22482^inf",
+                "parameters": {}
+              },
+              "backend_probability": "0.0",
+              "backend_probability_parent": "Real Double Field",
+              "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification"
+            },
+            "optimistic_joint_bound": {
+              "bits": 1199.0888522545667,
+              "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.1\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+              "parameters": {
+                "beta": 174,
+                "zeta": 14560,
+                "d": 3671,
+                "eta": 2
+              },
+              "backend_result": {
+                "bits": null,
+                "cost": "         rop:  \u22482^inf",
+                "parameters": {}
+              },
+              "backend_probability": "0.0",
+              "backend_probability_parent": "Real Double Field",
+              "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification"
+            },
+            "common_decoder_iid95": {
+              "bits": 1201.841527027699,
+              "cost": "         rop: \u22482^1201.8\n         red: \u22482^1183.8\n         svp: \u22482^1201.8\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1099.6\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+              "parameters": {
+                "beta": 174,
+                "zeta": 14560,
+                "d": 3671,
+                "eta": 2
+              },
+              "backend_result": {
+                "bits": null,
+                "cost": "         rop:  \u22482^inf",
+                "parameters": {}
+              },
+              "backend_probability": "0.0",
+              "backend_probability_parent": "Real Double Field",
+              "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification"
+            },
+            "independent_decoder_iid95": {
+              "bits": 1199.0888522545667,
+              "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.1\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+              "parameters": {
+                "beta": 174,
+                "zeta": 14560,
+                "d": 3671,
+                "eta": 2
+              },
+              "backend_result": {
+                "bits": null,
+                "cost": "         rop:  \u22482^inf",
+                "parameters": {}
+              },
+              "backend_probability": "0.0",
+              "backend_probability_parent": "Real Double Field",
+              "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification"
+            },
+            "optimistic_joint_bound_iid95": {
+              "bits": 1199.0888522545667,
+              "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.1\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+              "parameters": {
+                "beta": 174,
+                "zeta": 14560,
+                "d": 3671,
+                "eta": 2
+              },
+              "backend_result": {
+                "bits": null,
+                "cost": "         rop:  \u22482^inf",
+                "parameters": {}
+              },
+              "backend_probability": "0.0",
+              "backend_probability_parent": "Real Double Field",
+              "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification"
+            }
+          }
+        }
+      ],
+      "best": {
+        "common_decoder": {
+          "bits": 1202.0670647035831,
+          "cost": "         rop: \u22482^1202.1\n         red: \u22482^1184.0\n         svp: \u22482^1202.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1099.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+          "parameters": {
+            "beta": 174,
+            "zeta": 14560,
+            "d": 3671,
+            "eta": 2
+          },
+          "backend_result": {
+            "bits": null,
+            "cost": "         rop:  \u22482^inf",
+            "parameters": {}
+          },
+          "backend_probability": "0.0",
+          "backend_probability_parent": "Real Double Field",
+          "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification",
+          "beta": 174,
+          "d": 3671,
+          "decode_marginal": "7.57334845100193411675449212754751861017953154537488428237740936239712996298522183406142875977951351451810307771643924875085263535688987546648526120604320e-324"
+        },
+        "independent_decoder": {
+          "bits": 1199.0888522545667,
+          "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.1\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+          "parameters": {
+            "beta": 174,
+            "zeta": 14560,
+            "d": 3671,
+            "eta": 2
+          },
+          "backend_result": {
+            "bits": null,
+            "cost": "         rop:  \u22482^inf",
+            "parameters": {}
+          },
+          "backend_probability": "0.0",
+          "backend_probability_parent": "Real Double Field",
+          "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification",
+          "beta": 174,
+          "d": 3671,
+          "decode_marginal": "7.57334845100193411675449212754751861017953154537488428237740936239712996298522183406142875977951351451810307771643924875085263535688987546648526120604320e-324"
+        },
+        "optimistic_joint_bound": {
+          "bits": 1199.0888522545667,
+          "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.1\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+          "parameters": {
+            "beta": 174,
+            "zeta": 14560,
+            "d": 3671,
+            "eta": 2
+          },
+          "backend_result": {
+            "bits": null,
+            "cost": "         rop:  \u22482^inf",
+            "parameters": {}
+          },
+          "backend_probability": "0.0",
+          "backend_probability_parent": "Real Double Field",
+          "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification",
+          "beta": 174,
+          "d": 3671,
+          "decode_marginal": "7.57334845100193411675449212754751861017953154537488428237740936239712996298522183406142875977951351451810307771643924875085263535688987546648526120604320e-324"
+        },
+        "common_decoder_iid95": {
+          "bits": 1201.841527027699,
+          "cost": "         rop: \u22482^1201.8\n         red: \u22482^1183.8\n         svp: \u22482^1201.8\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1099.6\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+          "parameters": {
+            "beta": 174,
+            "zeta": 14560,
+            "d": 3671,
+            "eta": 2
+          },
+          "backend_result": {
+            "bits": null,
+            "cost": "         rop:  \u22482^inf",
+            "parameters": {}
+          },
+          "backend_probability": "0.0",
+          "backend_probability_parent": "Real Double Field",
+          "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification",
+          "beta": 174,
+          "d": 3671,
+          "decode_marginal": "7.57334845100193411675449212754751861017953154537488428237740936239712996298522183406142875977951351451810307771643924875085263535688987546648526120604320e-324"
+        },
+        "independent_decoder_iid95": {
+          "bits": 1199.0888522545667,
+          "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.1\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+          "parameters": {
+            "beta": 174,
+            "zeta": 14560,
+            "d": 3671,
+            "eta": 2
+          },
+          "backend_result": {
+            "bits": null,
+            "cost": "         rop:  \u22482^inf",
+            "parameters": {}
+          },
+          "backend_probability": "0.0",
+          "backend_probability_parent": "Real Double Field",
+          "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification",
+          "beta": 174,
+          "d": 3671,
+          "decode_marginal": "7.57334845100193411675449212754751861017953154537488428237740936239712996298522183406142875977951351451810307771643924875085263535688987546648526120604320e-324"
+        },
+        "optimistic_joint_bound_iid95": {
+          "bits": 1199.0888522545667,
+          "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.1\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+          "parameters": {
+            "beta": 174,
+            "zeta": 14560,
+            "d": 3671,
+            "eta": 2
+          },
+          "backend_result": {
+            "bits": null,
+            "cost": "         rop:  \u22482^inf",
+            "parameters": {}
+          },
+          "backend_probability": "0.0",
+          "backend_probability_parent": "Real Double Field",
+          "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification",
+          "beta": 174,
+          "d": 3671,
+          "decode_marginal": "7.57334845100193411675449212754751861017953154537488428237740936239712996298522183406142875977951351451810307771643924875085263535688987546648526120604320e-324"
+        }
+      }
+    },
+    "MATZOV": {
+      "points": [
+        {
+          "beta": 174,
+          "d": 3671,
+          "decode_marginal": "7.57334845100193411675449212754751861017953154537488428237740936239712996298522183406142875977951351451810307771643924875085263535688987546648526120604320e-324",
+          "joint_success_common": "8.48548807177396816545135807532114414473255778187933172875989471269778615849313921271621411227743640774923389547002181798576869599746477865214058531259883e-332",
+          "joint_success_independent": "6.68664255481732585814124172835217709258259222560003705777049169281440323728504247490394117823271139962093325684984472041184280517512630247028455830481459e-331",
+          "joint_success_upper_bound": "6.68664255481732585814124172835217709258259222560003705777049169281440323728504247490394117823271139962093325684984472041184280517512630247028455830481459e-331",
+          "costs": {
+            "common_decoder": {
+              "bits": 1202.0670651382975,
+              "cost": "         rop: \u22482^1202.1\n         red: \u22482^1184.2\n         svp: \u22482^1202.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1099.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+              "parameters": {
+                "beta": 174,
+                "zeta": 14560,
+                "d": 3671,
+                "eta": 2
+              },
+              "backend_result": {
+                "bits": null,
+                "cost": "         rop:  \u22482^inf",
+                "parameters": {}
+              },
+              "backend_probability": "0.0",
+              "backend_probability_parent": "Real Double Field",
+              "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification"
+            },
+            "independent_decoder": {
+              "bits": 1199.0888526892813,
+              "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.2\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+              "parameters": {
+                "beta": 174,
+                "zeta": 14560,
+                "d": 3671,
+                "eta": 2
+              },
+              "backend_result": {
+                "bits": null,
+                "cost": "         rop:  \u22482^inf",
+                "parameters": {}
+              },
+              "backend_probability": "0.0",
+              "backend_probability_parent": "Real Double Field",
+              "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification"
+            },
+            "optimistic_joint_bound": {
+              "bits": 1199.0888526892813,
+              "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.2\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+              "parameters": {
+                "beta": 174,
+                "zeta": 14560,
+                "d": 3671,
+                "eta": 2
+              },
+              "backend_result": {
+                "bits": null,
+                "cost": "         rop:  \u22482^inf",
+                "parameters": {}
+              },
+              "backend_probability": "0.0",
+              "backend_probability_parent": "Real Double Field",
+              "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification"
+            },
+            "common_decoder_iid95": {
+              "bits": 1201.8415274624133,
+              "cost": "         rop: \u22482^1201.8\n         red: \u22482^1183.9\n         svp: \u22482^1201.8\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1099.6\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+              "parameters": {
+                "beta": 174,
+                "zeta": 14560,
+                "d": 3671,
+                "eta": 2
+              },
+              "backend_result": {
+                "bits": null,
+                "cost": "         rop:  \u22482^inf",
+                "parameters": {}
+              },
+              "backend_probability": "0.0",
+              "backend_probability_parent": "Real Double Field",
+              "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification"
+            },
+            "independent_decoder_iid95": {
+              "bits": 1199.0888526892813,
+              "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.2\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+              "parameters": {
+                "beta": 174,
+                "zeta": 14560,
+                "d": 3671,
+                "eta": 2
+              },
+              "backend_result": {
+                "bits": null,
+                "cost": "         rop:  \u22482^inf",
+                "parameters": {}
+              },
+              "backend_probability": "0.0",
+              "backend_probability_parent": "Real Double Field",
+              "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification"
+            },
+            "optimistic_joint_bound_iid95": {
+              "bits": 1199.0888526892813,
+              "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.2\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+              "parameters": {
+                "beta": 174,
+                "zeta": 14560,
+                "d": 3671,
+                "eta": 2
+              },
+              "backend_result": {
+                "bits": null,
+                "cost": "         rop:  \u22482^inf",
+                "parameters": {}
+              },
+              "backend_probability": "0.0",
+              "backend_probability_parent": "Real Double Field",
+              "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification"
+            }
+          }
+        }
+      ],
+      "best": {
+        "common_decoder": {
+          "bits": 1202.0670651382975,
+          "cost": "         rop: \u22482^1202.1\n         red: \u22482^1184.2\n         svp: \u22482^1202.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1099.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+          "parameters": {
+            "beta": 174,
+            "zeta": 14560,
+            "d": 3671,
+            "eta": 2
+          },
+          "backend_result": {
+            "bits": null,
+            "cost": "         rop:  \u22482^inf",
+            "parameters": {}
+          },
+          "backend_probability": "0.0",
+          "backend_probability_parent": "Real Double Field",
+          "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification",
+          "beta": 174,
+          "d": 3671,
+          "decode_marginal": "7.57334845100193411675449212754751861017953154537488428237740936239712996298522183406142875977951351451810307771643924875085263535688987546648526120604320e-324"
+        },
+        "independent_decoder": {
+          "bits": 1199.0888526892813,
+          "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.2\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+          "parameters": {
+            "beta": 174,
+            "zeta": 14560,
+            "d": 3671,
+            "eta": 2
+          },
+          "backend_result": {
+            "bits": null,
+            "cost": "         rop:  \u22482^inf",
+            "parameters": {}
+          },
+          "backend_probability": "0.0",
+          "backend_probability_parent": "Real Double Field",
+          "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification",
+          "beta": 174,
+          "d": 3671,
+          "decode_marginal": "7.57334845100193411675449212754751861017953154537488428237740936239712996298522183406142875977951351451810307771643924875085263535688987546648526120604320e-324"
+        },
+        "optimistic_joint_bound": {
+          "bits": 1199.0888526892813,
+          "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.2\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+          "parameters": {
+            "beta": 174,
+            "zeta": 14560,
+            "d": 3671,
+            "eta": 2
+          },
+          "backend_result": {
+            "bits": null,
+            "cost": "         rop:  \u22482^inf",
+            "parameters": {}
+          },
+          "backend_probability": "0.0",
+          "backend_probability_parent": "Real Double Field",
+          "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification",
+          "beta": 174,
+          "d": 3671,
+          "decode_marginal": "7.57334845100193411675449212754751861017953154537488428237740936239712996298522183406142875977951351451810307771643924875085263535688987546648526120604320e-324"
+        },
+        "common_decoder_iid95": {
+          "bits": 1201.8415274624133,
+          "cost": "         rop: \u22482^1201.8\n         red: \u22482^1183.9\n         svp: \u22482^1201.8\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1099.6\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+          "parameters": {
+            "beta": 174,
+            "zeta": 14560,
+            "d": 3671,
+            "eta": 2
+          },
+          "backend_result": {
+            "bits": null,
+            "cost": "         rop:  \u22482^inf",
+            "parameters": {}
+          },
+          "backend_probability": "0.0",
+          "backend_probability_parent": "Real Double Field",
+          "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification",
+          "beta": 174,
+          "d": 3671,
+          "decode_marginal": "7.57334845100193411675449212754751861017953154537488428237740936239712996298522183406142875977951351451810307771643924875085263535688987546648526120604320e-324"
+        },
+        "independent_decoder_iid95": {
+          "bits": 1199.0888526892813,
+          "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.2\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+          "parameters": {
+            "beta": 174,
+            "zeta": 14560,
+            "d": 3671,
+            "eta": 2
+          },
+          "backend_result": {
+            "bits": null,
+            "cost": "         rop:  \u22482^inf",
+            "parameters": {}
+          },
+          "backend_probability": "0.0",
+          "backend_probability_parent": "Real Double Field",
+          "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification",
+          "beta": 174,
+          "d": 3671,
+          "decode_marginal": "7.57334845100193411675449212754751861017953154537488428237740936239712996298522183406142875977951351451810307771643924875085263535688987546648526120604320e-324"
+        },
+        "optimistic_joint_bound_iid95": {
+          "bits": 1199.0888526892813,
+          "cost": "         rop: \u22482^1199.1\n         red: \u22482^1181.2\n         svp: \u22482^1199.1\n           \u03b2:      174\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n           d:     3671\n        prob: \u22482^-1096.8\n         |S|: \u22482^152.8\n           \u21bb:  \u22482^inf",
+          "parameters": {
+            "beta": 174,
+            "zeta": 14560,
+            "d": 3671,
+            "eta": 2
+          },
+          "backend_result": {
+            "bits": null,
+            "cost": "         rop:  \u22482^inf",
+            "parameters": {}
+          },
+          "backend_probability": "0.0",
+          "backend_probability_parent": "Real Double Field",
+          "numerical_method": "same pinned geometry/cost formula; 512-bit joint probability and log1p amplification",
+          "beta": 174,
+          "d": 3671,
+          "decode_marginal": "7.57334845100193411675449212754751861017953154537488428237740936239712996298522183406142875977951351451810307771643924875085263535688987546648526120604320e-324"
+        }
+      }
+    }
+  },
+  "complete": true,
+  "security_validated": false,
+  "complete_attack_optimization": false,
+  "posterior_uncertainty": {
+    "method": "one-sample DKW-Massart empirical-CDF bound",
+    "confidence": 0.95,
+    "cdf_radius": "0.0214734704173368781032242841342038503466515669369749345308620141575750989049906340350342649576978382986809972591505233378802094130578198842907135936421776",
+    "theorem_source": "https://arxiv.org/abs/1107.5356",
+    "formula": "epsilon=sqrt(log(2/0.05)/(2*samples))",
+    "simultaneous_scope": "All decoder marginals and beta/d choices using this same fixed-layout posterior histogram",
+    "expectation_bound": "epsilon for 1/K; p*epsilon for h_p(K)=(1-(1-p)^K)/K by monotone summation by parts",
+    "excludes": "Other layouts, weights, zeta, seeds, decoding-correlation hypotheses, and security certification"
+  },
+  "limitations": [
+    "Decoder marginal uses scalar GSA Babai and MITM probabilities; actual cross-rotation correlations unmodeled",
+    "Conditional decoder independence and optimistic union bound are sensitivities, not established attacks",
+    "Only one zeta/layout/weight and supplied beta/d offsets; no global optimum",
+    "Full square-root work on labelled dictionaries assumed; compatible decompositions not constructed",
+    "Posterior finite-sample uncertainty is not a security confidence interval",
+    "Candidate modulus overrides do not establish matching C++ accuracy or exposed-key security",
+    "Correlated evaluation keys remain unqualified"
+  ]
+}

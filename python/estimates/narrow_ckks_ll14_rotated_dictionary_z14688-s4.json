@@ -1,0 +1,541 @@
+{
+  "utc": "2026-10-09T06:53:44.569162+00:00",
+  "scope": "Construct signed projection dictionaries for each actual public rotation.\n\nThis establishes per-rotation compatibility and exact coordinates/signs only.\nIt does not construct a Babai collision search or reuse dictionaries isometrically.\n",
+  "sources": {
+    "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace/Parameter-Selection/python/estimates/narrow_ckks_block_rotated_dictionaries.py": "5c8d225e5e583f885b57176aaaab06648267cdd974e9d23d43a8e1098316215c",
+    "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace/Parameter-Selection/python/estimates/narrow_ckks_block_mitm_dictionaries.py": "11d98dd59643d98d196e9cb8cbbb1ed8f88543d6b79dc91f08bd5ebc6833a5e6",
+    "python/estimates/narrow_ckks_ll14_geometry_z14688-s4.json": "bd2633fc6a80f0f3913fa692a25d37f486cf93d467e36be2a166f808e3ce3295",
+    "python/estimates/narrow_ckks_ll14_rotation_z14688-s4.json": "d8cd2b4736a885b0a7341c999e65586a9be86af99cb8ddf5b6026faba911e2de"
+  },
+  "n": 16384,
+  "h": 31,
+  "weight": 12,
+  "zeta": 14688,
+  "toy_cases": 170,
+  "unique_count_geometries": 2390,
+  "rotation_count": 16384,
+  "points": null,
+  "points_omitted": true,
+  "samples": [
+    {
+      "rotation": 0,
+      "side": "left",
+      "rank": "7387508450455505017440",
+      "entry": [
+        [
+          0,
+          264,
+          1
+        ],
+        [
+          1,
+          0,
+          -1
+        ],
+        [
+          27,
+          0,
+          -1
+        ],
+        [
+          28,
+          0,
+          -1
+        ],
+        [
+          29,
+          0,
+          -1
+        ],
+        [
+          30,
+          0,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          264,
+          1
+        ],
+        [
+          529,
+          -1
+        ],
+        [
+          14283,
+          -1
+        ],
+        [
+          14812,
+          -1
+        ],
+        [
+          15341,
+          -1
+        ],
+        [
+          15870,
+          -1
+        ]
+      ]
+    },
+    {
+      "rotation": 0,
+      "side": "right",
+      "rank": "7387508450455505017440",
+      "entry": [
+        [
+          2,
+          264,
+          1
+        ],
+        [
+          3,
+          0,
+          -1
+        ],
+        [
+          27,
+          0,
+          -1
+        ],
+        [
+          28,
+          0,
+          -1
+        ],
+        [
+          29,
+          0,
+          -1
+        ],
+        [
+          30,
+          0,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          1322,
+          1
+        ],
+        [
+          1587,
+          -1
+        ],
+        [
+          14283,
+          -1
+        ],
+        [
+          14812,
+          -1
+        ],
+        [
+          15341,
+          -1
+        ],
+        [
+          15870,
+          -1
+        ]
+      ]
+    },
+    {
+      "rotation": 1,
+      "side": "left",
+      "rank": "7387508450455505017440",
+      "entry": [
+        [
+          0,
+          264,
+          1
+        ],
+        [
+          1,
+          0,
+          -1
+        ],
+        [
+          27,
+          0,
+          -1
+        ],
+        [
+          28,
+          0,
+          -1
+        ],
+        [
+          29,
+          0,
+          -1
+        ],
+        [
+          30,
+          0,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          265,
+          1
+        ],
+        [
+          530,
+          -1
+        ],
+        [
+          14284,
+          -1
+        ],
+        [
+          14813,
+          -1
+        ],
+        [
+          15342,
+          -1
+        ],
+        [
+          15871,
+          -1
+        ]
+      ]
+    },
+    {
+      "rotation": 1,
+      "side": "right",
+      "rank": "7387508450455505017440",
+      "entry": [
+        [
+          2,
+          264,
+          1
+        ],
+        [
+          3,
+          0,
+          -1
+        ],
+        [
+          27,
+          0,
+          -1
+        ],
+        [
+          28,
+          0,
+          -1
+        ],
+        [
+          29,
+          0,
+          -1
+        ],
+        [
+          30,
+          0,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          1323,
+          1
+        ],
+        [
+          1588,
+          -1
+        ],
+        [
+          14284,
+          -1
+        ],
+        [
+          14813,
+          -1
+        ],
+        [
+          15342,
+          -1
+        ],
+        [
+          15871,
+          -1
+        ]
+      ]
+    },
+    {
+      "rotation": 8192,
+      "side": "left",
+      "rank": "7387490939925210404640",
+      "entry": [
+        [
+          4,
+          443,
+          -1
+        ],
+        [
+          8,
+          233,
+          -1
+        ],
+        [
+          16,
+          317,
+          -1
+        ],
+        [
+          17,
+          67,
+          -1
+        ],
+        [
+          23,
+          287,
+          -1
+        ],
+        [
+          24,
+          233,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          589,
+          1
+        ],
+        [
+          868,
+          1
+        ],
+        [
+          4325,
+          1
+        ],
+        [
+          4800,
+          1
+        ],
+        [
+          10814,
+          -1
+        ],
+        [
+          12720,
+          -1
+        ]
+      ]
+    },
+    {
+      "rotation": 8192,
+      "side": "right",
+      "rank": "7387490939925210404640",
+      "entry": [
+        [
+          4,
+          443,
+          -1
+        ],
+        [
+          8,
+          233,
+          -1
+        ],
+        [
+          18,
+          317,
+          -1
+        ],
+        [
+          19,
+          67,
+          -1
+        ],
+        [
+          23,
+          287,
+          -1
+        ],
+        [
+          24,
+          233,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          1647,
+          1
+        ],
+        [
+          1926,
+          1
+        ],
+        [
+          4325,
+          1
+        ],
+        [
+          4800,
+          1
+        ],
+        [
+          10814,
+          -1
+        ],
+        [
+          12720,
+          -1
+        ]
+      ]
+    },
+    {
+      "rotation": 16383,
+      "side": "left",
+      "rank": "37299323416594059789440",
+      "entry": [
+        [
+          1,
+          329,
+          1
+        ],
+        [
+          8,
+          355,
+          -1
+        ],
+        [
+          10,
+          236,
+          -1
+        ],
+        [
+          25,
+          66,
+          -1
+        ],
+        [
+          28,
+          107,
+          -1
+        ],
+        [
+          29,
+          45,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          857,
+          -1
+        ],
+        [
+          4587,
+          1
+        ],
+        [
+          5526,
+          1
+        ],
+        [
+          13291,
+          1
+        ],
+        [
+          14919,
+          1
+        ],
+        [
+          15386,
+          1
+        ]
+      ]
+    },
+    {
+      "rotation": 16383,
+      "side": "right",
+      "rank": "8786371488796853748416",
+      "entry": [
+        [
+          2,
+          314,
+          -1
+        ],
+        [
+          3,
+          512,
+          1
+        ],
+        [
+          18,
+          312,
+          1
+        ],
+        [
+          19,
+          357,
+          1
+        ],
+        [
+          22,
+          273,
+          -1
+        ],
+        [
+          25,
+          313,
+          -1
+        ]
+      ],
+      "rotated_signed_coefficients": [
+        [
+          1371,
+          1
+        ],
+        [
+          2098,
+          -1
+        ],
+        [
+          9834,
+          -1
+        ],
+        [
+          10408,
+          -1
+        ],
+        [
+          11911,
+          1
+        ],
+        [
+          13538,
+          1
+        ]
+      ]
+    }
+  ],
+  "labelled_support_count": "31022438417172926783103518134261675789153533952",
+  "rotation_support_sequence_sha256": "b67c8e61fa7859d6aab3582ec7ef9a5ed9b952d5a0c253ba8a4329e3b61fc6e4",
+  "separate_dictionary_entry_sum": "597114518819712999277882752",
+  "separate_dictionary_entry_sum_log2": 88.94813811529376,
+  "square_root_labelled_support_log2": 77.2210022269842,
+  "separate_square_root_support_sum_log2": 84.19222567752081,
+  "complete": true,
+  "security_validated": false,
+  "full_attack_constructed": false,
+  "ring_dictionary_reuse_established": false,
+  "limitations": [
+    "Exact per-rotation projection decomposition only; no Babai collision search",
+    "Separate enumeration is a concrete construction, not a lower bound on shared work",
+    "Entry counts exclude lattice reduction, vector arithmetic, hashing and collision filtering",
+    "Reported enumeration overhead is not a security margin; existing cost screen is unchanged"
+  ]
+}

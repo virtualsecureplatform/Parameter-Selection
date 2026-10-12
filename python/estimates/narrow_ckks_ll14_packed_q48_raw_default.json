@@ -1,0 +1,86 @@
+{
+  "utc": "2026-10-10T06:28:21.555535+00:00",
+  "estimator_source": "https://github.com/malb/lattice-estimator",
+  "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+  "cost_model": "RC.BDGL16 classical",
+  "samples": "unbounded",
+  "estimator_global_max_beta": 1754,
+  "estimator_module_max_beta": {
+    "lwe_primal": 1754,
+    "lwe_dual": 1754
+  },
+  "estimator_max_beta_override": null,
+  "requested_attacks": [
+    "primal_usvp",
+    "primal_bdd",
+    "dual",
+    "dual_hybrid"
+  ],
+  "original_four_attacks": [
+    "primal_usvp",
+    "primal_bdd",
+    "dual",
+    "dual_hybrid"
+  ],
+  "mitm_cost_model": null,
+  "nonfinite_costs_establish_security": false,
+  "scope": "Generic LWE and uniform-sparse proxies; excludes public block constraints, ring structure, and circular/KDM security",
+  "security_validated": false,
+  "cases": {
+    "dd_ll14_structured_source_uniform_sparse_proxy": {
+      "n": 16384,
+      "log_q": 48,
+      "sigma": 3.2,
+      "secret": "uniform sparse ternary proxy (16 positive, 15 negative)",
+      "attacks": {
+        "primal_usvp": {
+          "error": "ValueError: nonfinite attack cost",
+          "status": "nonfinite_optimizer_result",
+          "nonfinite_kind": "positive_infinity",
+          "rop": "+Infinity",
+          "cost": "         rop:  \u22482^inf\n         tag:     usvp",
+          "estimator_module_max_beta": {
+            "lwe_primal": 1754,
+            "lwe_dual": 1754
+          }
+        },
+        "primal_bdd": {
+          "error": "ValueError: nonfinite attack cost",
+          "status": "nonfinite_optimizer_result",
+          "nonfinite_kind": "positive_infinity",
+          "rop": "+Infinity",
+          "cost": "         rop:  \u22482^inf\n         tag:      bdd",
+          "estimator_module_max_beta": {
+            "lwe_primal": 1754,
+            "lwe_dual": 1754
+          }
+        },
+        "dual": {
+          "error": "ValueError: nonfinite attack cost",
+          "status": "nonfinite_optimizer_result",
+          "nonfinite_kind": "positive_infinity",
+          "rop": "+Infinity",
+          "cost": "         rop:  \u22482^inf\n         mem:  \u22482^inf\n           m:  \u22482^inf\n           \u03b2:       47\n         tag:     dual",
+          "estimator_module_max_beta": {
+            "lwe_primal": 1754,
+            "lwe_dual": 1754
+          }
+        },
+        "dual_hybrid": {
+          "error": "ValueError: nonfinite attack cost",
+          "status": "nonfinite_optimizer_result",
+          "nonfinite_kind": "positive_infinity",
+          "rop": "+Infinity",
+          "cost": "         rop:  \u22482^inf\n         red:  \u22482^inf\n       guess:  \u22482^inf\n           \u03b2:     1753\n           p:        2\n           \u03b6:        0\n           t:        0\n          \u03b2':     1753\n           N:  \u22482^inf\n           m: \u22482^14.0",
+          "estimator_module_max_beta": {
+            "lwe_primal": 1754,
+            "lwe_dual": 1754
+          }
+        }
+      },
+      "public_block_secret_entropy_bits": 311.41934191261464,
+      "requested_attacks_complete": false,
+      "complete": false
+    }
+  }
+}

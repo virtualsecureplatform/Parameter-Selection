@@ -1,0 +1,78 @@
+{
+  "utc": "2026-10-11T19:53:56.256036+00:00",
+  "estimator_source": "https://github.com/malb/lattice-estimator",
+  "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+  "cost_model": "RC.BDGL16 classical",
+  "samples": "unbounded",
+  "estimator_global_max_beta": 1754,
+  "estimator_module_max_beta": {
+    "lwe_primal": 1754,
+    "lwe_dual": 1754
+  },
+  "estimator_max_beta_override": null,
+  "requested_attacks": [
+    "primal_usvp",
+    "primal_bdd",
+    "dual",
+    "dual_hybrid"
+  ],
+  "original_four_attacks": [
+    "primal_usvp",
+    "primal_bdd",
+    "dual",
+    "dual_hybrid"
+  ],
+  "mitm_cost_model": null,
+  "nonfinite_costs_establish_security": false,
+  "scope": "Generic LWE and uniform-sparse proxies; excludes public block constraints, ring structure, and circular/KDM security",
+  "security_validated": false,
+  "noise_proxy": "DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled",
+  "noise_stddev": 2.828301687834186,
+  "cases": {
+    "dd_ll14_fbs_dense_packed_setup": {
+      "n": 16384,
+      "log_q": 435,
+      "sigma": 2.828301687834186,
+      "secret": "dense ternary",
+      "attacks": {
+        "primal_usvp": {
+          "bits": 128.98044136656353,
+          "cost": "         rop: \u22482^129.0\n         red: \u22482^129.0\n           \u03b4: 1.004599\n           \u03b2:      324\n           d:    32148\n         tag:     usvp",
+          "estimator_module_max_beta": {
+            "lwe_primal": 1754,
+            "lwe_dual": 1754
+          }
+        },
+        "primal_bdd": {
+          "bits": 128.95829839375767,
+          "cost": "         rop: \u22482^129.0\n         red: \u22482^129.0\n         svp: \u22482^120.1\n           \u03b2:      324\n           \u03b7:      354\n           d:    31592\n         tag:      bdd",
+          "estimator_module_max_beta": {
+            "lwe_primal": 1754,
+            "lwe_dual": 1754
+          }
+        },
+        "dual": {
+          "bits": 129.30044020841913,
+          "cost": "         rop: \u22482^129.3\n         mem: \u22482^75.8\n           m: \u22482^14.0\n           \u03b2:      325\n           d:    32778\n           \u21bb:        1\n         tag:     dual",
+          "estimator_module_max_beta": {
+            "lwe_primal": 1754,
+            "lwe_dual": 1754
+          }
+        },
+        "dual_hybrid": {
+          "bits": 129.00538720046723,
+          "cost": "         rop: \u22482^129.0\n         red: \u22482^129.0\n       guess: \u22482^113.5\n           \u03b2:      324\n           p:        3\n           \u03b6:        0\n           t:       60\n          \u03b2':      324\n           N: \u22482^52.6\n           m: \u22482^14.0",
+          "estimator_module_max_beta": {
+            "lwe_primal": 1754,
+            "lwe_dual": 1754
+          }
+        }
+      },
+      "requested_attacks_complete": true,
+      "complete": true,
+      "weakest_requested_attack_bits": 128.95829839375767,
+      "weakest_bits": 128.95829839375767,
+      "passes_generic_screen": true
+    }
+  }
+}

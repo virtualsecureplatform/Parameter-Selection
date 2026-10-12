@@ -1,0 +1,158 @@
+{
+  "utc": "2026-10-09T04:49:29.511615+00:00",
+  "scope": "Pinned-author ring-rotation hybrid fixed-point sensitivity, uniform proxy only.\n\nThis does not model the port's public one-per-block support distribution or\ncertify security. It evaluates the author's rotation-amplification formula with\nexact uniform-support counts and 512-bit probabilities to avoid cancellation.\n",
+  "source_sha256": "d4036c7d6ae105fbf7e986ff488cc322cffd6de617734fe7940f793039bc74b3",
+  "author_repository": "https://github.com/TabOg/mlwe-hybrids",
+  "author_revision": "a92f335665eef69927d2d8f49832bd595a6dac32",
+  "author_source_sha256": "01e1146856bd58da0c17fd8faa2ac8a7e5ca6a200c5b25d70dc617e90d0ed388",
+  "estimator_revision": "6019056011d10d7e9c30a0d5da2d2f729fbc2eec",
+  "paper": "https://eprint.iacr.org/2026/279",
+  "baseline_report_sha256": "d0c9792faecb5af3af3b170d18cbf2a51dd4d70bbdde5d967ddd3f3fcfc4aca2",
+  "n": 16384,
+  "h": 31,
+  "log_q": 76,
+  "sigma": 3.2,
+  "point": {
+    "beta": 186,
+    "zeta": 14624,
+    "d": 3607,
+    "eta": 2
+  },
+  "probability_precision_bits": 512,
+  "exact_count_self_test_passed": true,
+  "models": {
+    "BDGL16": {
+      "lwe_control": {
+        "best": {
+          "bits": 134.67162119260712,
+          "cost": "         rop: \u22482^134.7\n         red: \u22482^132.8\n         svp: \u22482^134.2\n           \u03b2:      186\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^126.6\n           d:     3607\n        prob: \u22482^-45.1\n           \u21bb: \u22482^47.3",
+          "parameters": {
+            "beta": 186,
+            "zeta": 14624,
+            "d": 3607,
+            "eta": 2
+          },
+          "maximum_guessed_weight": 10,
+          "single_rotation_support": "125895624005410256113250254736743535233",
+          "single_rotation_probability": "2032966485329862695830405228851849927090070978929088281770822303458451/33027580344806049250297778483228156122750046708105001904252635758492688228527844864",
+          "amplified_probability": "6.15536004789272752517821237108413622875710199162623116729415324056646673595759952917048013910318930845026091932457218732868684603750521887218768531915608e-14",
+          "poly_degree": 1,
+          "mitm_heuristic": "square root"
+        },
+        "nonfinite_weights": [],
+        "weights_evaluated": 32
+      },
+      "ring_estimator_mitm": {
+        "best": {
+          "bits": 131.37136679146212,
+          "cost": "         rop: \u22482^131.4\n         red: \u22482^127.5\n         svp: \u22482^131.3\n           \u03b2:      186\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^117.4\n           d:     3607\n        prob: \u22482^-39.7\n           \u21bb: \u22482^41.9",
+          "parameters": {
+            "beta": 186,
+            "zeta": 14624,
+            "d": 3607,
+            "eta": 2
+          },
+          "maximum_guessed_weight": 8,
+          "single_rotation_support": "13259772069475563103129396449921",
+          "single_rotation_probability": "5039956987151684404976717494386967201981603630056027488922799748051/33027580344806049250297778483228156122750046708105001904252635758492688228527844864",
+          "amplified_probability": "2.50017271672085273112683765484858924640925754373306571904466475267742596525006717268857453705056304494703624808444946638531414520506103276376287656836223e-12",
+          "poly_degree": 16384,
+          "mitm_heuristic": "estimator"
+        },
+        "nonfinite_weights": [],
+        "weights_evaluated": 32
+      },
+      "ring_square_root_mitm": {
+        "best": {
+          "bits": 125.88384333016882,
+          "cost": "         rop: \u22482^125.9\n         red: \u22482^123.0\n         svp: \u22482^125.7\n           \u03b2:      186\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^129.1\n           d:     3607\n        prob: \u22482^-35.3\n           \u21bb: \u22482^37.5",
+          "parameters": {
+            "beta": 186,
+            "zeta": 14624,
+            "d": 3607,
+            "eta": 2
+          },
+          "maximum_guessed_weight": 9,
+          "single_rotation_support": "43069214199442316410465356348347009",
+          "single_rotation_probability": "109092955712159782152788005740894346148204530091905935732644717514851/33027580344806049250297778483228156122750046708105001904252635758492688228527844864",
+          "amplified_probability": "5.41177696845948138307342187883123734260448120126374752486303440409051392924010471118312720348934413042510806219281426048358918057040567063496512063742107e-11",
+          "poly_degree": 16384,
+          "mitm_heuristic": "square root"
+        },
+        "nonfinite_weights": [],
+        "weights_evaluated": 32
+      }
+    },
+    "MATZOV": {
+      "lwe_control": {
+        "best": {
+          "bits": 134.6458597607015,
+          "cost": "         rop: \u22482^134.6\n         red: \u22482^132.7\n         svp: \u22482^134.2\n           \u03b2:      186\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^126.6\n           d:     3607\n        prob: \u22482^-45.1\n           \u21bb: \u22482^47.3",
+          "parameters": {
+            "beta": 186,
+            "zeta": 14624,
+            "d": 3607,
+            "eta": 2
+          },
+          "maximum_guessed_weight": 10,
+          "single_rotation_support": "125895624005410256113250254736743535233",
+          "single_rotation_probability": "2032966485329862695830405228851849927090070978929088281770822303458451/33027580344806049250297778483228156122750046708105001904252635758492688228527844864",
+          "amplified_probability": "6.15536004789272752517821237108413622875710199162623116729415324056646673595759952917048013910318930845026091932457218732868684603750521887218768531915608e-14",
+          "poly_degree": 1,
+          "mitm_heuristic": "square root"
+        },
+        "nonfinite_weights": [],
+        "weights_evaluated": 32
+      },
+      "ring_estimator_mitm": {
+        "best": {
+          "bits": 131.36516108796846,
+          "cost": "         rop: \u22482^131.4\n         red: \u22482^127.4\n         svp: \u22482^131.3\n           \u03b2:      186\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^117.4\n           d:     3607\n        prob: \u22482^-39.7\n           \u21bb: \u22482^41.9",
+          "parameters": {
+            "beta": 186,
+            "zeta": 14624,
+            "d": 3607,
+            "eta": 2
+          },
+          "maximum_guessed_weight": 8,
+          "single_rotation_support": "13259772069475563103129396449921",
+          "single_rotation_probability": "5039956987151684404976717494386967201981603630056027488922799748051/33027580344806049250297778483228156122750046708105001904252635758492688228527844864",
+          "amplified_probability": "2.50017271672085273112683765484858924640925754373306571904466475267742596525006717268857453705056304494703624808444946638531414520506103276376287656836223e-12",
+          "poly_degree": 16384,
+          "mitm_heuristic": "estimator"
+        },
+        "nonfinite_weights": [],
+        "weights_evaluated": 32
+      },
+      "ring_square_root_mitm": {
+        "best": {
+          "bits": 125.87095087431821,
+          "cost": "         rop: \u22482^125.9\n         red: \u22482^122.9\n         svp: \u22482^125.7\n           \u03b2:      186\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^129.1\n           d:     3607\n        prob: \u22482^-35.3\n           \u21bb: \u22482^37.5",
+          "parameters": {
+            "beta": 186,
+            "zeta": 14624,
+            "d": 3607,
+            "eta": 2
+          },
+          "maximum_guessed_weight": 9,
+          "single_rotation_support": "43069214199442316410465356348347009",
+          "single_rotation_probability": "109092955712159782152788005740894346148204530091905935732644717514851/33027580344806049250297778483228156122750046708105001904252635758492688228527844864",
+          "amplified_probability": "5.41177696845948138307342187883123734260448120126374752486303440409051392924010471118312720348934413042510806219281426048358918057040567063496512063742107e-11",
+          "poly_degree": 16384,
+          "mitm_heuristic": "square root"
+        },
+        "nonfinite_weights": [],
+        "weights_evaluated": 32
+      }
+    }
+  },
+  "fixed_point_complete": true,
+  "complete_attack_optimization": false,
+  "security_validated": false,
+  "limitations": [
+    "Uniform-support proxy; actual public blocks are not rotation invariant",
+    "Author rotation-event independence and square-root MITM heuristics retained",
+    "Only saved beta/zeta/d point evaluated, no ring-parameter optimization",
+    "Correlated evaluation keys and other ring-specific attacks unqualified"
+  ]
+}
