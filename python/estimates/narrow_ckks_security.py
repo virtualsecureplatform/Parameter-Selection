@@ -31,6 +31,9 @@ CASES = {
     "dd_ll14_fbs_dense_selectors": (16384, 387, None),
     "dd_ll14_fbs_dense_packed_setup": (16384, 435, None),
     "dd_ll14_dense_selectors": (16384, 379, None),
+    # Direct440 setup: use --noise-stddev 102.00190833992261 to match
+    # the integer RMS of continuous sigma=102.4; the default is not this setup.
+    "dd_ll14_basis_direct_selectors": (16384, 440, None),
     "dd_ll14_dense_packed_setup": (16384, 427, None),
     "dd_ll14_structured_source_uniform_sparse_proxy": (16384, 48, 31),
     "dd_ll14_auxiliary_sparse_switch_uniform_proxy": (16384, 76, 31),
