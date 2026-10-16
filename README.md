@@ -44,6 +44,40 @@ python3 -m unittest discover -s python -p test_narrow_ckks_noise.py -v
 sage -python python/estimates/narrow_ckks_security.py --output /tmp/narrow-security.json
 ```
 
+The current retained-cache CPU profile is assessed in
+[`narrow_ckks_current_cpu_security.json`](python/estimates/narrow_ckks_current_cpu_security.json).
+At N=16384, the weakest classical dense-family estimates are:
+
+| Family | log2(q) | BDGL16 bits | MATZOV bits |
+|---|---:|---:|---:|
+| Native automorphism keys | 435 | 128.96 | 126.76 |
+| DD master | 433 | 129.56 | 127.32 |
+| Direct selectors | 440 | 128.97 | 126.79 |
+
+This profile fails the 128-bit screen under MATZOV, the pinned estimator's
+default model. The script preserves its historical BDGL16 default; select
+`--cost-model MATZOV` explicitly. TFHEpp truncates continuous normal samples
+toward zero: configured sigma3.2 gives integer RMS2.828301687834186, and
+sigma102.4 gives RMS102.00190833992261. The estimator uses variance-matched
+discrete Gaussian proxies, not the exact error distribution.
+
+```sh
+sage -python python/estimates/narrow_ckks_security.py --case dd_ll14_native_automorphism_keys --case dd_ll14_direct_dd_master --noise-stddev 2.828301687834186 --cost-model MATZOV --max-beta 4096 --output /tmp/current-dense.json
+sage -python python/estimates/narrow_ckks_security.py --case dd_ll14_basis_direct_selectors --noise-stddev 102.00190833992261 --cost-model MATZOV --max-beta 4096 --output /tmp/current-selectors.json
+```
+
+The report embeds all generic attack results, bounded structured sensitivities,
+commands, pinned revision, source/evidence hashes and regression checks.
+The q56 uniform-sparse proxy gives143.89 bits under BDGL16; bounded block/rotation
+sensitivities reach137.05 bits under MATZOV. Neither is a security certificate.
+The latter reuses geometry-only posterior histograms and recomputes decoding
+with `narrow_ckks_block_ring_joint_decode.py --noise-stddev`; omitting that option
+preserves the saved profile's noise. Unsearched geometry, decoder correlations,
+ring/KDM assumptions and the exact error distribution remain unqualified.
+Retune with margin and requalify numerical accuracy and performance before
+claiming128-bit security. This assessment generated no keys or inputs and
+changed no CKKS parameters.
+
 The noise search uses an average-case BSGS model for S2C and sparse
 encapsulation; FFT error and security remain excluded. It follows
 TFHEpp's default tensor-rescale-before-relinearization order and

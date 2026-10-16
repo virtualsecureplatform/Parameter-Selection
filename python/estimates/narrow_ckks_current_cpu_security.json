@@ -1,0 +1,3278 @@
+{
+  "assessment": "Current CPU retained-cache LL14 profile; classical security screen, not a proof",
+  "created_utc": "2026-10-16T12:29:10.262132+00:00",
+  "implementation_revision": "cb7e3fb087d0d01ff8ef10cd1b817c2c4df80b03",
+  "assessment_tool_revision": "9b0642996d834420287235ea07bcd9eed75796aa",
+  "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+  "runtime": "SageMath 10.6 via Singularity",
+  "security_validated": false,
+  "passes_128_bit_screen_all_tested_cost_models": false,
+  "weakest_dense_estimate": {
+    "family": "native automorphism keys",
+    "model": "MATZOV",
+    "attack": "primal_bdd",
+    "bits": 126.75754705056585
+  },
+  "conclusion": "Dense families narrowly pass BDGL16 but fail 128 under MATZOV. Retune with margin and requalify accuracy/performance before claiming 128-bit security. These are Gaussian-proxy attack-cost estimates, not exact security levels or demonstrated attacks.",
+  "profile": {
+    "n": 16384,
+    "dense_secret": "ternary",
+    "native_automorphism_q_bits": 435,
+    "dd_master_q_bits": 433,
+    "direct_selector_q_bits": 440,
+    "sparse_switch_q_bits": 56,
+    "sparse_secret": "One uniform position and independent random sign per public block; 30 blocks of width 529 and one of width 514; h=31"
+  },
+  "integer_noise": {
+    "3.2": {
+      "configured_continuous_sigma": 3.2,
+      "integer_rms": 2.828301687834186,
+      "zero_probability": 0.24533943694031413,
+      "formula": "E[trunc(X)^2]=sum_{k>=1}(2k-1)*erfc(k/(sqrt(2)*sigma))",
+      "sum_limit": 52
+    },
+    "102.4": {
+      "configured_continuous_sigma": 102.4,
+      "integer_rms": 102.00190833992261,
+      "zero_probability": 0.007791717567878218,
+      "formula": "E[trunc(X)^2]=sum_{k>=1}(2k-1)*erfc(k/(sqrt(2)*sigma))",
+      "sum_limit": 1639
+    }
+  },
+  "noise_scope": "sampleNoise truncates a continuous normal toward zero. RMS values use the ideal-normal integer second moment. The estimator instead models a variance-matched discrete Gaussian; the exact PMF and finite-precision PRNG effects are not assessed.",
+  "generic_reports": {
+    "dense435-default-regression.json": {
+      "utc": "2026-10-16T12:24:10.051202+00:00",
+      "estimator_source": "https://github.com/malb/lattice-estimator",
+      "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+      "cost_model": "RC.BDGL16 classical",
+      "cost_model_name": "BDGL16",
+      "samples": "unbounded",
+      "estimator_global_max_beta": 4096,
+      "estimator_module_max_beta": {
+        "lwe_primal": 4096,
+        "lwe_dual": 4096
+      },
+      "estimator_max_beta_override": 4096,
+      "requested_attacks": [
+        "primal_usvp",
+        "primal_bdd",
+        "dual",
+        "dual_hybrid"
+      ],
+      "original_four_attacks": [
+        "primal_usvp",
+        "primal_bdd",
+        "dual",
+        "dual_hybrid"
+      ],
+      "mitm_cost_model": null,
+      "nonfinite_costs_establish_security": false,
+      "scope": "Generic LWE and uniform-sparse proxies; excludes public block constraints, ring structure, and circular/KDM security",
+      "security_validated": false,
+      "noise_proxy": "DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled",
+      "noise_stddev": 2.828301687834186,
+      "cases": {
+        "dd_ll14_fbs_dense_packed_setup": {
+          "n": 16384,
+          "log_q": 435,
+          "sigma": 2.828301687834186,
+          "secret": "dense ternary",
+          "attacks": {
+            "primal_usvp": {
+              "bits": 128.98044136656353,
+              "cost": "         rop: \u22482^129.0\n         red: \u22482^129.0\n           \u03b4: 1.004599\n           \u03b2:      324\n           d:    32148\n         tag:     usvp",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "dual": {
+              "bits": 129.30044020841913,
+              "cost": "         rop: \u22482^129.3\n         mem: \u22482^75.8\n           m: \u22482^14.0\n           \u03b2:      325\n           d:    32778\n           \u21bb:        1\n         tag:     dual",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "dual_hybrid": {
+              "bits": 129.00538720046723,
+              "cost": "         rop: \u22482^129.0\n         red: \u22482^129.0\n       guess: \u22482^113.5\n           \u03b2:      324\n           p:        3\n           \u03b6:        0\n           t:       60\n          \u03b2':      324\n           N: \u22482^52.6\n           m: \u22482^14.0",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "primal_bdd": {
+              "bits": 128.95829839375767,
+              "cost": "         rop: \u22482^129.0\n         red: \u22482^129.0\n         svp: \u22482^120.1\n           \u03b2:      324\n           \u03b7:      354\n           d:    31592\n         tag:      bdd",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            }
+          },
+          "requested_attacks_complete": true,
+          "complete": true,
+          "weakest_requested_attack_bits": 128.95829839375767,
+          "weakest_bits": 128.95829839375767,
+          "passes_generic_screen": true
+        }
+      }
+    },
+    "dd433-bdgl.json": {
+      "utc": "2026-10-16T12:19:32.148836+00:00",
+      "estimator_source": "https://github.com/malb/lattice-estimator",
+      "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+      "cost_model": "RC.BDGL16 classical",
+      "cost_model_name": "BDGL16",
+      "samples": "unbounded",
+      "estimator_global_max_beta": 4096,
+      "estimator_module_max_beta": {
+        "lwe_primal": 4096,
+        "lwe_dual": 4096
+      },
+      "estimator_max_beta_override": 4096,
+      "requested_attacks": [
+        "primal_usvp",
+        "primal_bdd",
+        "dual",
+        "dual_hybrid"
+      ],
+      "original_four_attacks": [
+        "primal_usvp",
+        "primal_bdd",
+        "dual",
+        "dual_hybrid"
+      ],
+      "mitm_cost_model": null,
+      "nonfinite_costs_establish_security": false,
+      "scope": "Generic LWE and uniform-sparse proxies; excludes public block constraints, ring structure, and circular/KDM security",
+      "security_validated": false,
+      "noise_proxy": "DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled",
+      "noise_stddev": 2.828301687834186,
+      "cases": {
+        "dd_ll14_direct_dd_master": {
+          "n": 16384,
+          "log_q": 433,
+          "sigma": 2.828301687834186,
+          "secret": "dense ternary",
+          "attacks": {
+            "primal_usvp": {
+              "bits": 129.8204999194823,
+              "cost": "         rop: \u22482^129.8\n         red: \u22482^129.8\n           \u03b4: 1.004571\n           \u03b2:      327\n           d:    31357\n         tag:     usvp",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "dual": {
+              "bits": 129.88408805243012,
+              "cost": "         rop: \u22482^129.9\n         mem: \u22482^76.2\n           m: \u22482^14.0\n           \u03b2:      327\n           d:    32770\n           \u21bb:        1\n         tag:     dual",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "dual_hybrid": {
+              "bits": 129.58937678930855,
+              "cost": "         rop: \u22482^129.6\n         red: \u22482^129.6\n       guess: \u22482^113.5\n           \u03b2:      326\n           p:        3\n           \u03b6:        0\n           t:       60\n          \u03b2':      326\n           N: \u22482^56.7\n           m: \u22482^14.0",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "primal_bdd": {
+              "bits": 129.55659421677535,
+              "cost": "         rop: \u22482^129.6\n         red: \u22482^129.5\n         svp: \u22482^122.7\n           \u03b2:      326\n           \u03b7:      363\n           d:    31700\n         tag:      bdd",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            }
+          },
+          "requested_attacks_complete": true,
+          "complete": true,
+          "weakest_requested_attack_bits": 129.55659421677535,
+          "weakest_bits": 129.55659421677535,
+          "passes_generic_screen": true
+        }
+      }
+    },
+    "selectors440.json": {
+      "utc": "2026-10-16T12:15:56.126285+00:00",
+      "estimator_source": "https://github.com/malb/lattice-estimator",
+      "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+      "cost_model": "RC.BDGL16 classical",
+      "samples": "unbounded",
+      "estimator_global_max_beta": 4096,
+      "estimator_module_max_beta": {
+        "lwe_primal": 4096,
+        "lwe_dual": 4096
+      },
+      "estimator_max_beta_override": 4096,
+      "requested_attacks": [
+        "primal_usvp",
+        "primal_bdd",
+        "dual",
+        "dual_hybrid"
+      ],
+      "original_four_attacks": [
+        "primal_usvp",
+        "primal_bdd",
+        "dual",
+        "dual_hybrid"
+      ],
+      "mitm_cost_model": null,
+      "nonfinite_costs_establish_security": false,
+      "scope": "Generic LWE and uniform-sparse proxies; excludes public block constraints, ring structure, and circular/KDM security",
+      "security_validated": false,
+      "noise_proxy": "DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled",
+      "noise_stddev": 102.00190833992261,
+      "cases": {
+        "dd_ll14_basis_direct_selectors": {
+          "n": 16384,
+          "log_q": 440,
+          "sigma": 102.00190833992261,
+          "secret": "dense ternary",
+          "attacks": {
+            "primal_usvp": {
+              "bits": 129.23534924303397,
+              "cost": "         rop: \u22482^129.2\n         red: \u22482^129.2\n           \u03b4: 1.004590\n           \u03b2:      325\n           d:    31332\n         tag:     usvp",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "dual": {
+              "bits": 129.30017609948644,
+              "cost": "         rop: \u22482^129.3\n         mem: \u22482^75.8\n           m: \u22482^14.0\n           \u03b2:      325\n           d:    32772\n           \u21bb:        1\n         tag:     dual",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "dual_hybrid": {
+              "bits": 129.00538720046723,
+              "cost": "         rop: \u22482^129.0\n         red: \u22482^129.0\n       guess: \u22482^113.5\n           \u03b2:      324\n           p:        3\n           \u03b6:        0\n           t:       60\n          \u03b2':      324\n           N: \u22482^55.8\n           m: \u22482^14.0",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "primal_bdd": {
+              "bits": 128.96764365358058,
+              "cost": "         rop: \u22482^129.0\n         red: \u22482^129.0\n         svp: \u22482^121.2\n           \u03b2:      324\n           \u03b7:      358\n           d:    31715\n         tag:      bdd",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            }
+          },
+          "requested_attacks_complete": true,
+          "complete": true,
+          "weakest_requested_attack_bits": 128.96764365358058,
+          "weakest_bits": 128.96764365358058,
+          "passes_generic_screen": true
+        }
+      }
+    },
+    "dense-matzov.json": {
+      "utc": "2026-10-16T12:19:31.666330+00:00",
+      "estimator_source": "https://github.com/malb/lattice-estimator",
+      "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+      "cost_model": "RC.MATZOV classical",
+      "cost_model_name": "MATZOV",
+      "samples": "unbounded",
+      "estimator_global_max_beta": 4096,
+      "estimator_module_max_beta": {
+        "lwe_primal": 4096,
+        "lwe_dual": 4096
+      },
+      "estimator_max_beta_override": 4096,
+      "requested_attacks": [
+        "primal_usvp",
+        "primal_bdd",
+        "dual",
+        "dual_hybrid"
+      ],
+      "original_four_attacks": [
+        "primal_usvp",
+        "primal_bdd",
+        "dual",
+        "dual_hybrid"
+      ],
+      "mitm_cost_model": null,
+      "nonfinite_costs_establish_security": false,
+      "scope": "Generic LWE and uniform-sparse proxies; excludes public block constraints, ring structure, and circular/KDM security",
+      "security_validated": false,
+      "noise_proxy": "DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled",
+      "noise_stddev": 2.828301687834186,
+      "cases": {
+        "dd_ll14_native_automorphism_keys": {
+          "n": 16384,
+          "log_q": 435,
+          "sigma": 2.828301687834186,
+          "secret": "dense ternary",
+          "attacks": {
+            "primal_usvp": {
+              "bits": 126.77396275867483,
+              "cost": "         rop: \u22482^126.8\n         red: \u22482^126.8\n           \u03b4: 1.004599\n           \u03b2:      324\n           d:    32148\n         tag:     usvp",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "dual": {
+              "bits": 128.06834610161872,
+              "cost": "         rop: \u22482^128.1\n         mem: \u22482^81.5\n           m: \u22482^14.0\n           \u03b2:      325\n           d:    32778\n           \u21bb:        1\n         tag:     dual",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "dual_hybrid": {
+              "bits": 127.49557634371689,
+              "cost": "         rop: \u22482^127.5\n         red: \u22482^127.5\n       guess: \u22482^117.7\n           \u03b2:      323\n           p:        3\n           \u03b6:       10\n           t:       50\n          \u03b2':      350\n           N: \u22482^71.2\n           m: \u22482^14.0",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "primal_bdd": {
+              "bits": 126.75754705056585,
+              "cost": "         rop: \u22482^126.8\n         red: \u22482^126.8\n         svp: \u22482^118.2\n           \u03b2:      324\n           \u03b7:      346\n           d:    31705\n         tag:      bdd",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            }
+          },
+          "requested_attacks_complete": true,
+          "complete": true,
+          "weakest_requested_attack_bits": 126.75754705056585,
+          "weakest_bits": 126.75754705056585,
+          "passes_generic_screen": false
+        },
+        "dd_ll14_direct_dd_master": {
+          "n": 16384,
+          "log_q": 433,
+          "sigma": 2.828301687834186,
+          "secret": "dense ternary",
+          "attacks": {
+            "primal_usvp": {
+              "bits": 127.56862415896609,
+              "cost": "         rop: \u22482^127.6\n         red: \u22482^127.6\n           \u03b4: 1.004571\n           \u03b2:      327\n           d:    31357\n         tag:     usvp",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "dual": {
+              "bits": 128.6412843305548,
+              "cost": "         rop: \u22482^128.6\n         mem: \u22482^81.9\n           m: \u22482^14.0\n           \u03b2:      327\n           d:    32770\n           \u21bb:        1\n         tag:     dual",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "dual_hybrid": {
+              "bits": 128.3533603574831,
+              "cost": "         rop: \u22482^128.4\n         red: \u22482^128.4\n       guess: \u22482^113.5\n           \u03b2:      326\n           p:        3\n           \u03b6:        0\n           t:       60\n          \u03b2':      353\n           N: \u22482^56.7\n           m: \u22482^14.0",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "primal_bdd": {
+              "bits": 127.32312251600781,
+              "cost": "         rop: \u22482^127.3\n         red: \u22482^127.3\n         svp: \u22482^118.7\n           \u03b2:      326\n           \u03b7:      348\n           d:    31959\n         tag:      bdd",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            }
+          },
+          "requested_attacks_complete": true,
+          "complete": true,
+          "weakest_requested_attack_bits": 127.32312251600781,
+          "weakest_bits": 127.32312251600781,
+          "passes_generic_screen": false
+        }
+      }
+    },
+    "selectors-matzov.json": {
+      "utc": "2026-10-16T12:19:31.963134+00:00",
+      "estimator_source": "https://github.com/malb/lattice-estimator",
+      "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+      "cost_model": "RC.MATZOV classical",
+      "cost_model_name": "MATZOV",
+      "samples": "unbounded",
+      "estimator_global_max_beta": 4096,
+      "estimator_module_max_beta": {
+        "lwe_primal": 4096,
+        "lwe_dual": 4096
+      },
+      "estimator_max_beta_override": 4096,
+      "requested_attacks": [
+        "primal_usvp",
+        "primal_bdd",
+        "dual",
+        "dual_hybrid"
+      ],
+      "original_four_attacks": [
+        "primal_usvp",
+        "primal_bdd",
+        "dual",
+        "dual_hybrid"
+      ],
+      "mitm_cost_model": null,
+      "nonfinite_costs_establish_security": false,
+      "scope": "Generic LWE and uniform-sparse proxies; excludes public block constraints, ring structure, and circular/KDM security",
+      "security_validated": false,
+      "noise_proxy": "DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled",
+      "noise_stddev": 102.00190833992261,
+      "cases": {
+        "dd_ll14_basis_direct_selectors": {
+          "n": 16384,
+          "log_q": 440,
+          "sigma": 102.00190833992261,
+          "secret": "dense ternary",
+          "attacks": {
+            "primal_usvp": {
+              "bits": 127.01346946508681,
+              "cost": "         rop: \u22482^127.0\n         red: \u22482^127.0\n           \u03b4: 1.004590\n           \u03b2:      325\n           d:    31332\n         tag:     usvp",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "dual": {
+              "bits": 128.0682117209627,
+              "cost": "         rop: \u22482^128.1\n         mem: \u22482^81.5\n           m: \u22482^14.0\n           \u03b2:      325\n           d:    32772\n           \u21bb:        1\n         tag:     dual",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "dual_hybrid": {
+              "bits": 127.78038539699247,
+              "cost": "         rop: \u22482^127.8\n         red: \u22482^127.8\n       guess: \u22482^113.5\n           \u03b2:      324\n           p:        3\n           \u03b6:        0\n           t:       60\n          \u03b2':      351\n           N: \u22482^55.8\n           m: \u22482^14.0",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "primal_bdd": {
+              "bits": 126.79196750119395,
+              "cost": "         rop: \u22482^126.8\n         red: \u22482^126.8\n         svp: \u22482^121.5\n           \u03b2:      324\n           \u03b7:      358\n           d:    31715\n         tag:      bdd",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            }
+          },
+          "requested_attacks_complete": true,
+          "complete": true,
+          "weakest_requested_attack_bits": 126.79196750119395,
+          "weakest_bits": 126.79196750119395,
+          "passes_generic_screen": false
+        }
+      }
+    },
+    "sparse56.json": {
+      "utc": "2026-10-16T12:15:56.125680+00:00",
+      "estimator_source": "https://github.com/malb/lattice-estimator",
+      "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+      "cost_model": "RC.BDGL16 classical",
+      "samples": "unbounded",
+      "estimator_global_max_beta": 4096,
+      "estimator_module_max_beta": {
+        "lwe_primal": 4096,
+        "lwe_dual": 4096
+      },
+      "estimator_max_beta_override": 4096,
+      "requested_attacks": [
+        "primal_usvp",
+        "primal_bdd",
+        "dual",
+        "dual_hybrid",
+        "mitm",
+        "bdd_hybrid",
+        "bdd_mitm_hybrid"
+      ],
+      "original_four_attacks": [
+        "primal_usvp",
+        "primal_bdd",
+        "dual",
+        "dual_hybrid"
+      ],
+      "mitm_cost_model": "estimator analytical word-operation model",
+      "nonfinite_costs_establish_security": false,
+      "scope": "Generic LWE and uniform-sparse proxies; excludes public block constraints, ring structure, and circular/KDM security",
+      "security_validated": false,
+      "noise_proxy": "DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled",
+      "noise_stddev": 2.828301687834186,
+      "cases": {
+        "dd_ll14_plain37_aux8_sparse_switch_uniform_proxy": {
+          "n": 16384,
+          "log_q": 56,
+          "sigma": 2.828301687834186,
+          "secret": "uniform sparse ternary proxy (16 positive, 15 negative)",
+          "attacks": {
+            "primal_usvp": {
+              "bits": 1222.0625999664119,
+              "cost": "         rop: \u22482^1222.1\n         red: \u22482^1222.1\n           \u03b4: 1.000673\n           \u03b2:     4068\n           d:    28657\n         tag:     usvp",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "dual": {
+              "bits": 1237.64194989105,
+              "cost": "         rop: \u22482^1237.6\n         mem: \u22482^869.4\n           m: \u22482^13.6\n           \u03b2:     4095\n           d:    29116\n           \u21bb:        1\n         tag:     dual",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "primal_bdd": {
+              "bits": 1268.211814319369,
+              "cost": "         rop: \u22482^1268.2\n         red: \u22482^1268.2\n         svp: \u22482^575.0\n           \u03b2:     4069\n           \u03b7:     1755\n           d:    29034\n         tag:      bdd",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "mitm": {
+              "bits": 189.88264304936183,
+              "cost": "         rop: \u22482^189.9\n         mem: \u22482^183.1\n           m: \u22482^14.4\n           k: \u22482^13.0\n           \u21bb:      118",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "dual_hybrid": {
+              "bits": 1160.5954302292264,
+              "cost": "         rop: \u22482^1160.6\n         red: \u22482^1160.6\n       guess: \u22482^1151.1\n           \u03b2:     3857\n           p:        2\n           \u03b6:        0\n           t:     1130\n          \u03b2':     3857\n           N: \u22482^797.2\n           m: \u22482^14.0",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "bdd_hybrid": {
+              "bits": 164.75256001877133,
+              "cost": "         rop: \u22482^164.8\n         red: \u22482^164.0\n         svp: \u22482^163.5\n           \u03b2:      119\n           \u03b7:       14\n           \u03b6: \u22482^13.9\n         |S|: \u22482^42.1\n           d:     2164\n        prob: \u22482^-96.6\n           \u21bb: \u22482^98.8\n         tag:   hybrid",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            },
+            "bdd_mitm_hybrid": {
+              "bits": 143.89165568410115,
+              "cost": "         rop: \u22482^143.9\n         red: \u22482^141.8\n         svp: \u22482^143.5\n           \u03b2:      204\n           \u03b7:        2\n           \u03b6: \u22482^13.9\n         |S|: \u22482^138.4\n           d:     2724\n        prob: \u22482^-49.3\n           \u21bb: \u22482^51.5\n         tag:   hybrid",
+              "estimator_module_max_beta": {
+                "lwe_primal": 4096,
+                "lwe_dual": 4096
+              }
+            }
+          },
+          "public_block_secret_entropy_bits": 311.41934191261464,
+          "requested_attacks_complete": true,
+          "complete": true,
+          "weakest_requested_attack_bits": 143.89165568410115,
+          "weakest_bits": 143.89165568410115,
+          "passes_generic_screen": true
+        }
+      }
+    }
+  },
+  "structured_sensitivity": {
+    "reports": [
+      {
+        "raw_report": "structured56-weight9.json",
+        "utc": "2026-10-16T12:18:55.507981+00:00",
+        "scope": "Structured ring joint-decoding sensitivity from posterior rotation histograms.\n\nCompares common decoding outcomes, conditional decoding independence, and an\noptimistic union bound. None establishes actual correlations or security.\nThe full square-root speedup on labelled dictionaries remains a heuristic.\n",
+        "source_sha256": "b1339e02c9c7966a0c7ad0c8a61280bfd9318f8a2e8ffe89bd9218fd64b2a028",
+        "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+        "profile_sha256": "97d7e5cdc365d267d09f60f873a7f3580c7bb5f4c1e85fadc6c0ebe2024d4aef",
+        "probability_report": "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_weight9_seed2119.json",
+        "probability_report_sha256": "602252aacd9e4d0b2e4ff0c0cca7f6b0342fa59e7bbf3d6eb0a4153fd72f778a",
+        "probability_seed": 2119,
+        "n": 16384,
+        "log_q": 56,
+        "profile_log_q": 76,
+        "candidate_modulus": true,
+        "sigma": 2.828301687834186,
+        "profile_sigma": 3.2,
+        "candidate_noise": true,
+        "noise_proxy": "DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled",
+        "probability_reuse_scope": "Posterior matching histogram depends on the unchanged secret/guessing geometry; decoder probabilities are recomputed at the selected modulus and noise",
+        "zeta": 14688,
+        "weight": 9,
+        "layout": "saturated-5-prefix",
+        "histogram_samples": 4000,
+        "beta_offsets": [
+          -8,
+          8,
+          24,
+          40,
+          56,
+          72,
+          88,
+          104,
+          120
+        ],
+        "d_offsets": [
+          -256,
+          -128,
+          0,
+          128,
+          256,
+          384,
+          512
+        ],
+        "complete": true,
+        "security_validated": false,
+        "complete_attack_optimization": false,
+        "posterior_uncertainty": {
+          "method": "one-sample DKW-Massart empirical-CDF bound",
+          "confidence": 0.95,
+          "cdf_radius": "0.0214734704173368781032242841342038503466515669369749345308620141575750989049906340350342649576978382986809972591505233378802094130578198842907135936421776",
+          "theorem_source": "https://arxiv.org/abs/1107.5356",
+          "formula": "epsilon=sqrt(log(2/0.05)/(2*samples))",
+          "simultaneous_scope": "All decoder marginals and beta/d choices using this same fixed-layout posterior histogram",
+          "expectation_bound": "epsilon for 1/K; p*epsilon for h_p(K)=(1-(1-p)^K)/K by monotone summation by parts",
+          "excludes": "Other layouts, weights, zeta, seeds, decoding-correlation hypotheses, and security certification"
+        },
+        "limitations": [
+          "Decoder marginal uses scalar GSA Babai and MITM probabilities; actual cross-rotation correlations unmodeled",
+          "Conditional decoder independence and optimistic union bound are sensitivities, not established attacks",
+          "Only one zeta/layout/weight and supplied beta/d offsets; no global optimum",
+          "Full square-root work on labelled dictionaries assumed; compatible decompositions not constructed",
+          "Posterior finite-sample uncertainty is not a security confidence interval",
+          "Candidate modulus overrides do not establish matching C++ accuracy or exposed-key security",
+          "Correlated evaluation keys remain unqualified"
+        ],
+        "scenarios": {
+          "BDGL16": {
+            "best": {
+              "common_decoder": {
+                "bits": 163.78498659277162,
+                "cost": "         rop: \u22482^163.8\n         red: \u22482^163.8\n         svp: \u22482^131.6\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^118.1\n           d:     3415\n        prob: \u22482^-46.9\n           \u21bb: \u22482^49.1",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0233537931126952744143032703050266718491911888122558593750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 161.55048392499182,
+                "cost": "         rop: \u22482^161.6\n         red: \u22482^161.6\n         svp: \u22482^134.1\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^118.1\n           d:     3415\n        prob: \u22482^-49.4\n           \u21bb: \u22482^51.6",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.000888237910627865464078317798050478157168089272100908866054274029193062916023859720837663189740851521492004394531250000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 161.4997303855612,
+                "cost": "         rop: \u22482^161.5\n         red: \u22482^161.5\n         svp: \u22482^129.4\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^118.1\n           d:     3415\n        prob: \u22482^-44.6\n           \u21bb: \u22482^46.9",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0233537931126952744143032703050266718491911888122558593750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 163.64136777585443,
+                "cost": "         rop: \u22482^163.6\n         red: \u22482^163.6\n         svp: \u22482^131.5\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^118.1\n           d:     3415\n        prob: \u22482^-46.8\n           \u21bb: \u22482^49.0",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0233537931126952744143032703050266718491911888122558593750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 161.54429732573985,
+                "cost": "         rop: \u22482^161.5\n         red: \u22482^161.5\n         svp: \u22482^134.1\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^118.1\n           d:     3415\n        prob: \u22482^-49.4\n           \u21bb: \u22482^51.6",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.000888237910627865464078317798050478157168089272100908866054274029193062916023859720837663189740851521492004394531250000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 161.4997303855612,
+                "cost": "         rop: \u22482^161.5\n         red: \u22482^161.5\n         svp: \u22482^129.4\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^118.1\n           d:     3415\n        prob: \u22482^-44.6\n           \u21bb: \u22482^46.9",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0233537931126952744143032703050266718491911888122558593750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          },
+          "MATZOV": {
+            "best": {
+              "common_decoder": {
+                "bits": 162.04335574942155,
+                "cost": "         rop: \u22482^162.0\n         red: \u22482^162.0\n         svp: \u22482^131.6\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^118.1\n           d:     3415\n        prob: \u22482^-46.9\n           \u21bb: \u22482^49.1",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0233537931126952744143032703050266718491911888122558593750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 159.9071348000814,
+                "cost": "         rop: \u22482^159.9\n         red: \u22482^159.9\n         svp: \u22482^129.5\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^118.1\n           d:     3415\n        prob: \u22482^-44.8\n           \u21bb: \u22482^47.0",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0233537931126952744143032703050266718491911888122558593750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 159.75809954221114,
+                "cost": "         rop: \u22482^159.8\n         red: \u22482^159.8\n         svp: \u22482^129.4\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^118.1\n           d:     3415\n        prob: \u22482^-44.6\n           \u21bb: \u22482^46.9",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0233537931126952744143032703050266718491911888122558593750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 161.89973693250437,
+                "cost": "         rop: \u22482^161.9\n         red: \u22482^161.9\n         svp: \u22482^131.5\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^118.1\n           d:     3415\n        prob: \u22482^-46.8\n           \u21bb: \u22482^49.0",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0233537931126952744143032703050266718491911888122558593750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 159.87318626206965,
+                "cost": "         rop: \u22482^159.9\n         red: \u22482^159.9\n         svp: \u22482^129.5\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^118.1\n           d:     3415\n        prob: \u22482^-44.8\n           \u21bb: \u22482^47.0",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0233537931126952744143032703050266718491911888122558593750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 159.75809954221114,
+                "cost": "         rop: \u22482^159.8\n         red: \u22482^159.8\n         svp: \u22482^129.4\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^118.1\n           d:     3415\n        prob: \u22482^-44.6\n           \u21bb: \u22482^46.9",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0233537931126952744143032703050266718491911888122558593750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          }
+        }
+      },
+      {
+        "raw_report": "structured56-weight10.json",
+        "utc": "2026-10-16T12:18:54.828542+00:00",
+        "scope": "Structured ring joint-decoding sensitivity from posterior rotation histograms.\n\nCompares common decoding outcomes, conditional decoding independence, and an\noptimistic union bound. None establishes actual correlations or security.\nThe full square-root speedup on labelled dictionaries remains a heuristic.\n",
+        "source_sha256": "b1339e02c9c7966a0c7ad0c8a61280bfd9318f8a2e8ffe89bd9218fd64b2a028",
+        "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+        "profile_sha256": "97d7e5cdc365d267d09f60f873a7f3580c7bb5f4c1e85fadc6c0ebe2024d4aef",
+        "probability_report": "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_weight10.json",
+        "probability_report_sha256": "b839058897a1f1ddfeea12e045a9adfb5d589ed1ebb9d87153bf26a97db35eda",
+        "probability_seed": 2119,
+        "n": 16384,
+        "log_q": 56,
+        "profile_log_q": 76,
+        "candidate_modulus": true,
+        "sigma": 2.828301687834186,
+        "profile_sigma": 3.2,
+        "candidate_noise": true,
+        "noise_proxy": "DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled",
+        "probability_reuse_scope": "Posterior matching histogram depends on the unchanged secret/guessing geometry; decoder probabilities are recomputed at the selected modulus and noise",
+        "zeta": 14688,
+        "weight": 10,
+        "layout": "saturated-5-prefix",
+        "histogram_samples": 4000,
+        "beta_offsets": [
+          -8,
+          8,
+          24,
+          40,
+          56,
+          72,
+          88,
+          104,
+          120
+        ],
+        "d_offsets": [
+          -256,
+          -128,
+          0,
+          128,
+          256,
+          384,
+          512
+        ],
+        "complete": true,
+        "security_validated": false,
+        "complete_attack_optimization": false,
+        "posterior_uncertainty": {
+          "method": "one-sample DKW-Massart empirical-CDF bound",
+          "confidence": 0.95,
+          "cdf_radius": "0.0214734704173368781032242841342038503466515669369749345308620141575750989049906340350342649576978382986809972591505233378802094130578198842907135936421776",
+          "theorem_source": "https://arxiv.org/abs/1107.5356",
+          "formula": "epsilon=sqrt(log(2/0.05)/(2*samples))",
+          "simultaneous_scope": "All decoder marginals and beta/d choices using this same fixed-layout posterior histogram",
+          "expectation_bound": "epsilon for 1/K; p*epsilon for h_p(K)=(1-(1-p)^K)/K by monotone summation by parts",
+          "excludes": "Other layouts, weights, zeta, seeds, decoding-correlation hypotheses, and security certification"
+        },
+        "limitations": [
+          "Decoder marginal uses scalar GSA Babai and MITM probabilities; actual cross-rotation correlations unmodeled",
+          "Conditional decoder independence and optimistic union bound are sensitivities, not established attacks",
+          "Only one zeta/layout/weight and supplied beta/d offsets; no global optimum",
+          "Full square-root work on labelled dictionaries assumed; compatible decompositions not constructed",
+          "Posterior finite-sample uncertainty is not a security confidence interval",
+          "Candidate modulus overrides do not establish matching C++ accuracy or exposed-key security",
+          "Correlated evaluation keys remain unqualified"
+        ],
+        "scenarios": {
+          "BDGL16": {
+            "best": {
+              "common_decoder": {
+                "bits": 158.89920322895262,
+                "cost": "         rop: \u22482^158.9\n         red: \u22482^158.9\n         svp: \u22482^137.4\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^130.0\n           d:     3415\n        prob: \u22482^-46.7\n           \u21bb: \u22482^48.9",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.000964327234277654845903636424292564819525711996133121814450567996812352551672109512992392410524189472198486328125000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 156.48624189844256,
+                "cost": "         rop: \u22482^156.5\n         red: \u22482^156.5\n         svp: \u22482^135.0\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^130.0\n           d:     3415\n        prob: \u22482^-44.3\n           \u21bb: \u22482^46.5",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.000964327234277654845903636424292564819525711996133121814450567996812352551672109512992392410524189472198486328125000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 156.47800078304783,
+                "cost": "         rop: \u22482^156.5\n         red: \u22482^156.5\n         svp: \u22482^135.0\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^130.0\n           d:     3415\n        prob: \u22482^-44.3\n           \u21bb: \u22482^46.5",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.000964327234277654845903636424292564819525711996133121814450567996812352551672109512992392410524189472198486328125000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 158.74213931678395,
+                "cost": "         rop: \u22482^158.7\n         red: \u22482^158.7\n         svp: \u22482^137.2\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^130.0\n           d:     3415\n        prob: \u22482^-46.6\n           \u21bb: \u22482^48.8",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.000964327234277654845903636424292564819525711996133121814450567996812352551672109512992392410524189472198486328125000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 156.47800078304783,
+                "cost": "         rop: \u22482^156.5\n         red: \u22482^156.5\n         svp: \u22482^135.0\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^130.0\n           d:     3415\n        prob: \u22482^-44.3\n           \u21bb: \u22482^46.5",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.000964327234277654845903636424292564819525711996133121814450567996812352551672109512992392410524189472198486328125000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 156.47800078304783,
+                "cost": "         rop: \u22482^156.5\n         red: \u22482^156.5\n         svp: \u22482^135.0\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^130.0\n           d:     3415\n        prob: \u22482^-44.3\n           \u21bb: \u22482^46.5",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.000964327234277654845903636424292564819525711996133121814450567996812352551672109512992392410524189472198486328125000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          },
+          "MATZOV": {
+            "best": {
+              "common_decoder": {
+                "bits": 157.16874478348572,
+                "cost": "         rop: \u22482^157.2\n         red: \u22482^157.2\n         svp: \u22482^132.7\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^130.0\n           d:     3415\n        prob: \u22482^-42.1\n           \u21bb: \u22482^44.3",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0243934495718628810423389552397566149011254310607910156250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 154.93260991085955,
+                "cost": "         rop: \u22482^154.9\n         red: \u22482^154.9\n         svp: \u22482^130.5\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^130.0\n           d:     3415\n        prob: \u22482^-39.8\n           \u21bb: \u22482^42.0",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0243934495718628810423389552397566149011254310607910156250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 154.74754233758085,
+                "cost": "         rop: \u22482^154.7\n         red: \u22482^154.7\n         svp: \u22482^130.3\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^130.0\n           d:     3415\n        prob: \u22482^-39.6\n           \u21bb: \u22482^41.8",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0243934495718628810423389552397566149011254310607910156250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 157.01168087131688,
+                "cost": "         rop: \u22482^157.0\n         red: \u22482^157.0\n         svp: \u22482^132.6\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^130.0\n           d:     3415\n        prob: \u22482^-41.9\n           \u21bb: \u22482^44.1",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0243934495718628810423389552397566149011254310607910156250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 154.89781307968195,
+                "cost": "         rop: \u22482^154.9\n         red: \u22482^154.9\n         svp: \u22482^130.4\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^130.0\n           d:     3415\n        prob: \u22482^-39.8\n           \u21bb: \u22482^42.0",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0243934495718628810423389552397566149011254310607910156250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 154.74754233758085,
+                "cost": "         rop: \u22482^154.7\n         red: \u22482^154.7\n         svp: \u22482^130.3\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^130.0\n           d:     3415\n        prob: \u22482^-39.6\n           \u21bb: \u22482^41.8",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0243934495718628810423389552397566149011254310607910156250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          }
+        }
+      },
+      {
+        "raw_report": "structured56-weight11.json",
+        "utc": "2026-10-16T12:19:16.705290+00:00",
+        "scope": "Structured ring joint-decoding sensitivity from posterior rotation histograms.\n\nCompares common decoding outcomes, conditional decoding independence, and an\noptimistic union bound. None establishes actual correlations or security.\nThe full square-root speedup on labelled dictionaries remains a heuristic.\n",
+        "source_sha256": "b1339e02c9c7966a0c7ad0c8a61280bfd9318f8a2e8ffe89bd9218fd64b2a028",
+        "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+        "profile_sha256": "97d7e5cdc365d267d09f60f873a7f3580c7bb5f4c1e85fadc6c0ebe2024d4aef",
+        "probability_report": "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_histogram.json",
+        "probability_report_sha256": "22b55047cc5eef032cc7db894630d1cf64c720d65a2ff1316d30bd73509eb10e",
+        "probability_seed": 2119,
+        "n": 16384,
+        "log_q": 56,
+        "profile_log_q": 76,
+        "candidate_modulus": true,
+        "sigma": 2.828301687834186,
+        "profile_sigma": 3.2,
+        "candidate_noise": true,
+        "noise_proxy": "DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled",
+        "probability_reuse_scope": "Posterior matching histogram depends on the unchanged secret/guessing geometry; decoder probabilities are recomputed at the selected modulus and noise",
+        "zeta": 14688,
+        "weight": 11,
+        "layout": "saturated-5-prefix",
+        "histogram_samples": 4000,
+        "beta_offsets": [
+          -8,
+          8,
+          24,
+          40,
+          56,
+          72,
+          88,
+          104,
+          120
+        ],
+        "d_offsets": [
+          -256,
+          -128,
+          0,
+          128,
+          256,
+          384,
+          512
+        ],
+        "complete": true,
+        "security_validated": false,
+        "complete_attack_optimization": false,
+        "posterior_uncertainty": {
+          "method": "one-sample DKW-Massart empirical-CDF bound",
+          "confidence": 0.95,
+          "cdf_radius": "0.0214734704173368781032242841342038503466515669369749345308620141575750989049906340350342649576978382986809972591505233378802094130578198842907135936421776",
+          "theorem_source": "https://arxiv.org/abs/1107.5356",
+          "formula": "epsilon=sqrt(log(2/0.05)/(2*samples))",
+          "simultaneous_scope": "All decoder marginals and beta/d choices using this same fixed-layout posterior histogram",
+          "expectation_bound": "epsilon for 1/K; p*epsilon for h_p(K)=(1-(1-p)^K)/K by monotone summation by parts",
+          "excludes": "Other layouts, weights, zeta, seeds, decoding-correlation hypotheses, and security certification"
+        },
+        "limitations": [
+          "Decoder marginal uses scalar GSA Babai and MITM probabilities; actual cross-rotation correlations unmodeled",
+          "Conditional decoder independence and optimistic union bound are sensitivities, not established attacks",
+          "Only one zeta/layout/weight and supplied beta/d offsets; no global optimum",
+          "Full square-root work on labelled dictionaries assumed; compatible decompositions not constructed",
+          "Posterior finite-sample uncertainty is not a security confidence interval",
+          "Candidate modulus overrides do not establish matching C++ accuracy or exposed-key security",
+          "Correlated evaluation keys remain unqualified"
+        ],
+        "scenarios": {
+          "BDGL16": {
+            "best": {
+              "common_decoder": {
+                "bits": 154.33214237831862,
+                "cost": "         rop: \u22482^154.3\n         red: \u22482^154.3\n         svp: \u22482^138.6\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3415\n        prob: \u22482^-42.2\n           \u21bb: \u22482^44.4",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00105003712440418831236408329353599664252035711583648296428678098235107683799949285230468376539647579193115234375000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 151.7430592615671,
+                "cost": "         rop: \u22482^151.7\n         red: \u22482^151.7\n         svp: \u22482^136.0\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3415\n        prob: \u22482^-39.6\n           \u21bb: \u22482^41.8",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00105003712440418831236408329353599664252035711583648296428678098235107683799949285230468376539647579193115234375000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 151.73215604068386,
+                "cost": "         rop: \u22482^151.7\n         red: \u22482^151.7\n         svp: \u22482^136.0\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3415\n        prob: \u22482^-39.6\n           \u21bb: \u22482^41.8",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00105003712440418831236408329353599664252035711583648296428678098235107683799949285230468376539647579193115234375000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 154.155577627919,
+                "cost": "         rop: \u22482^154.2\n         red: \u22482^154.2\n         svp: \u22482^138.4\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3415\n        prob: \u22482^-42.0\n           \u21bb: \u22482^44.2",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00105003712440418831236408329353599664252035711583648296428678098235107683799949285230468376539647579193115234375000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 151.73215604068386,
+                "cost": "         rop: \u22482^151.7\n         red: \u22482^151.7\n         svp: \u22482^136.0\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3415\n        prob: \u22482^-39.6\n           \u21bb: \u22482^41.8",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00105003712440418831236408329353599664252035711583648296428678098235107683799949285230468376539647579193115234375000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 151.73215604068386,
+                "cost": "         rop: \u22482^151.7\n         red: \u22482^151.7\n         svp: \u22482^136.0\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3415\n        prob: \u22482^-39.6\n           \u21bb: \u22482^41.8",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00105003712440418831236408329353599664252035711583648296428678098235107683799949285230468376539647579193115234375000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          },
+          "MATZOV": {
+            "best": {
+              "common_decoder": {
+                "bits": 152.65939344838233,
+                "cost": "         rop: \u22482^152.7\n         red: \u22482^152.7\n         svp: \u22482^134.0\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3415\n        prob: \u22482^-37.5\n           \u21bb: \u22482^39.8",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0255196275900503345701597623929046676494181156158447265625000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 150.2561419753922,
+                "cost": "         rop: \u22482^150.3\n         red: \u22482^150.3\n         svp: \u22482^136.0\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3415\n        prob: \u22482^-39.6\n           \u21bb: \u22482^41.8",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00105003712440418831236408329353599664252035711583648296428678098235107683799949285230468376539647579193115234375000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 150.0594071107411,
+                "cost": "         rop: \u22482^150.1\n         red: \u22482^150.1\n         svp: \u22482^131.4\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3415\n        prob: \u22482^-34.9\n           \u21bb: \u22482^37.2",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0255196275900503345701597623929046676494181156158447265625000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 152.48282869798268,
+                "cost": "         rop: \u22482^152.5\n         red: \u22482^152.5\n         svp: \u22482^133.8\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3415\n        prob: \u22482^-37.4\n           \u21bb: \u22482^39.6",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0255196275900503345701597623929046676494181156158447265625000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 150.24523875450896,
+                "cost": "         rop: \u22482^150.2\n         red: \u22482^150.2\n         svp: \u22482^136.0\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3415\n        prob: \u22482^-39.6\n           \u21bb: \u22482^41.8",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00105003712440418831236408329353599664252035711583648296428678098235107683799949285230468376539647579193115234375000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 150.0594071107411,
+                "cost": "         rop: \u22482^150.1\n         red: \u22482^150.1\n         svp: \u22482^131.4\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^141.5\n           d:     3415\n        prob: \u22482^-34.9\n           \u21bb: \u22482^37.2",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0255196275900503345701597623929046676494181156158447265625000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          }
+        }
+      },
+      {
+        "raw_report": "structured56-weight12.json",
+        "utc": "2026-10-16T12:19:16.722309+00:00",
+        "scope": "Structured ring joint-decoding sensitivity from posterior rotation histograms.\n\nCompares common decoding outcomes, conditional decoding independence, and an\noptimistic union bound. None establishes actual correlations or security.\nThe full square-root speedup on labelled dictionaries remains a heuristic.\n",
+        "source_sha256": "b1339e02c9c7966a0c7ad0c8a61280bfd9318f8a2e8ffe89bd9218fd64b2a028",
+        "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+        "profile_sha256": "97d7e5cdc365d267d09f60f873a7f3580c7bb5f4c1e85fadc6c0ebe2024d4aef",
+        "probability_report": "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_weight12.json",
+        "probability_report_sha256": "27391db776fdb33efe39bab655ae162df52bfeac1006c59a685f31473c23a797",
+        "probability_seed": 2119,
+        "n": 16384,
+        "log_q": 56,
+        "profile_log_q": 76,
+        "candidate_modulus": true,
+        "sigma": 2.828301687834186,
+        "profile_sigma": 3.2,
+        "candidate_noise": true,
+        "noise_proxy": "DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled",
+        "probability_reuse_scope": "Posterior matching histogram depends on the unchanged secret/guessing geometry; decoder probabilities are recomputed at the selected modulus and noise",
+        "zeta": 14688,
+        "weight": 12,
+        "layout": "saturated-5-prefix",
+        "histogram_samples": 4000,
+        "beta_offsets": [
+          -8,
+          8,
+          24,
+          40,
+          56,
+          72,
+          88,
+          104,
+          120
+        ],
+        "d_offsets": [
+          -256,
+          -128,
+          0,
+          128,
+          256,
+          384,
+          512
+        ],
+        "complete": true,
+        "security_validated": false,
+        "complete_attack_optimization": false,
+        "posterior_uncertainty": {
+          "method": "one-sample DKW-Massart empirical-CDF bound",
+          "confidence": 0.95,
+          "cdf_radius": "0.0214734704173368781032242841342038503466515669369749345308620141575750989049906340350342649576978382986809972591505233378802094130578198842907135936421776",
+          "theorem_source": "https://arxiv.org/abs/1107.5356",
+          "formula": "epsilon=sqrt(log(2/0.05)/(2*samples))",
+          "simultaneous_scope": "All decoder marginals and beta/d choices using this same fixed-layout posterior histogram",
+          "expectation_bound": "epsilon for 1/K; p*epsilon for h_p(K)=(1-(1-p)^K)/K by monotone summation by parts",
+          "excludes": "Other layouts, weights, zeta, seeds, decoding-correlation hypotheses, and security certification"
+        },
+        "limitations": [
+          "Decoder marginal uses scalar GSA Babai and MITM probabilities; actual cross-rotation correlations unmodeled",
+          "Conditional decoder independence and optimistic union bound are sensitivities, not established attacks",
+          "Only one zeta/layout/weight and supplied beta/d offsets; no global optimum",
+          "Full square-root work on labelled dictionaries assumed; compatible decompositions not constructed",
+          "Posterior finite-sample uncertainty is not a security confidence interval",
+          "Candidate modulus overrides do not establish matching C++ accuracy or exposed-key security",
+          "Correlated evaluation keys remain unqualified"
+        ],
+        "scenarios": {
+          "BDGL16": {
+            "best": {
+              "common_decoder": {
+                "bits": 150.0895173954432,
+                "cost": "         rop: \u22482^150.1\n         red: \u22482^150.1\n         svp: \u22482^140.0\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^152.9\n           d:     3415\n        prob: \u22482^-37.9\n           \u21bb: \u22482^40.1",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00114705529692665893651328053588948703167617452726631411347623030246717368285658267268445342779159545898437500000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 147.28704735204053,
+                "cost": "         rop: \u22482^147.3\n         red: \u22482^147.3\n         svp: \u22482^137.2\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^152.9\n           d:     3415\n        prob: \u22482^-35.1\n           \u21bb: \u22482^37.3",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00114705529692665893651328053588948703167617452726631411347623030246717368285658267268445342779159545898437500000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 147.27227860891202,
+                "cost": "         rop: \u22482^147.3\n         red: \u22482^147.3\n         svp: \u22482^137.2\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^152.9\n           d:     3415\n        prob: \u22482^-35.1\n           \u21bb: \u22482^37.3",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00114705529692665893651328053588948703167617452726631411347623030246717368285658267268445342779159545898437500000000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 149.88619390166647,
+                "cost": "         rop: \u22482^149.9\n         red: \u22482^149.9\n         svp: \u22482^139.8\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^152.9\n           d:     3415\n        prob: \u22482^-37.7\n           \u21bb: \u22482^39.9",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00114705529692665893651328053588948703167617452726631411347623030246717368285658267268445342779159545898437500000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 147.27227860891202,
+                "cost": "         rop: \u22482^147.3\n         red: \u22482^147.3\n         svp: \u22482^137.2\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^152.9\n           d:     3415\n        prob: \u22482^-35.1\n           \u21bb: \u22482^37.3",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00114705529692665893651328053588948703167617452726631411347623030246717368285658267268445342779159545898437500000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 147.27227860891202,
+                "cost": "         rop: \u22482^147.3\n         red: \u22482^147.3\n         svp: \u22482^137.2\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^152.9\n           d:     3415\n        prob: \u22482^-35.1\n           \u21bb: \u22482^37.3",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00114705529692665893651328053588948703167617452726631411347623030246717368285658267268445342779159545898437500000000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          },
+          "MATZOV": {
+            "best": {
+              "common_decoder": {
+                "bits": 148.4755303391654,
+                "cost": "         rop: \u22482^148.5\n         red: \u22482^148.5\n         svp: \u22482^135.5\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^152.9\n           d:     3415\n        prob: \u22482^-33.4\n           \u21bb: \u22482^35.6",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0267437233197762372349792769909981871023774147033691406250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 145.80249215074815,
+                "cost": "         rop: \u22482^145.8\n         red: \u22482^145.8\n         svp: \u22482^137.2\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^152.9\n           d:     3415\n        prob: \u22482^-35.1\n           \u21bb: \u22482^37.3",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00114705529692665893651328053588948703167617452726631411347623030246717368285658267268445342779159545898437500000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 145.65829155222366,
+                "cost": "         rop: \u22482^145.7\n         red: \u22482^145.7\n         svp: \u22482^132.7\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^152.9\n           d:     3415\n        prob: \u22482^-30.5\n           \u21bb: \u22482^32.8",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0267437233197762372349792769909981871023774147033691406250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 148.27220684534458,
+                "cost": "         rop: \u22482^148.3\n         red: \u22482^148.3\n         svp: \u22482^135.3\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^152.9\n           d:     3415\n        prob: \u22482^-33.2\n           \u21bb: \u22482^35.4",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0267437233197762372349792769909981871023774147033691406250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 145.7877234076196,
+                "cost": "         rop: \u22482^145.8\n         red: \u22482^145.8\n         svp: \u22482^137.2\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^152.9\n           d:     3415\n        prob: \u22482^-35.1\n           \u21bb: \u22482^37.3",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00114705529692665893651328053588948703167617452726631411347623030246717368285658267268445342779159545898437500000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 145.65829155222366,
+                "cost": "         rop: \u22482^145.7\n         red: \u22482^145.7\n         svp: \u22482^132.7\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^152.9\n           d:     3415\n        prob: \u22482^-30.5\n           \u21bb: \u22482^32.8",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0267437233197762372349792769909981871023774147033691406250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          }
+        }
+      },
+      {
+        "raw_report": "structured56-weight13.json",
+        "utc": "2026-10-16T12:19:37.188290+00:00",
+        "scope": "Structured ring joint-decoding sensitivity from posterior rotation histograms.\n\nCompares common decoding outcomes, conditional decoding independence, and an\noptimistic union bound. None establishes actual correlations or security.\nThe full square-root speedup on labelled dictionaries remains a heuristic.\n",
+        "source_sha256": "b1339e02c9c7966a0c7ad0c8a61280bfd9318f8a2e8ffe89bd9218fd64b2a028",
+        "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+        "profile_sha256": "97d7e5cdc365d267d09f60f873a7f3580c7bb5f4c1e85fadc6c0ebe2024d4aef",
+        "probability_report": "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_weight13.json",
+        "probability_report_sha256": "da73b05a3e5370ac2c75d2a49cb42fa03de97f1278bf56d677915e541cdf575a",
+        "probability_seed": 2119,
+        "n": 16384,
+        "log_q": 56,
+        "profile_log_q": 76,
+        "candidate_modulus": true,
+        "sigma": 2.828301687834186,
+        "profile_sigma": 3.2,
+        "candidate_noise": true,
+        "noise_proxy": "DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled",
+        "probability_reuse_scope": "Posterior matching histogram depends on the unchanged secret/guessing geometry; decoder probabilities are recomputed at the selected modulus and noise",
+        "zeta": 14688,
+        "weight": 13,
+        "layout": "saturated-5-prefix",
+        "histogram_samples": 4000,
+        "beta_offsets": [
+          -8,
+          8,
+          24,
+          40,
+          56,
+          72,
+          88,
+          104,
+          120
+        ],
+        "d_offsets": [
+          -256,
+          -128,
+          0,
+          128,
+          256,
+          384,
+          512
+        ],
+        "complete": true,
+        "security_validated": false,
+        "complete_attack_optimization": false,
+        "posterior_uncertainty": {
+          "method": "one-sample DKW-Massart empirical-CDF bound",
+          "confidence": 0.95,
+          "cdf_radius": "0.0214734704173368781032242841342038503466515669369749345308620141575750989049906340350342649576978382986809972591505233378802094130578198842907135936421776",
+          "theorem_source": "https://arxiv.org/abs/1107.5356",
+          "formula": "epsilon=sqrt(log(2/0.05)/(2*samples))",
+          "simultaneous_scope": "All decoder marginals and beta/d choices using this same fixed-layout posterior histogram",
+          "expectation_bound": "epsilon for 1/K; p*epsilon for h_p(K)=(1-(1-p)^K)/K by monotone summation by parts",
+          "excludes": "Other layouts, weights, zeta, seeds, decoding-correlation hypotheses, and security certification"
+        },
+        "limitations": [
+          "Decoder marginal uses scalar GSA Babai and MITM probabilities; actual cross-rotation correlations unmodeled",
+          "Conditional decoder independence and optimistic union bound are sensitivities, not established attacks",
+          "Only one zeta/layout/weight and supplied beta/d offsets; no global optimum",
+          "Full square-root work on labelled dictionaries assumed; compatible decompositions not constructed",
+          "Posterior finite-sample uncertainty is not a security confidence interval",
+          "Candidate modulus overrides do not establish matching C++ accuracy or exposed-key security",
+          "Correlated evaluation keys remain unqualified"
+        ],
+        "scenarios": {
+          "BDGL16": {
+            "best": {
+              "common_decoder": {
+                "bits": 146.1599185431515,
+                "cost": "         rop: \u22482^146.2\n         red: \u22482^146.1\n         svp: \u22482^141.6\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^163.9\n           d:     3415\n        prob: \u22482^-33.9\n           \u21bb: \u22482^36.1",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00125746180643295392025736130588573935311053651022155064967100312757182847822612359323102282360196113586425781250000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 143.14928962819064,
+                "cost": "         rop: \u22482^143.1\n         red: \u22482^143.1\n         svp: \u22482^138.5\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^163.9\n           d:     3415\n        prob: \u22482^-30.9\n           \u21bb: \u22482^33.1",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00125746180643295392025736130588573935311053651022155064967100312757182847822612359323102282360196113586425781250000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 143.1295470422089,
+                "cost": "         rop: \u22482^143.1\n         red: \u22482^143.1\n         svp: \u22482^138.5\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^163.9\n           d:     3415\n        prob: \u22482^-30.9\n           \u21bb: \u22482^33.1",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00125746180643295392025736130588573935311053651022155064967100312757182847822612359323102282360196113586425781250000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 145.92671450114466,
+                "cost": "         rop: \u22482^145.9\n         red: \u22482^145.9\n         svp: \u22482^141.3\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^163.9\n           d:     3415\n        prob: \u22482^-33.7\n           \u21bb: \u22482^35.9",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00125746180643295392025736130588573935311053651022155064967100312757182847822612359323102282360196113586425781250000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 143.1295470422089,
+                "cost": "         rop: \u22482^143.1\n         red: \u22482^143.1\n         svp: \u22482^138.5\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^163.9\n           d:     3415\n        prob: \u22482^-30.9\n           \u21bb: \u22482^33.1",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00125746180643295392025736130588573935311053651022155064967100312757182847822612359323102282360196113586425781250000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 143.1295470422089,
+                "cost": "         rop: \u22482^143.1\n         red: \u22482^143.1\n         svp: \u22482^138.5\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^163.9\n           d:     3415\n        prob: \u22482^-30.9\n           \u21bb: \u22482^33.1",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00125746180643295392025736130588573935311053651022155064967100312757182847822612359323102282360196113586425781250000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          },
+          "MATZOV": {
+            "best": {
+              "common_decoder": {
+                "bits": 144.5569042517586,
+                "cost": "         rop: \u22482^144.6\n         red: \u22482^144.5\n         svp: \u22482^137.1\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^163.9\n           d:     3415\n        prob: \u22482^-29.4\n           \u21bb: \u22482^31.6",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0280792799865963692285131259041008888743817806243896484375000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 141.76546639390492,
+                "cost": "         rop: \u22482^141.8\n         red: \u22482^141.6\n         svp: \u22482^138.5\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^163.9\n           d:     3415\n        prob: \u22482^-30.9\n           \u21bb: \u22482^33.1",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00125746180643295392025736130588573935311053651022155064967100312757182847822612359323102282360196113586425781250000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 141.52653274433104,
+                "cost": "         rop: \u22482^141.5\n         red: \u22482^141.5\n         svp: \u22482^134.0\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^163.9\n           d:     3415\n        prob: \u22482^-26.4\n           \u21bb: \u22482^28.6",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0280792799865963692285131259041008888743817806243896484375000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 144.32370020967568,
+                "cost": "         rop: \u22482^144.3\n         red: \u22482^144.3\n         svp: \u22482^136.8\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^163.9\n           d:     3415\n        prob: \u22482^-29.2\n           \u21bb: \u22482^31.4",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0280792799865963692285131259041008888743817806243896484375000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 141.74572380792318,
+                "cost": "         rop: \u22482^141.7\n         red: \u22482^141.6\n         svp: \u22482^138.5\n           \u03b2:      270\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^163.9\n           d:     3415\n        prob: \u22482^-30.9\n           \u21bb: \u22482^33.1",
+                "parameters": {
+                  "beta": 270,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 270,
+                "d": 3415,
+                "decode_marginal": "0.00125746180643295392025736130588573935311053651022155064967100312757182847822612359323102282360196113586425781250000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 141.52653274433104,
+                "cost": "         rop: \u22482^141.5\n         red: \u22482^141.5\n         svp: \u22482^134.0\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^163.9\n           d:     3415\n        prob: \u22482^-26.4\n           \u21bb: \u22482^28.6",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0280792799865963692285131259041008888743817806243896484375000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          }
+        }
+      },
+      {
+        "raw_report": "structured56-weight14.json",
+        "utc": "2026-10-16T12:19:37.192951+00:00",
+        "scope": "Structured ring joint-decoding sensitivity from posterior rotation histograms.\n\nCompares common decoding outcomes, conditional decoding independence, and an\noptimistic union bound. None establishes actual correlations or security.\nThe full square-root speedup on labelled dictionaries remains a heuristic.\n",
+        "source_sha256": "b1339e02c9c7966a0c7ad0c8a61280bfd9318f8a2e8ffe89bd9218fd64b2a028",
+        "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+        "profile_sha256": "97d7e5cdc365d267d09f60f873a7f3580c7bb5f4c1e85fadc6c0ebe2024d4aef",
+        "probability_report": "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_weight14.json",
+        "probability_report_sha256": "6ae5e67d1b75d337379f9729ee815876a79312668fade463f1420aa9c801e941",
+        "probability_seed": 2119,
+        "n": 16384,
+        "log_q": 56,
+        "profile_log_q": 76,
+        "candidate_modulus": true,
+        "sigma": 2.828301687834186,
+        "profile_sigma": 3.2,
+        "candidate_noise": true,
+        "noise_proxy": "DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled",
+        "probability_reuse_scope": "Posterior matching histogram depends on the unchanged secret/guessing geometry; decoder probabilities are recomputed at the selected modulus and noise",
+        "zeta": 14688,
+        "weight": 14,
+        "layout": "saturated-5-prefix",
+        "histogram_samples": 4000,
+        "beta_offsets": [
+          -8,
+          8,
+          24,
+          40,
+          56,
+          72,
+          88,
+          104,
+          120
+        ],
+        "d_offsets": [
+          -256,
+          -128,
+          0,
+          128,
+          256,
+          384,
+          512
+        ],
+        "complete": true,
+        "security_validated": false,
+        "complete_attack_optimization": false,
+        "posterior_uncertainty": {
+          "method": "one-sample DKW-Massart empirical-CDF bound",
+          "confidence": 0.95,
+          "cdf_radius": "0.0214734704173368781032242841342038503466515669369749345308620141575750989049906340350342649576978382986809972591505233378802094130578198842907135936421776",
+          "theorem_source": "https://arxiv.org/abs/1107.5356",
+          "formula": "epsilon=sqrt(log(2/0.05)/(2*samples))",
+          "simultaneous_scope": "All decoder marginals and beta/d choices using this same fixed-layout posterior histogram",
+          "expectation_bound": "epsilon for 1/K; p*epsilon for h_p(K)=(1-(1-p)^K)/K by monotone summation by parts",
+          "excludes": "Other layouts, weights, zeta, seeds, decoding-correlation hypotheses, and security certification"
+        },
+        "limitations": [
+          "Decoder marginal uses scalar GSA Babai and MITM probabilities; actual cross-rotation correlations unmodeled",
+          "Conditional decoder independence and optimistic union bound are sensitivities, not established attacks",
+          "Only one zeta/layout/weight and supplied beta/d offsets; no global optimum",
+          "Full square-root work on labelled dictionaries assumed; compatible decompositions not constructed",
+          "Posterior finite-sample uncertainty is not a security confidence interval",
+          "Candidate modulus overrides do not establish matching C++ accuracy or exposed-key security",
+          "Correlated evaluation keys remain unqualified"
+        ],
+        "scenarios": {
+          "BDGL16": {
+            "best": {
+              "common_decoder": {
+                "bits": 142.6837499580986,
+                "cost": "         rop: \u22482^142.7\n         red: \u22482^142.6\n         svp: \u22482^138.8\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^174.7\n           d:     3415\n        prob: \u22482^-25.7\n           \u21bb: \u22482^27.9",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0295425315107420913274260954040073556825518608093261718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 139.88976997036264,
+                "cost": "         rop: \u22482^139.9\n         red: \u22482^139.8\n         svp: \u22482^136.0\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^174.7\n           d:     3415\n        prob: \u22482^-22.9\n           \u21bb: \u22482^25.1",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0295425315107420913274260954040073556825518608093261718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 139.46330170745458,
+                "cost": "         rop: \u22482^139.5\n         red: \u22482^139.4\n         svp: \u22482^135.6\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^174.7\n           d:     3415\n        prob: \u22482^-22.5\n           \u21bb: \u22482^24.7",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0295425315107420913274260954040073556825518608093261718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 142.42053625025855,
+                "cost": "         rop: \u22482^142.4\n         red: \u22482^142.3\n         svp: \u22482^138.5\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^174.7\n           d:     3415\n        prob: \u22482^-25.5\n           \u21bb: \u22482^27.7",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0295425315107420913274260954040073556825518608093261718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 139.84872464771854,
+                "cost": "         rop: \u22482^139.8\n         red: \u22482^139.7\n         svp: \u22482^135.9\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^174.7\n           d:     3415\n        prob: \u22482^-22.9\n           \u21bb: \u22482^25.1",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0295425315107420913274260954040073556825518608093261718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 139.46330170745458,
+                "cost": "         rop: \u22482^139.5\n         red: \u22482^139.4\n         svp: \u22482^135.6\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^174.7\n           d:     3415\n        prob: \u22482^-22.5\n           \u21bb: \u22482^24.7",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0295425315107420913274260954040073556825518608093261718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          },
+          "MATZOV": {
+            "best": {
+              "common_decoder": {
+                "bits": 141.15169658516095,
+                "cost": "         rop: \u22482^141.2\n         red: \u22482^140.8\n         svp: \u22482^138.8\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^174.7\n           d:     3415\n        prob: \u22482^-25.7\n           \u21bb: \u22482^27.9",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0295425315107420913274260954040073556825518608093261718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 138.357716597425,
+                "cost": "         rop: \u22482^138.4\n         red: \u22482^138.0\n         svp: \u22482^136.0\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^174.7\n           d:     3415\n        prob: \u22482^-22.9\n           \u21bb: \u22482^25.1",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0295425315107420913274260954040073556825518608093261718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 137.93124833451694,
+                "cost": "         rop: \u22482^137.9\n         red: \u22482^137.6\n         svp: \u22482^135.6\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^174.7\n           d:     3415\n        prob: \u22482^-22.5\n           \u21bb: \u22482^24.7",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0295425315107420913274260954040073556825518608093261718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 140.8884828773209,
+                "cost": "         rop: \u22482^140.9\n         red: \u22482^140.6\n         svp: \u22482^138.5\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^174.7\n           d:     3415\n        prob: \u22482^-25.5\n           \u21bb: \u22482^27.7",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0295425315107420913274260954040073556825518608093261718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 138.3166712747809,
+                "cost": "         rop: \u22482^138.3\n         red: \u22482^138.0\n         svp: \u22482^135.9\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^174.7\n           d:     3415\n        prob: \u22482^-22.9\n           \u21bb: \u22482^25.1",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0295425315107420913274260954040073556825518608093261718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 137.93124833451694,
+                "cost": "         rop: \u22482^137.9\n         red: \u22482^137.6\n         svp: \u22482^135.6\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^174.7\n           d:     3415\n        prob: \u22482^-22.5\n           \u21bb: \u22482^24.7",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0295425315107420913274260954040073556825518608093261718750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          }
+        }
+      },
+      {
+        "raw_report": "structured56-weight15.json",
+        "utc": "2026-10-16T12:19:57.263602+00:00",
+        "scope": "Structured ring joint-decoding sensitivity from posterior rotation histograms.\n\nCompares common decoding outcomes, conditional decoding independence, and an\noptimistic union bound. None establishes actual correlations or security.\nThe full square-root speedup on labelled dictionaries remains a heuristic.\n",
+        "source_sha256": "b1339e02c9c7966a0c7ad0c8a61280bfd9318f8a2e8ffe89bd9218fd64b2a028",
+        "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+        "profile_sha256": "97d7e5cdc365d267d09f60f873a7f3580c7bb5f4c1e85fadc6c0ebe2024d4aef",
+        "probability_report": "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_weight15.json",
+        "probability_report_sha256": "d734784815b3ecad751156b089852ee34240e68eccf7f5c9db2e0b6ec03e2ccf",
+        "probability_seed": 2119,
+        "n": 16384,
+        "log_q": 56,
+        "profile_log_q": 76,
+        "candidate_modulus": true,
+        "sigma": 2.828301687834186,
+        "profile_sigma": 3.2,
+        "candidate_noise": true,
+        "noise_proxy": "DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled",
+        "probability_reuse_scope": "Posterior matching histogram depends on the unchanged secret/guessing geometry; decoder probabilities are recomputed at the selected modulus and noise",
+        "zeta": 14688,
+        "weight": 15,
+        "layout": "saturated-5-prefix",
+        "histogram_samples": 4000,
+        "beta_offsets": [
+          -8,
+          8,
+          24,
+          40,
+          56,
+          72,
+          88,
+          104,
+          120
+        ],
+        "d_offsets": [
+          -256,
+          -128,
+          0,
+          128,
+          256,
+          384,
+          512
+        ],
+        "complete": true,
+        "security_validated": false,
+        "complete_attack_optimization": false,
+        "posterior_uncertainty": {
+          "method": "one-sample DKW-Massart empirical-CDF bound",
+          "confidence": 0.95,
+          "cdf_radius": "0.0214734704173368781032242841342038503466515669369749345308620141575750989049906340350342649576978382986809972591505233378802094130578198842907135936421776",
+          "theorem_source": "https://arxiv.org/abs/1107.5356",
+          "formula": "epsilon=sqrt(log(2/0.05)/(2*samples))",
+          "simultaneous_scope": "All decoder marginals and beta/d choices using this same fixed-layout posterior histogram",
+          "expectation_bound": "epsilon for 1/K; p*epsilon for h_p(K)=(1-(1-p)^K)/K by monotone summation by parts",
+          "excludes": "Other layouts, weights, zeta, seeds, decoding-correlation hypotheses, and security certification"
+        },
+        "limitations": [
+          "Decoder marginal uses scalar GSA Babai and MITM probabilities; actual cross-rotation correlations unmodeled",
+          "Conditional decoder independence and optimistic union bound are sensitivities, not established attacks",
+          "Only one zeta/layout/weight and supplied beta/d offsets; no global optimum",
+          "Full square-root work on labelled dictionaries assumed; compatible decompositions not constructed",
+          "Posterior finite-sample uncertainty is not a security confidence interval",
+          "Candidate modulus overrides do not establish matching C++ accuracy or exposed-key security",
+          "Correlated evaluation keys remain unqualified"
+        ],
+        "scenarios": {
+          "BDGL16": {
+            "best": {
+              "common_decoder": {
+                "bits": 141.1824924694398,
+                "cost": "         rop: \u22482^141.2\n         red: \u22482^139.3\n         svp: \u22482^140.7\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3415\n        prob: \u22482^-22.4\n           \u21bb: \u22482^24.6",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0311531238059579961008349613393875188194215297698974609375000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 138.19279287066917,
+                "cost": "         rop: \u22482^138.2\n         red: \u22482^136.3\n         svp: \u22482^137.8\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3415\n        prob: \u22482^-19.4\n           \u21bb: \u22482^21.6",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0311531238059579961008349613393875188194215297698974609375000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 137.62564089919374,
+                "cost": "         rop: \u22482^137.6\n         red: \u22482^135.7\n         svp: \u22482^137.2\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3415\n        prob: \u22482^-18.8\n           \u21bb: \u22482^21.0",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0311531238059579961008349613393875188194215297698974609375000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 140.85744090290055,
+                "cost": "         rop: \u22482^140.9\n         red: \u22482^138.9\n         svp: \u22482^140.4\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3415\n        prob: \u22482^-22.1\n           \u21bb: \u22482^24.3",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0311531238059579961008349613393875188194215297698974609375000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 138.14760860139458,
+                "cost": "         rop: \u22482^138.1\n         red: \u22482^136.2\n         svp: \u22482^137.7\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3415\n        prob: \u22482^-19.4\n           \u21bb: \u22482^21.6",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0311531238059579961008349613393875188194215297698974609375000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 137.62564089919374,
+                "cost": "         rop: \u22482^137.6\n         red: \u22482^135.7\n         svp: \u22482^137.2\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3415\n        prob: \u22482^-18.8\n           \u21bb: \u22482^21.0",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0311531238059579961008349613393875188194215297698974609375000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          },
+          "MATZOV": {
+            "best": {
+              "common_decoder": {
+                "bits": 140.2818435887253,
+                "cost": "         rop: \u22482^140.3\n         red: \u22482^139.8\n         svp: \u22482^138.6\n           \u03b2:      302\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3415\n        prob: \u22482^-20.2\n           \u21bb: \u22482^22.4",
+                "parameters": {
+                  "beta": 302,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 302,
+                "d": 3415,
+                "decode_marginal": "0.140702568946922706993873930514382664114236831665039062500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 137.89913009087675,
+                "cost": "         rop: \u22482^137.9\n         red: \u22482^134.5\n         svp: \u22482^137.8\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3415\n        prob: \u22482^-19.4\n           \u21bb: \u22482^21.6",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0311531238059579961008349613393875188194215297698974609375000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 137.2987111459147,
+                "cost": "         rop: \u22482^137.3\n         red: \u22482^136.8\n         svp: \u22482^135.5\n           \u03b2:      302\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3159\n        prob: \u22482^-17.4\n           \u21bb: \u22482^19.6",
+                "parameters": {
+                  "beta": 302,
+                  "zeta": 14688,
+                  "d": 3159,
+                  "eta": 2
+                },
+                "beta": 302,
+                "d": 3159,
+                "decode_marginal": "0.0919449378295389280202343229575490113347768783569335937500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 139.95679195187645,
+                "cost": "         rop: \u22482^140.0\n         red: \u22482^139.4\n         svp: \u22482^138.2\n           \u03b2:      302\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3415\n        prob: \u22482^-19.9\n           \u21bb: \u22482^22.1",
+                "parameters": {
+                  "beta": 302,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 302,
+                "d": 3415,
+                "decode_marginal": "0.140702568946922706993873930514382664114236831665039062500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 137.85394582160217,
+                "cost": "         rop: \u22482^137.9\n         red: \u22482^134.5\n         svp: \u22482^137.7\n           \u03b2:      286\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3415\n        prob: \u22482^-19.4\n           \u21bb: \u22482^21.6",
+                "parameters": {
+                  "beta": 286,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 286,
+                "d": 3415,
+                "decode_marginal": "0.0311531238059579961008349613393875188194215297698974609375000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 137.0519822924393,
+                "cost": "         rop: \u22482^137.1\n         red: \u22482^136.5\n         svp: \u22482^135.3\n           \u03b2:      302\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3287\n        prob: \u22482^-17.1\n           \u21bb: \u22482^19.3",
+                "parameters": {
+                  "beta": 302,
+                  "zeta": 14688,
+                  "d": 3287,
+                  "eta": 2
+                },
+                "beta": 302,
+                "d": 3287,
+                "decode_marginal": "0.121993863665419047248583694909029873088002204895019531250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          }
+        }
+      },
+      {
+        "raw_report": "structured56-weight15-boundary.json",
+        "utc": "2026-10-16T12:24:10.062181+00:00",
+        "scope": "Structured ring joint-decoding sensitivity from posterior rotation histograms.\n\nCompares common decoding outcomes, conditional decoding independence, and an\noptimistic union bound. None establishes actual correlations or security.\nThe full square-root speedup on labelled dictionaries remains a heuristic.\n",
+        "source_sha256": "b1339e02c9c7966a0c7ad0c8a61280bfd9318f8a2e8ffe89bd9218fd64b2a028",
+        "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+        "profile_sha256": "97d7e5cdc365d267d09f60f873a7f3580c7bb5f4c1e85fadc6c0ebe2024d4aef",
+        "probability_report": "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_weight15.json",
+        "probability_report_sha256": "d734784815b3ecad751156b089852ee34240e68eccf7f5c9db2e0b6ec03e2ccf",
+        "probability_seed": 2119,
+        "n": 16384,
+        "log_q": 56,
+        "profile_log_q": 76,
+        "candidate_modulus": true,
+        "sigma": 2.828301687834186,
+        "profile_sigma": 3.2,
+        "candidate_noise": true,
+        "noise_proxy": "DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled",
+        "probability_reuse_scope": "Posterior matching histogram depends on the unchanged secret/guessing geometry; decoder probabilities are recomputed at the selected modulus and noise",
+        "zeta": 14688,
+        "weight": 15,
+        "layout": "saturated-5-prefix",
+        "histogram_samples": 4000,
+        "beta_offsets": [
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224
+        ],
+        "d_offsets": [
+          -1024,
+          -768,
+          -512,
+          -384,
+          -256,
+          -128,
+          0,
+          128,
+          256
+        ],
+        "complete": true,
+        "security_validated": false,
+        "complete_attack_optimization": false,
+        "posterior_uncertainty": {
+          "method": "one-sample DKW-Massart empirical-CDF bound",
+          "confidence": 0.95,
+          "cdf_radius": "0.0214734704173368781032242841342038503466515669369749345308620141575750989049906340350342649576978382986809972591505233378802094130578198842907135936421776",
+          "theorem_source": "https://arxiv.org/abs/1107.5356",
+          "formula": "epsilon=sqrt(log(2/0.05)/(2*samples))",
+          "simultaneous_scope": "All decoder marginals and beta/d choices using this same fixed-layout posterior histogram",
+          "expectation_bound": "epsilon for 1/K; p*epsilon for h_p(K)=(1-(1-p)^K)/K by monotone summation by parts",
+          "excludes": "Other layouts, weights, zeta, seeds, decoding-correlation hypotheses, and security certification"
+        },
+        "limitations": [
+          "Decoder marginal uses scalar GSA Babai and MITM probabilities; actual cross-rotation correlations unmodeled",
+          "Conditional decoder independence and optimistic union bound are sensitivities, not established attacks",
+          "Only one zeta/layout/weight and supplied beta/d offsets; no global optimum",
+          "Full square-root work on labelled dictionaries assumed; compatible decompositions not constructed",
+          "Posterior finite-sample uncertainty is not a security confidence interval",
+          "Candidate modulus overrides do not establish matching C++ accuracy or exposed-key security",
+          "Correlated evaluation keys remain unqualified"
+        ],
+        "scenarios": {
+          "BDGL16": {
+            "best": {
+              "common_decoder": {
+                "bits": 143.44248784286822,
+                "cost": "         rop: \u22482^143.4\n         red: \u22482^143.4\n         svp: \u22482^137.9\n           \u03b2:      310\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3543\n        prob: \u22482^-19.5\n           \u21bb: \u22482^21.7",
+                "parameters": {
+                  "beta": 310,
+                  "zeta": 14688,
+                  "d": 3543,
+                  "eta": 2
+                },
+                "beta": 310,
+                "d": 3543,
+                "decode_marginal": "0.233352166177934305935082193173002451658248901367187500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 141.77999492158986,
+                "cost": "         rop: \u22482^141.8\n         red: \u22482^141.7\n         svp: \u22482^136.2\n           \u03b2:      310\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3415\n        prob: \u22482^-17.9\n           \u21bb: \u22482^20.1",
+                "parameters": {
+                  "beta": 310,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 310,
+                "d": 3415,
+                "decode_marginal": "0.222871521474699074705227985759847797453403472900390625000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 141.11327072050318,
+                "cost": "         rop: \u22482^141.1\n         red: \u22482^141.1\n         svp: \u22482^135.4\n           \u03b2:      310\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3031\n        prob: \u22482^-17.4\n           \u21bb: \u22482^19.6",
+                "parameters": {
+                  "beta": 310,
+                  "zeta": 14688,
+                  "d": 3031,
+                  "eta": 2
+                },
+                "beta": 310,
+                "d": 3031,
+                "decode_marginal": "0.102488062705890406456354924102924996986985206604003906250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 143.11743624159962,
+                "cost": "         rop: \u22482^143.1\n         red: \u22482^143.1\n         svp: \u22482^137.6\n           \u03b2:      310\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3543\n        prob: \u22482^-19.2\n           \u21bb: \u22482^21.4",
+                "parameters": {
+                  "beta": 310,
+                  "zeta": 14688,
+                  "d": 3543,
+                  "eta": 2
+                },
+                "beta": 310,
+                "d": 3543,
+                "decode_marginal": "0.233352166177934305935082193173002451658248901367187500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 141.670079764213,
+                "cost": "         rop: \u22482^141.7\n         red: \u22482^141.6\n         svp: \u22482^136.1\n           \u03b2:      310\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3415\n        prob: \u22482^-17.8\n           \u21bb: \u22482^20.0",
+                "parameters": {
+                  "beta": 310,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 310,
+                "d": 3415,
+                "decode_marginal": "0.222871521474699074705227985759847797453403472900390625000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 140.8428899415957,
+                "cost": "         rop: \u22482^140.8\n         red: \u22482^140.8\n         svp: \u22482^135.1\n           \u03b2:      310\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3031\n        prob: \u22482^-17.1\n           \u21bb: \u22482^19.3",
+                "parameters": {
+                  "beta": 310,
+                  "zeta": 14688,
+                  "d": 3031,
+                  "eta": 2
+                },
+                "beta": 310,
+                "d": 3031,
+                "decode_marginal": "0.102488062705890406456354924102924996986985206604003906250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          },
+          "MATZOV": {
+            "best": {
+              "common_decoder": {
+                "bits": 141.4316027123685,
+                "cost": "         rop: \u22482^141.4\n         red: \u22482^141.3\n         svp: \u22482^137.9\n           \u03b2:      310\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3543\n        prob: \u22482^-19.5\n           \u21bb: \u22482^21.7",
+                "parameters": {
+                  "beta": 310,
+                  "zeta": 14688,
+                  "d": 3543,
+                  "eta": 2
+                },
+                "beta": 310,
+                "d": 3543,
+                "decode_marginal": "0.233352166177934305935082193173002451658248901367187500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder": {
+                "bits": 139.76086352754183,
+                "cost": "         rop: \u22482^139.8\n         red: \u22482^139.6\n         svp: \u22482^136.2\n           \u03b2:      310\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3415\n        prob: \u22482^-17.9\n           \u21bb: \u22482^20.1",
+                "parameters": {
+                  "beta": 310,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 310,
+                "d": 3415,
+                "decode_marginal": "0.222871521474699074705227985759847797453403472900390625000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound": {
+                "bits": 139.06657368137783,
+                "cost": "         rop: \u22482^139.1\n         red: \u22482^138.9\n         svp: \u22482^135.4\n           \u03b2:      310\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3031\n        prob: \u22482^-17.4\n           \u21bb: \u22482^19.6",
+                "parameters": {
+                  "beta": 310,
+                  "zeta": 14688,
+                  "d": 3031,
+                  "eta": 2
+                },
+                "beta": 310,
+                "d": 3031,
+                "decode_marginal": "0.102488062705890406456354924102924996986985206604003906250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "common_decoder_iid95": {
+                "bits": 141.1065511110999,
+                "cost": "         rop: \u22482^141.1\n         red: \u22482^141.0\n         svp: \u22482^137.6\n           \u03b2:      310\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3543\n        prob: \u22482^-19.2\n           \u21bb: \u22482^21.4",
+                "parameters": {
+                  "beta": 310,
+                  "zeta": 14688,
+                  "d": 3543,
+                  "eta": 2
+                },
+                "beta": 310,
+                "d": 3543,
+                "decode_marginal": "0.233352166177934305935082193173002451658248901367187500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "independent_decoder_iid95": {
+                "bits": 139.65094837016494,
+                "cost": "         rop: \u22482^139.7\n         red: \u22482^139.5\n         svp: \u22482^136.1\n           \u03b2:      310\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3415\n        prob: \u22482^-17.8\n           \u21bb: \u22482^20.0",
+                "parameters": {
+                  "beta": 310,
+                  "zeta": 14688,
+                  "d": 3415,
+                  "eta": 2
+                },
+                "beta": 310,
+                "d": 3415,
+                "decode_marginal": "0.222871521474699074705227985759847797453403472900390625000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              },
+              "optimistic_joint_bound_iid95": {
+                "bits": 138.79619290247032,
+                "cost": "         rop: \u22482^138.8\n         red: \u22482^138.7\n         svp: \u22482^135.1\n           \u03b2:      310\n           \u03b7:        2\n           \u03b6: \u22482^13.8\n         |S|: \u22482^185.3\n           d:     3031\n        prob: \u22482^-17.1\n           \u21bb: \u22482^19.3",
+                "parameters": {
+                  "beta": 310,
+                  "zeta": 14688,
+                  "d": 3031,
+                  "eta": 2
+                },
+                "beta": 310,
+                "d": 3031,
+                "decode_marginal": "0.102488062705890406456354924102924996986985206604003906250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+              }
+            },
+            "tested_points": 63
+          }
+        }
+      }
+    ],
+    "minimum_tested_bits": 137.0519822924393,
+    "minimum_model": "MATZOV",
+    "minimum_scenario": "optimistic_joint_bound_iid95",
+    "scope": "Bounded grid, weights 9..15, fixed zeta=14688 and saturated-5-prefix layout; no global minimum or security lower bound. Histograms have 4000 posterior samples each, seed 2119. Geometry-only histograms are reused; decoder probabilities are recomputed at q56 and RMS 2.8283. The iid95 limits describe the posterior model only, not confidence in security. An additional weight15 beta/d boundary grid found no cheaper tested point."
+  },
+  "limitations": [
+    "Generic sparse proxy fixes 16 positive and 15 negative coefficients and omits public block constraints; actual block secret has independent signs.",
+    "Sparse proxy evaluated only under BDGL16; no full MATZOV uniform-sparse run.",
+    "No complete analysis of exact error PMF, ring/KDM or correlated evaluation-key samples.",
+    "Structured decoder correlations and full square-root speedup for labelled dictionaries remain heuristic; different weights, masks, layouts and zeta values remain unsearched.",
+    "Unbounded generic samples and maximum beta 4096; reported attack costs are model dependent."
+  ],
+  "public_key_headers": {
+    "native_automorphism_headers": [
+      {
+        "file": "/home/work-bleaker/kmatsuoka/ckks-diagnostics/native-auto44-20261017/keys/23681.bin",
+        "n": 16384,
+        "storage_bits": 448,
+        "log_q": 435,
+        "primary_bits": 44,
+        "rows": 10,
+        "exponent": 23681,
+        "configured_sigma": 3.2
+      },
+      {
+        "file": "/home/work-bleaker/kmatsuoka/ckks-diagnostics/native-auto44-20261017/keys/23937.bin",
+        "n": 16384,
+        "storage_bits": 448,
+        "log_q": 435,
+        "primary_bits": 44,
+        "rows": 10,
+        "exponent": 23937,
+        "configured_sigma": 3.2
+      },
+      {
+        "file": "/home/work-bleaker/kmatsuoka/ckks-diagnostics/native-auto44-20261017/keys/24193.bin",
+        "n": 16384,
+        "storage_bits": 448,
+        "log_q": 435,
+        "primary_bits": 44,
+        "rows": 10,
+        "exponent": 24193,
+        "configured_sigma": 3.2
+      },
+      {
+        "file": "/home/work-bleaker/kmatsuoka/ckks-diagnostics/native-auto44-20261017/keys/24449.bin",
+        "n": 16384,
+        "storage_bits": 448,
+        "log_q": 435,
+        "primary_bits": 44,
+        "rows": 10,
+        "exponent": 24449,
+        "configured_sigma": 3.2
+      },
+      {
+        "file": "/home/work-bleaker/kmatsuoka/ckks-diagnostics/native-auto44-20261017/keys/32001.bin",
+        "n": 16384,
+        "storage_bits": 448,
+        "log_q": 435,
+        "primary_bits": 44,
+        "rows": 10,
+        "exponent": 32001,
+        "configured_sigma": 3.2
+      },
+      {
+        "file": "/home/work-bleaker/kmatsuoka/ckks-diagnostics/native-auto44-20261017/keys/32257.bin",
+        "n": 16384,
+        "storage_bits": 448,
+        "log_q": 435,
+        "primary_bits": 44,
+        "rows": 10,
+        "exponent": 32257,
+        "configured_sigma": 3.2
+      },
+      {
+        "file": "/home/work-bleaker/kmatsuoka/ckks-diagnostics/native-auto44-20261017/keys/32513.bin",
+        "n": 16384,
+        "storage_bits": 448,
+        "log_q": 435,
+        "primary_bits": 44,
+        "rows": 10,
+        "exponent": 32513,
+        "configured_sigma": 3.2
+      },
+      {
+        "file": "/home/work-bleaker/kmatsuoka/ckks-diagnostics/native-auto44-20261017/keys/32767.bin",
+        "n": 16384,
+        "storage_bits": 448,
+        "log_q": 435,
+        "primary_bits": 44,
+        "rows": 10,
+        "exponent": 32767,
+        "configured_sigma": 3.2
+      }
+    ],
+    "dd_master_header": {
+      "file": "/home/work-bleaker/kmatsuoka/ckks-diagnostics/basis-cpu-20261012/direct440-full/dd433-primary20.bin",
+      "n": 16384,
+      "log_q": 433,
+      "primary_bits": 20,
+      "secondary_bits": 20,
+      "digit_bytes": 4
+    }
+  },
+  "activity": {
+    "new_keys_generated": false,
+    "new_inputs_encrypted": false,
+    "key_payloads_read": false,
+    "private_keys_read": false,
+    "ckks_parameters_changed": false,
+    "saved_public_key_headers_read": true
+  },
+  "commands": {
+    "jobs.json": [
+      {
+        "name": "dense435",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_security.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--jobs",
+          "2",
+          "--max-beta",
+          "4096",
+          "--case",
+          "dd_ll14_fbs_dense_packed_setup",
+          "--noise-stddev",
+          "2.828301687834186",
+          "--output",
+          "/diagnostics/dense435.json"
+        ]
+      },
+      {
+        "name": "selectors440",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_security.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--jobs",
+          "2",
+          "--max-beta",
+          "4096",
+          "--case",
+          "dd_ll14_basis_direct_selectors",
+          "--noise-stddev",
+          "102.00190833992261",
+          "--output",
+          "/diagnostics/selectors440.json"
+        ]
+      },
+      {
+        "name": "sparse56",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_security.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--jobs",
+          "2",
+          "--max-beta",
+          "4096",
+          "--case",
+          "dd_ll14_plain37_aux8_sparse_switch_uniform_proxy",
+          "--noise-stddev",
+          "2.828301687834186",
+          "--output",
+          "/diagnostics/sparse56.json",
+          "--attack",
+          "primal_usvp",
+          "--attack",
+          "primal_bdd",
+          "--attack",
+          "dual",
+          "--attack",
+          "dual_hybrid",
+          "--attack",
+          "mitm",
+          "--attack",
+          "bdd_hybrid",
+          "--attack",
+          "bdd_mitm_hybrid"
+        ]
+      }
+    ],
+    "model-jobs.json": [
+      {
+        "name": "dense-matzov",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_security.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--jobs",
+          "2",
+          "--max-beta",
+          "4096",
+          "--noise-stddev",
+          "2.828301687834186",
+          "--cost-model",
+          "MATZOV",
+          "--output",
+          "/diagnostics/dense-matzov.json",
+          "--case",
+          "dd_ll14_native_automorphism_keys",
+          "--case",
+          "dd_ll14_direct_dd_master"
+        ]
+      },
+      {
+        "name": "selectors-matzov",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_security.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--jobs",
+          "2",
+          "--max-beta",
+          "4096",
+          "--noise-stddev",
+          "102.00190833992261",
+          "--cost-model",
+          "MATZOV",
+          "--output",
+          "/diagnostics/selectors-matzov.json",
+          "--case",
+          "dd_ll14_basis_direct_selectors"
+        ]
+      },
+      {
+        "name": "dd433-bdgl",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_security.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--jobs",
+          "2",
+          "--max-beta",
+          "4096",
+          "--noise-stddev",
+          "2.828301687834186",
+          "--cost-model",
+          "BDGL16",
+          "--output",
+          "/diagnostics/dd433-bdgl.json",
+          "--case",
+          "dd_ll14_direct_dd_master"
+        ]
+      }
+    ],
+    "joint-jobs.json": [
+      {
+        "name": "structured56-weight9",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_block_ring_joint_decode.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--profile-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_saturated_layouts.json",
+          "--probability-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_weight9_seed2119.json",
+          "--log-q",
+          "56",
+          "--noise-stddev",
+          "2.828301687834186",
+          "--beta-offsets=-8,8,24,40,56,72,88,104,120",
+          "--d-offsets=-256,-128,0,128,256,384,512",
+          "--output",
+          "/diagnostics/structured56-weight9.json"
+        ]
+      },
+      {
+        "name": "structured56-weight10",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_block_ring_joint_decode.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--profile-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_saturated_layouts.json",
+          "--probability-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_weight10.json",
+          "--log-q",
+          "56",
+          "--noise-stddev",
+          "2.828301687834186",
+          "--beta-offsets=-8,8,24,40,56,72,88,104,120",
+          "--d-offsets=-256,-128,0,128,256,384,512",
+          "--output",
+          "/diagnostics/structured56-weight10.json"
+        ]
+      },
+      {
+        "name": "structured56-weight11",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_block_ring_joint_decode.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--profile-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_saturated_layouts.json",
+          "--probability-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_histogram.json",
+          "--log-q",
+          "56",
+          "--noise-stddev",
+          "2.828301687834186",
+          "--beta-offsets=-8,8,24,40,56,72,88,104,120",
+          "--d-offsets=-256,-128,0,128,256,384,512",
+          "--output",
+          "/diagnostics/structured56-weight11.json"
+        ]
+      },
+      {
+        "name": "structured56-weight12",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_block_ring_joint_decode.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--profile-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_saturated_layouts.json",
+          "--probability-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_weight12.json",
+          "--log-q",
+          "56",
+          "--noise-stddev",
+          "2.828301687834186",
+          "--beta-offsets=-8,8,24,40,56,72,88,104,120",
+          "--d-offsets=-256,-128,0,128,256,384,512",
+          "--output",
+          "/diagnostics/structured56-weight12.json"
+        ]
+      },
+      {
+        "name": "structured56-weight13",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_block_ring_joint_decode.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--profile-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_saturated_layouts.json",
+          "--probability-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_weight13.json",
+          "--log-q",
+          "56",
+          "--noise-stddev",
+          "2.828301687834186",
+          "--beta-offsets=-8,8,24,40,56,72,88,104,120",
+          "--d-offsets=-256,-128,0,128,256,384,512",
+          "--output",
+          "/diagnostics/structured56-weight13.json"
+        ]
+      },
+      {
+        "name": "structured56-weight14",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_block_ring_joint_decode.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--profile-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_saturated_layouts.json",
+          "--probability-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_weight14.json",
+          "--log-q",
+          "56",
+          "--noise-stddev",
+          "2.828301687834186",
+          "--beta-offsets=-8,8,24,40,56,72,88,104,120",
+          "--d-offsets=-256,-128,0,128,256,384,512",
+          "--output",
+          "/diagnostics/structured56-weight14.json"
+        ]
+      },
+      {
+        "name": "structured56-weight15",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_block_ring_joint_decode.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--profile-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_saturated_layouts.json",
+          "--probability-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_weight15.json",
+          "--log-q",
+          "56",
+          "--noise-stddev",
+          "2.828301687834186",
+          "--beta-offsets=-8,8,24,40,56,72,88,104,120",
+          "--d-offsets=-256,-128,0,128,256,384,512",
+          "--output",
+          "/diagnostics/structured56-weight15.json"
+        ]
+      },
+      {
+        "name": "joint-default-noise-regression",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_block_ring_joint_decode.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--profile-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_saturated_layouts.json",
+          "--probability-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_histogram.json",
+          "--log-q",
+          "64",
+          "--beta-offsets=-8",
+          "--d-offsets=-128",
+          "--output",
+          "/diagnostics/joint-default-noise-regression.json"
+        ]
+      }
+    ],
+    "followup-jobs.json": [
+      {
+        "name": "structured56-weight15-boundary",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_block_ring_joint_decode.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--profile-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_saturated_layouts.json",
+          "--probability-report",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_weight15.json",
+          "--log-q",
+          "56",
+          "--noise-stddev",
+          "2.828301687834186",
+          "--beta-offsets=128,144,160,176,192,208,224",
+          "--d-offsets=-1024,-768,-512,-384,-256,-128,0,128,256",
+          "--output",
+          "/diagnostics/structured56-weight15-boundary.json"
+        ]
+      },
+      {
+        "name": "dense435-default-regression",
+        "argv": [
+          "singularity",
+          "exec",
+          "--bind",
+          "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+          "--bind",
+          "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017:/diagnostics",
+          "/tmp/ckks-narrow-security/sage-10.6.sif",
+          "/home/sage/sage/sage",
+          "-python",
+          "/work/Parameter-Selection/python/estimates/narrow_ckks_security.py",
+          "--estimator",
+          "/work/Parameter-Selection/python/lattice-estimator",
+          "--jobs",
+          "2",
+          "--max-beta",
+          "4096",
+          "--case",
+          "dd_ll14_fbs_dense_packed_setup",
+          "--noise-stddev",
+          "2.828301687834186",
+          "--output",
+          "/diagnostics/dense435-default-regression.json"
+        ]
+      }
+    ]
+  },
+  "exit_receipts": {
+    "dd433-bdgl-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 9.12821626663208
+    },
+    "joint-default-noise-regression-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 2.0506327152252197
+    },
+    "selectors-matzov-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 8.289119005203247
+    },
+    "dense-matzov-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 13.72329831123352
+    },
+    "structured56-weight9-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 22.06617760658264
+    },
+    "structured56-weight10-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 22.10189986228943
+    },
+    "structured56-weight11-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 19.126652479171753
+    },
+    "structured56-weight12-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 19.138914585113525
+    },
+    "structured56-weight13-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 19.06350326538086
+    },
+    "structured56-weight14-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 19.098418474197388
+    },
+    "structured56-weight15-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 19.211883306503296
+    },
+    "sparse56-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 140.22653698921204
+    },
+    "dense435-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 10.279768466949463
+    },
+    "dense435-default-regression-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 8.026776552200317
+    },
+    "structured56-weight15-boundary-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 18.107088088989258
+    },
+    "selectors440-exit.json": {
+      "exit_code": 0,
+      "wall_seconds": 9.161805868148804
+    }
+  },
+  "regression_audit": {
+    "default_bdgl_four_attack_costs_unchanged": true,
+    "default_joint_noise_costs_match_archived_q64_point": true,
+    "joint_cost_models": [
+      "BDGL16",
+      "MATZOV"
+    ],
+    "joint_scenarios": 6
+  },
+  "invalid_noise_controls": [
+    {
+      "value": "0",
+      "exit_code": 2
+    },
+    {
+      "value": "-1",
+      "exit_code": 2
+    },
+    {
+      "value": "nan",
+      "exit_code": 2
+    },
+    {
+      "value": "inf",
+      "exit_code": 2
+    }
+  ],
+  "invalid_model_control": [
+    {
+      "case": "unknown_cost_model",
+      "exit_code": 2
+    }
+  ],
+  "raw_evidence_directory": "/home/work-bleaker/kmatsuoka/ckks-diagnostics/current-cpu-security-20261017",
+  "raw_evidence_sha256": {
+    "dd433-bdgl-exit.json": "32768137c1101e42caccb90c15fb8371d75486156846b86f4aa6f95d35a24113",
+    "dd433-bdgl-pid.json": "15504736c2e2dc503fbc1868d5cba47a3155c54230e95310191f433c7310230e",
+    "dd433-bdgl.json": "3b56805b1373b7e290b9b653797987be8e399552c64bc896b3b5ea8c67ed85d1",
+    "dd433-bdgl.log": "514708a30a42f094f5113f5660faca2c5912311c3a52ddef3b83fcb214a862e9",
+    "dense-matzov-exit.json": "475e86ae45b6f414cb8ed36fa9bff14e4036ac625944c0792c502335a709b18a",
+    "dense-matzov-pid.json": "b625abef8f7a9d3cc4b4e094e22d2a8ad02123eeb03368b6712e2d47be445654",
+    "dense-matzov.json": "ed065bcc4d60655d0b0563b1b051bb7fe749b749e8bf592c3182ec31dd89828a",
+    "dense-matzov.log": "fcb441622e2da076b788a77285612c8f5918245f35931309f26643b83f00307e",
+    "dense435-default-regression-exit.json": "11950ef4eb39f76d8eb943081c5f2e8529e3fdce20e88ec4f08f1331c46c1742",
+    "dense435-default-regression-pid.json": "aeae428b5f6610e8e5edeac7af0b12a03ba2b39334c3986e7a13890db54c6fea",
+    "dense435-default-regression.json": "82e990ed19b4463de8a5b06fed958865389342b77a98ad2a134b23c54a685fcb",
+    "dense435-default-regression.log": "38fef37334e08fe4053fa572e05bf6e526aa82f723e2515e80843b0d0e06b690",
+    "dense435-exit.json": "02d98915b3001ad0ff7ad3b7157cba68ee8dba142dfb50b1eef0e417db6eed8b",
+    "dense435-pid.json": "2e428d860533f1591adecdf6560089b0468e5ec07229888b3a60be595cc9bd9b",
+    "dense435.json": "fab125eb1877dab67a5825d988c46003dc94da02413e6fe124a47a880052d309",
+    "dense435.log": "38fef37334e08fe4053fa572e05bf6e526aa82f723e2515e80843b0d0e06b690",
+    "followup-jobs.json": "56c31dc5af974b9528d87d0afb70e8eae09d21f6156ec9258bdfd62e022a2007",
+    "generic-invalid-cost-control.json": "870b0639de98d4286067ddb0c54e4b50ae0cb3a2842a9baf9e9f3d37ad072729",
+    "integer-noise.json": "3c9604f4c990f8fcaa8f3d27c594e8a33f450ec7e38fc2b87738a78c3fbd627c",
+    "jobs.json": "9b8162423477e3114a651f1c2e61a12f5d25fbecea61ebc80a466e438e68266b",
+    "joint-default-noise-regression-exit.json": "ca4a2cc7b214924595f38376dffbd24f877e472965b033f657c47f54355a601e",
+    "joint-default-noise-regression-pid.json": "cb473712a30b8a8cbf88b89499edeae0eec5293bfd48fa4f5d3edfc09df03846",
+    "joint-default-noise-regression.json": "f2859f3ac6007aa1a826071a34497e25fc47782161a974051763b8f4011f074e",
+    "joint-default-noise-regression.log": "94a6cc915259ece22546c9a6038f5d2b86337394525605f4ce75b29766abb824",
+    "joint-jobs.json": "f33e3a703c01f09cd7edcd530972fffc64be971d21978ef2ce9cc4cd3fe71f28",
+    "joint-noise-invalid-controls.json": "9eee7a4952fd14ce1a16bb30518d99b44065a093d9f93fe6155c7975ed939067",
+    "key-public-headers.json": "e8dbec8059c7747c81cb6a9fd1345caf021cc27c08d8e50ef9fec33ba8754863",
+    "model-jobs.json": "db1dd050e6c86b496050919b2f03aa31b200e22e14c80047d8d53e4f03e95f7f",
+    "regression-audit.json": "469aa07cf2d2f4d56a8f2f1c38110ff3568a4b7911d9b2fe551953e4c7515b65",
+    "run.py": "5ed17c993e2a7462d8a0345e29c19ab200478b6876082e86e18c2b5d23c181dc",
+    "run_followup.py": "284fb26431e6a230f1f347c30f16e86e585de50f392552d383236015d470365b",
+    "run_joint.py": "2a59de1e4e2f250718d8b5919bea22ef4486a98b00a9ed422362328536250739",
+    "run_models.py": "f9c5a68355f4be33c8892d23ff290d0cf6fa78469d9fa4e6237fb43865a26344",
+    "selectors-matzov-exit.json": "98d40087bb96417ea80c91e6c2880d6ecc3669b8030e1be77c6e06d082e6049a",
+    "selectors-matzov-pid.json": "c6324111e292a9aae5e7d761d3b045cbfc6af97641b45bdddcfcd12039dfba7d",
+    "selectors-matzov.json": "2c80a551d1fa065c43e78790bedc979cea8c811ac32b4e12cf82c3c066ab2203",
+    "selectors-matzov.log": "f8f49088b9f3499865011d2ffc3e2ce874735c89232648ce1807ec7a5ab17030",
+    "selectors440-exit.json": "f6107fa78f1fb389d304d8e9297e78dbea99cb054b0bbe2f473f6bca8277cae8",
+    "selectors440-pid.json": "6dfae6627edb1a15cdfb020f059c02da30bc8fe40539de27e2047761e0ef2833",
+    "selectors440.json": "f20f07b43a1d8a002818859dc2520f11b79356a3db327c096fa43a40288e5362",
+    "selectors440.log": "d5f150a16531d1c8851c8b5f9529e5a14ea8e9526f369a69a6c63dfeb27cdffd",
+    "ship-geometry.json": "656e234be66f96ca12db33a0507653fce6d223d2a304dd3bb6b8acb6da63aa9d",
+    "sparse56-exit.json": "54d98f71c46fa63a4b06fb0e4c1f8cfb9b9763490705ce7e9c60c0729eccf088",
+    "sparse56-pid.json": "860dc2f40fc8ff2d104718150065ed1032577e71fa75a9b1d4b357c8502a2d69",
+    "sparse56.json": "c6bde53c677cd6ba4ec2d5c5aef66a77e9ec3b9b1eededee4586da717c55a7d0",
+    "sparse56.log": "402ca664f40b5e1ff69f2d86905774f55abaf2090979aeb607ce8fa101257dae",
+    "structured56-weight10-exit.json": "ca31cd52dcea64af4eca79fa1840db52e88f56f3885fb06f80f682526a082e24",
+    "structured56-weight10-pid.json": "570544fc70914a205772464114a5b00ba1515c2ef5dda5bdc30c0f661bade9a1",
+    "structured56-weight10.json": "857100892887bb6b0641c3ee7a319d099c07944285cafe51871efdca8064a631",
+    "structured56-weight10.log": "db926e96998ce6fe05ba02971a6882a9b96fdb60463484a68dad8d53ab565120",
+    "structured56-weight11-exit.json": "4a665bd4fb47b5b1e17ce9b28302dd97cf067870b82a048040c24162b6b45cef",
+    "structured56-weight11-pid.json": "7848485123c6eb4a9b8a57df6ae7152c728930118fa2363f9e65aae961668b18",
+    "structured56-weight11.json": "c012a0e64a943f16060720bb656bbaa6e949e1d67cd9a25197f50bf73ae736be",
+    "structured56-weight11.log": "3eec8a389a25fe5ba99a9dd36ce99c14e8183cb4307a00a982dfbc703a64c6b8",
+    "structured56-weight12-exit.json": "6ca48d45209ae5a1b7676877ec7c41bf91abe6f20635be6a06be3c6ea2346f48",
+    "structured56-weight12-pid.json": "08209895045f775fe2528dcfd68ed71a8e5eb6838c4cc6f44cc473f700a134b6",
+    "structured56-weight12.json": "95699342406a6c1e7d9f07e6e33965ecff7daf875dc620863629b107ce9c4564",
+    "structured56-weight12.log": "0091bd7e2ff707e3797d2fb17aa86c904a46a5ef947a4555fe738685d1f417de",
+    "structured56-weight13-exit.json": "66a7a158a63c0aef587c5459091c0b9d9b8dbccd3d8a3315469f5244bb9aa054",
+    "structured56-weight13-pid.json": "cebc6485b032d3660fb1789da3e69d4fafc6ddfc7a424c05785adad8cc6dde21",
+    "structured56-weight13.json": "664a5f27274fa9fbf3e59d376761314e137b3ac1db7a5837417a7dc1aa2167d6",
+    "structured56-weight13.log": "93ccb456253dec942cdadd7045ec5f0daa09a478454d73925549bf6157701ac3",
+    "structured56-weight14-exit.json": "89feace85a17037fd5e364546471aa66b5c011b8702cc1158b4086f8f66c9009",
+    "structured56-weight14-pid.json": "8aa7018ab48126f356f09d05b3676ec8f30d39f4c8968f5b116723784df600b4",
+    "structured56-weight14.json": "5045c6db92911d651eee5e86796f6ee2558a719c823a4e63dcaa74c5ba18e75d",
+    "structured56-weight14.log": "e5d726ccfc487c36c7d961b184549f31f29aaa530115de645c2900ec76aaa9ef",
+    "structured56-weight15-boundary-exit.json": "c75c8596c3689d9f94aa6f581b2bbcf53466e68246b618978627a14b444aaa1b",
+    "structured56-weight15-boundary-pid.json": "4f594d6f4a70551059d42d15b983acd8e9475539b3a9201493e2bc3dca1da410",
+    "structured56-weight15-boundary.json": "33d06049a2681a684011b9dedd2266686066e2d22cc850e49b70c1c9b45196f5",
+    "structured56-weight15-boundary.log": "a2f432a0686db3931d1ef96da03b96a32ce819d0262a87e5265955595947e9d1",
+    "structured56-weight15-exit.json": "fff377596a0fe2c8713213f8c82912bff510521ba1cb31764a09c626633a1c49",
+    "structured56-weight15-pid.json": "1c415a93d8f87c7180e4285d4ee4dd71b53f42025919b1c2daf281ec85aa03a3",
+    "structured56-weight15.json": "0705e21bf020897f48a83ebb97ecdbc6a9bf65287d754ed830ab3a6f7450d46d",
+    "structured56-weight15.log": "6e395ac090f035108bc5e15e9d407bc168afd9ca265e7bc5a66ac961f4dd2832",
+    "structured56-weight9-exit.json": "0f24aa58c2705a0e49471ccb181a8bba857f40344afd663b10bbc7e38ea46051",
+    "structured56-weight9-pid.json": "4fa41265d0750eac090f61dd50eaa55e5f40e7b2045e0d8e231836f539b5d74e",
+    "structured56-weight9.json": "bbe3c6b3cd2eec8157bd0f01f647d7c7b97596d5be23624ff62a2a2b927253cf",
+    "structured56-weight9.log": "15a9bb6682e7c756cb11333452973bb0deb5a8d7d69a7d503d74c37dfd134920"
+  },
+  "source_sha256": {
+    "TFHEpp/include/ckks/ckks.hpp": "1e2a87a3aa3578343f935f400e6b030a731ac9c92f44672382a8893b502b558e",
+    "TFHEpp/include/ckks/narrow_refresh.hpp": "91c440b382d83872c8a05754150daf3df43dc8fb118d24b6f4813fa9d23f1482",
+    "TFHEpp/include/ckks/prepared_dd_ntt.hpp": "217a19364d6a2a284a3da289c0c3580ceffe4b691158becd5163c93357f52f51",
+    "TFHEpp/test/ckks/ckks_narrow_ll14_basis_setup.cpp": "e4d90635fc354dafb25f4428791ef031851777b236c270a6159e11f74239647a",
+    "TFHEpp/test/ckks/ckks_narrow_ll14_basis_ntt_fbs.cpp": "4a2ef37ad36187e6a7ff65cce03993e9cb09b5e4ded21c008c60e0e72c2391ac",
+    "Parameter-Selection/python/estimates/narrow_ckks_security.py": "793c5c954311dff4be36aa9f5e45c384720751476ed44ef446cb052550623ee6",
+    "Parameter-Selection/python/estimates/narrow_ckks_block_ring_joint_decode.py": "b1339e02c9c7966a0c7ad0c8a61280bfd9318f8a2e8ffe89bd9218fd64b2a028"
+  }
+}
