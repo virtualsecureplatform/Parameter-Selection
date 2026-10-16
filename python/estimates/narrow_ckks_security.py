@@ -34,6 +34,10 @@ CASES = {
     # Direct440 setup: use --noise-stddev 102.00190833992261 to match
     # the integer RMS of continuous sigma=102.4; the default is not this setup.
     "dd_ll14_basis_direct_selectors": (16384, 440, None),
+    # Current CPU replay: configured continuous sigma3.2 truncates to integer
+    # RMS2.828301687834186; supply it with --noise-stddev.
+    "dd_ll14_native_automorphism_keys": (16384, 435, None),
+    "dd_ll14_direct_dd_master": (16384, 433, None),
     "dd_ll14_dense_packed_setup": (16384, 427, None),
     "dd_ll14_structured_source_uniform_sparse_proxy": (16384, 48, 31),
     "dd_ll14_auxiliary_sparse_switch_uniform_proxy": (16384, 76, 31),
@@ -52,6 +56,7 @@ CASES = {
 }
 ATTACKS = ("primal_usvp", "primal_bdd", "dual", "dual_hybrid")
 OPTIONAL_ATTACKS = ("mitm", "bdd_hybrid", "bdd_mitm_hybrid")
+COST_MODELS = ("BDGL16", "MATZOV")
 
 
 def configure_max_beta(value):
@@ -71,12 +76,13 @@ def configure_max_beta(value):
 
 
 def estimate(task):
-    root, name, attack, max_beta, noise_stddev = task
+    root, name, attack, max_beta, noise_stddev, cost_model = task
     sys.path.insert(0, root)
     from estimator import LWE, ND, RC
     from sage.all import log
 
     _, limits = configure_max_beta(max_beta)
+    reduction_cost = getattr(RC, cost_model)
     n, bits, h = CASES[name]
     secret = ND.UniformMod(3) if h is None else ND.SparseTernary((h + 1) // 2, h // 2, n=n)
     params = LWE.Parameters(n=n, q=2**bits, Xs=secret,
@@ -87,9 +93,9 @@ def estimate(task):
         elif attack in ("bdd_hybrid", "bdd_mitm_hybrid"):
             use_mitm = attack == "bdd_mitm_hybrid"
             result = LWE.primal_hybrid(params, mitm=use_mitm, babai=use_mitm,
-                                      red_cost_model=RC.BDGL16)
+                                      red_cost_model=reduction_cost)
         else:
-            result = getattr(LWE, attack)(params, red_cost_model=RC.BDGL16)
+            result = getattr(LWE, attack)(params, red_cost_model=reduction_cost)
         cost = float(log(result["rop"], 2))
         if not math.isfinite(cost):
             # Preserve the optimizer output. An infinite search result is
@@ -118,6 +124,8 @@ def main():
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--noise-stddev", type=float, default=3.2,
         help="integer-noise RMS for the discrete-Gaussian proxy; does not model the exact sampler distribution")
+    parser.add_argument("--cost-model", choices=COST_MODELS, default="BDGL16",
+        help="classical lattice reduction cost model; historical default is preserved")
     parser.add_argument("--attack", choices=ATTACKS + OPTIONAL_ATTACKS, action="append",
         help="run selected attacks; default is the four original lattice screens")
     parser.add_argument("--max-beta", type=int,
@@ -155,7 +163,8 @@ def main():
         "utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "estimator_source": "https://github.com/malb/lattice-estimator",
         "estimator_revision": revision,
-        "cost_model": "RC.BDGL16 classical",
+        "cost_model": "RC." + args.cost_model + " classical",
+        "cost_model_name": args.cost_model,
         "samples": "unbounded",
         "estimator_global_max_beta": configured_max_beta,
         "estimator_module_max_beta": module_limits,
@@ -180,7 +189,7 @@ def main():
             sizes = [min(width, dimension - x * width) for x in range(weight)]
             report["cases"][name]["public_block_secret_entropy_bits"] = sum(
                 math.log2(2 * size) for size in sizes)
-    tasks = [(str(root), name, attack, args.max_beta, args.noise_stddev)
+    tasks = [(str(root), name, attack, args.max_beta, args.noise_stddev, args.cost_model)
              for name in names for attack in attacks]
     with concurrent.futures.ProcessPoolExecutor(max_workers=args.jobs) as executor:
         for future in concurrent.futures.as_completed([executor.submit(estimate, task) for task in tasks]):

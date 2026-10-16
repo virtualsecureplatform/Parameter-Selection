@@ -11,6 +11,7 @@ from fractions import Fraction
 import hashlib
 import itertools
 import json
+import math
 from pathlib import Path
 import sys
 from narrow_ckks_block_hybrid import cost_record,estimator_revision
@@ -109,10 +110,14 @@ def main():
     parser.add_argument('--d-offsets',type=offsets,default=[0])
     parser.add_argument('--log-q',type=int,
                         help='candidate sparse-key modulus bits; default is the saved profile')
+    parser.add_argument('--noise-stddev',type=float,
+                        help='integer-noise RMS for the Gaussian proxy; default is the saved profile')
     args=parser.parse_args();self_test()
     if args.self_test:return
     if any(value is None for value in (args.estimator,args.profile_report,args.probability_report,args.output)):
         parser.error('--estimator, --profile-report, --probability-report and --output are required')
+    if args.noise_stddev is not None and (not math.isfinite(args.noise_stddev) or args.noise_stddev<=0):
+        parser.error('--noise-stddev must be finite and positive')
     sys.path.insert(0,str(args.estimator.resolve()))
     from estimator import LWE,ND,RC
     from estimator.lwe_primal import PrimalHybrid
@@ -120,6 +125,9 @@ def main():
     configure_max_beta(4096);real=RealField(512)
     profile=json.loads(args.profile_report.read_text());prob=json.loads(args.probability_report.read_text())
     log_q=profile['log_q'] if args.log_q is None else args.log_q
+    sigma=profile['sigma'] if args.noise_stddev is None else args.noise_stddev
+    if not math.isfinite(sigma) or sigma<=0:
+        raise ValueError('noise standard deviation must be finite and positive')
     if type(log_q) is not int or not 1<=log_q<=4096:
         raise ValueError('sparse-key modulus bits must be between 1 and 4096')
     b=profile['attacks']['bdd_mitm_hybrid']['best'];n=profile['n'];zeta=b['grid_zeta']
@@ -150,13 +158,16 @@ def main():
         raise ValueError('histogram does not reproduce secret union estimate')
     variance=QQ(profile['h']-weight)/(n-zeta)
     if variance<=0:raise ValueError('zero residual requires separate exhaustive model')
-    params=LWE.Parameters(n=n,q=2**log_q,Xs=ND.NoiseDistribution(n=n,mean=0,stddev=sqrt(variance),bounds=(-1,1),_density=variance),Xe=ND.DiscreteGaussian(profile['sigma']))
+    params=LWE.Parameters(n=n,q=2**log_q,Xs=ND.NoiseDistribution(n=n,mean=0,stddev=sqrt(variance),bounds=(-1,1),_density=variance),Xe=ND.DiscreteGaussian(sigma))
     support=QQ(prob['rotation_labelled_candidate_count'])
     report=dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),scope=__doc__,
         source_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),estimator_revision=estimator_revision(args.estimator),
         profile_sha256=hashlib.sha256(args.profile_report.read_bytes()).hexdigest(),probability_report=str(args.probability_report),
         probability_report_sha256=hashlib.sha256(args.probability_report.read_bytes()).hexdigest(),probability_seed=prob['seed'],
         n=n,log_q=log_q,profile_log_q=profile['log_q'],candidate_modulus=log_q!=profile['log_q'],
+        sigma=sigma,profile_sigma=profile['sigma'],candidate_noise=sigma!=profile['sigma'],
+        noise_proxy='DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled',
+        probability_reuse_scope='Posterior matching histogram depends on the unchanged secret/guessing geometry; decoder probabilities are recomputed at the selected modulus and noise',
         zeta=zeta,weight=weight,layout=b['layout'],histogram_samples=sum(histogram.values()),beta_offsets=args.beta_offsets,d_offsets=args.d_offsets,
         scenarios={},complete=False,security_validated=False,complete_attack_optimization=False,
         posterior_uncertainty=dict(method='one-sample DKW-Massart empirical-CDF bound',
