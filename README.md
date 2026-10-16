@@ -44,7 +44,43 @@ python3 -m unittest discover -s python -p test_narrow_ckks_noise.py -v
 sage -python python/estimates/narrow_ckks_security.py --output /tmp/narrow-security.json
 ```
 
-The current retained-cache CPU profile is assessed in
+The retuned N16384 CPU profile is qualified in
+[`narrow_ckks_ll14_retuned_dense_security.json`](python/estimates/narrow_ckks_ll14_retuned_dense_security.json).
+It uses continuous sigma 32768 for q440 selectors, sigma 4096 for q433 DD
+and q435 native automorphisms, and native primary digits of 32 bits.
+The weakest dense classical estimates are 129.30/130.08/130.65 bits under
+MATZOV (selectors/native/DD), and 131.62/132.37/133.07 under BDGL16.
+The MATZOV sparse proxy is 143.81 bits. Exact rotation event counts across
+several guessing dimensions and layouts, with an optimistic union-success
+bound and dictionary size assumption, reached 129.09 bits in the tested grids.
+These are model-dependent screens; the exact error PMF, scalar GSA,
+structured-RLWE and circular/KDM assumptions remain explicit in the report.
+No result is a security certificate or a global attack lower bound.
+
+All three real functional evaluations (GeLU, Tanh and Sigmoid) and their
+following multiplications pass the original accuracy gates, confirmed by
+independent integer decoding. Sampled residual checks verify the actual
+saved key noise. The TFHEpp `ckks_narrow_ll14_retuned_*` setup/replay targets
+use distinct archive profiles, reject historical weak keys, and reuse saved
+keys and input between evaluations. Historical weak public key material is
+not upgraded by this profile.
+
+```sh
+sage -python python/estimates/narrow_ckks_security.py --case dd_ll14_native_automorphism_keys --case dd_ll14_direct_dd_master --noise-stddev 4095.6010789816987 --cost-model MATZOV --max-beta 4096 --output /tmp/retuned-dense.json
+sage -python python/estimates/narrow_ckks_security.py --case dd_ll14_basis_direct_selectors --noise-stddev 32767.601060377354 --cost-model MATZOV --max-beta 4096 --output /tmp/retuned-selectors.json
+python3 python/estimates/narrow_ckks_block_ring_optimistic.py --self-test
+sage -python python/estimates/narrow_ckks_block_ring_optimistic.py --estimator python/lattice-estimator --output /tmp/retuned-structured.json
+```
+
+`narrow_ckks_block_ring_optimistic.py` computes exact event masses and signed
+supports for every ring rotation, grouping equivalent block-count geometries.
+Its exhaustive small-ring test checks the counts against signed secret
+projections. It compares rotation-labelled support with the largest individual
+rotation support, an optimistic lower bound on dictionary union size. The
+latter is a sensitivity calculation and does not demonstrate a feasible attack.
+Full commands, grids, hashes and source revisions are retained in the report.
+
+The historical low-noise retained-cache CPU profile is assessed in
 [`narrow_ckks_current_cpu_security.json`](python/estimates/narrow_ckks_current_cpu_security.json).
 At N=16384, the weakest classical dense-family estimates are:
 
