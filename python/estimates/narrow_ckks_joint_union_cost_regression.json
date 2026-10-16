@@ -1,0 +1,116 @@
+{
+  "scope": "Regression of joint rotation-success cost evaluation; does not establish security",
+  "estimator_revision": "3e48ef421ec256afddb3e7d2249a77eab6e9ba12",
+  "source_sha256": "634d4dc814d99ac25d0f49f7479e10d6b971671e06887a64f358443eb0c31ddc",
+  "exact_self_tests": "Bernoulli joint-success enumeration, multi-rotation joint/marginal ratio >1, monotone/DKW summation-by-parts, rejection of material probability-bound errors, acceptance only of relative roundoff below 2^-450",
+  "backend_overlap": {
+    "passed": true,
+    "checks": [
+      {
+        "model": "BDGL16",
+        "backend_bits": 126.86888832192028,
+        "reconstructed_bits": 126.86888832192028,
+        "joint_over_marginal": 2,
+        "union_bits": 123.75582565743365
+      },
+      {
+        "model": "MATZOV",
+        "backend_bits": 124.93116442100684,
+        "reconstructed_bits": 124.93116442100684,
+        "joint_over_marginal": 2,
+        "union_bits": 121.8181017565202
+      }
+    ]
+  },
+  "roundoff_probe": [
+    {
+      "d": 3215,
+      "p": "0.977464150648155061240629493113374337553977966308593750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "relative_independent_minus_common": "0.0225358493518449387593705068866256624460220336914062500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "relative_independent_minus_upper": "7.46603751817778550259254716998729806984646829152807901253169901186911190086026921762719556958186484598901216878254300559317398329334191284587837329082167e-155"
+    },
+    {
+      "d": 3415,
+      "p": "0.984775772550746331113202813867246732115745544433593750000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "relative_independent_minus_common": "0.0152242274492536688867971861327532678842544555664062500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "relative_independent_minus_upper": "0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "d": 3615,
+      "p": "0.988439293211409886197316154721193015575408935546875000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "relative_independent_minus_common": "0.0115607067885901138026838452788069844245910644531250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "relative_independent_minus_upper": "0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "d": 3815,
+      "p": "0.990305653224737292283919032342964783310890197753906250000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "relative_independent_minus_common": "0.00969434677526270771608096765703521668910980224609374999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999982",
+      "relative_independent_minus_upper": "-1.49320750363555710051850943399745961396929365830561580250633980237382238017205384352543911391637296919780243375650860111863479665866838256917567465816433e-154"
+    }
+  ],
+  "default_noise_regression": {
+    "all_12_scenario_costs_unchanged": true,
+    "bits": {
+      "BDGL16": {
+        "common_decoder": 373.90867707406005,
+        "independent_decoder": 371.30869073642606,
+        "optimistic_joint_bound": 371.30869073642606,
+        "common_decoder_iid95": 373.7321123236603,
+        "independent_decoder_iid95": 371.30869073642606,
+        "optimistic_joint_bound_iid95": 371.30869073642606
+      },
+      "MATZOV": {
+        "common_decoder": 373.908698968589,
+        "independent_decoder": 371.3087126309551,
+        "optimistic_joint_bound": 371.3087126309551,
+        "common_decoder_iid95": 373.73213421818934,
+        "independent_decoder_iid95": 371.3087126309551,
+        "optimistic_joint_bound_iid95": 371.3087126309551
+      }
+    }
+  },
+  "commands": {
+    "cost_repair": [
+      "singularity",
+      "exec",
+      "--bind",
+      "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+      "--bind",
+      "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+      "--bind",
+      "/home/work-bleaker/kmatsuoka/ckks-diagnostics/secure128-retune:/diagnostics",
+      "/tmp/ckks-narrow-security/sage-10.6.sif",
+      "/home/sage/sage/sage",
+      "-python",
+      "/diagnostics/test-joint-repair.py"
+    ],
+    "default_regression": [
+      "singularity",
+      "exec",
+      "--bind",
+      "/tmp/ckks-narrow-security/sage-sandbox/home/sage:/home/sage",
+      "--bind",
+      "/home/work-bleaker/kmatsuoka/sources/CKKS-workspace:/work",
+      "--bind",
+      "/home/work-bleaker/kmatsuoka/ckks-diagnostics/secure128-retune:/diagnostics",
+      "/tmp/ckks-narrow-security/sage-10.6.sif",
+      "/home/sage/sage/sage",
+      "-python",
+      "/work/Parameter-Selection/python/estimates/narrow_ckks_block_ring_joint_decode.py",
+      "--estimator",
+      "/work/Parameter-Selection/python/lattice-estimator",
+      "--profile-report",
+      "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_saturated_layouts.json",
+      "--probability-report",
+      "/work/Parameter-Selection/python/estimates/narrow_ckks_ll14_block_rotation_histogram.json",
+      "--log-q",
+      "64",
+      "--beta-offsets=-8",
+      "--d-offsets=-128",
+      "--output",
+      "/diagnostics/joint-default-noise-regression.json"
+    ]
+  },
+  "raw_directory": "/home/work-bleaker/kmatsuoka/ckks-diagnostics/secure128-retune",
+  "security_validated": false
+}

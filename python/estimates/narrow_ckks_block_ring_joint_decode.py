@@ -40,12 +40,25 @@ def joint_factor(histogram,p):
 
 
 
-def stable_probability_cost(geometry, support, joint, beta, zeta):
-    """Reconstruct the pinned hybrid formula when RDF probability underflows.
+def normalize_joint_success(common, independent, upper, relative_tolerance=0):
+    """Correct only arithmetic roundoff against proven probability bounds."""
+    if not 0<=common<=upper<=1:
+        raise ValueError('invalid joint probability bounds')
+    tolerance=relative_tolerance*max(common,independent,upper)
+    if common-independent>tolerance or independent-upper>tolerance:
+        raise ValueError('joint decoder probability bounds failed')
+    adjusted=independent<common or independent>upper
+    return min(upper,max(common,independent)),adjusted
 
+
+def stable_probability_cost(geometry, support, joint, beta, zeta):
+    """Apply the pinned hybrid formula to an actual joint probability.
+
+    Also supports rotation unions whose success exceeds one decoder marginal;
+    their joint/marginal ratio is not a valid single-secret hit probability.
     Keep the estimator's BKZ/SVP geometry and its 53-bit square-root search
     factor. Only success multiplication/amplification use MPFR and log1p.
-    This numerical repair does not strengthen the underlying attack model.
+    This does not strengthen the underlying attack model.
     """
     from estimator.cost import Cost
     from sage.all import RR, RealField, ceil, sqrt
@@ -95,6 +108,16 @@ def self_test():
         assert error==by_parts and abs(error)<=epsilon*p
     values=[Fraction(1,k) for k in range(1,9)]
     assert abs(sum((a-b)*v for a,b,v in zip(left,right,values)))<=epsilon
+    # A rotation union can legitimately succeed more often than one decoder.
+    # Two matching rotations, with secret-event mass two, have union mass one.
+    p=Fraction(1,4)
+    joint=2*joint_factor({2:100},p)
+    assert joint==Fraction(7,16) and joint/p>1 and joint<=1
+    tiny=Fraction(1,2**500)
+    assert normalize_joint_success(Fraction(1,2),Fraction(3,4)+tiny,Fraction(3,4),Fraction(1,2**450))==(Fraction(3,4),True)
+    try:normalize_joint_success(Fraction(1,2),Fraction(4,5),Fraction(3,4),Fraction(1,2**450))
+    except ValueError:pass
+    else:raise AssertionError('material probability-bound violation was hidden')
     print('joint decoding formula, stable geometric sum and probability bounds passed exact Bernoulli enumeration',flush=True)
     print('monotone decoder functions and uniform CDF expectation bounds passed exact summation by parts',flush=True)
 
@@ -147,14 +170,15 @@ def main():
         raise ValueError('invalid posterior matching histogram')
     inverse_mean=sum((real(count)/k for k,count in histogram.items()),real(0))/sum(histogram.values())
     event_sum=real(QQ(prob['expected_matching_rotations']))
-    union=event_sum*inverse_mean
+    empirical_union=event_sum*inverse_mean
+    union=min(real(1),empirical_union)
     # One-sample DKW-Massart bounds the entire posterior K CDF with 95%
     # coverage. Monotone h_p(K)=p*sum((1-p)**j)/K has variation <=p;
     # 1/K has variation <=1. These bounds hold simultaneously for all p,
     # hence survive beta/d selection on this same fixed-layout histogram.
     iid_radius=(real(40).log()/(2*sum(histogram.values()))).sqrt()
     union_iid_upper=min(real(1),union+event_sum*iid_radius)
-    if abs(float(union)/prob['union_probability_estimate']-1)>1e-12:
+    if abs(float(empirical_union)/prob['union_probability_estimate']-1)>1e-12:
         raise ValueError('histogram does not reproduce secret union estimate')
     variance=QQ(profile['h']-weight)/(n-zeta)
     if variance<=0:raise ValueError('zero residual requires separate exhaustive model')
@@ -168,6 +192,9 @@ def main():
         sigma=sigma,profile_sigma=profile['sigma'],candidate_noise=sigma!=profile['sigma'],
         noise_proxy='DiscreteGaussian with supplied integer RMS; exact sampler distribution is not modeled',
         probability_reuse_scope='Posterior matching histogram depends on the unchanged secret/guessing geometry; decoder probabilities are recomputed at the selected modulus and noise',
+        empirical_secret_union=str(empirical_union),central_secret_union=str(union),
+        central_union_clipped_to_one=empirical_union>1,
+        relative_probability_roundoff_tolerance=str(real(2)**-450),
         zeta=zeta,weight=weight,layout=b['layout'],histogram_samples=sum(histogram.values()),beta_offsets=args.beta_offsets,d_offsets=args.d_offsets,
         scenarios={},complete=False,security_validated=False,complete_attack_optimization=False,
         posterior_uncertainty=dict(method='one-sample DKW-Massart empirical-CDF bound',
@@ -195,21 +222,26 @@ def main():
             p=real(geometry['babai_probability'])*real(geometry['mitm_probability'])
             if p<=0 or p>1:
                 entry['points'].append(dict(beta=beta,d=d,finite=False,reason='zero/out-of-range decoder marginal'));continue
-            independent=event_sum*joint_factor(histogram,p)
+            independent=min(real(1),event_sum*joint_factor(histogram,p))
             common=union*p;upper=min(union,event_sum*p)
-            if not common<=independent<=upper:raise ValueError('joint decoder probability bounds failed')
+            independent,roundoff_adjusted=normalize_joint_success(common,independent,upper,real(2)**-450)
             common_iid_upper=union_iid_upper*p
             independent_iid_upper=min(real(1),event_sum*p,independent+event_sum*p*iid_radius)
             optimistic_iid_upper=min(union_iid_upper,event_sum*p)
-            point=dict(beta=beta,d=d,decode_marginal=str(p),joint_success_common=str(common),joint_success_independent=str(independent),joint_success_upper_bound=str(upper),costs={})
+            point=dict(beta=beta,d=d,probability_roundoff_adjusted=roundoff_adjusted,decode_marginal=str(p),joint_success_common=str(common),joint_success_independent=str(independent),joint_success_upper_bound=str(upper),costs={})
             for name,joint in (('common_decoder',common),('independent_decoder',independent),('optimistic_joint_bound',upper),
                                ('common_decoder_iid95',common_iid_upper),('independent_decoder_iid95',independent_iid_upper),
                                ('optimistic_joint_bound_iid95',optimistic_iid_upper)):
                 effective=joint/p
-                if not 0<effective<=1:raise ValueError('effective cost success factor out of range')
-                result=PrimalHybrid.cost(beta=beta,params=params,zeta=zeta,d=d,babai=True,mitm=True,
-                    red_cost_model=getattr(RC,cost_name),search_space=support,hit_probability=effective)
-                record=cost_record(result,log)
+                if not 0<joint<=1:raise ValueError('joint success probability out of range')
+                if effective>1:
+                    result=stable_probability_cost(geometry,support,joint,beta,zeta)
+                    record=cost_record(result,log)
+                    record['joint_probability_method']='pinned geometry/cost formula with rotation-union success; joint/marginal exceeds one, so it is not passed as a single-secret hit probability'
+                else:
+                    result=PrimalHybrid.cost(beta=beta,params=params,zeta=zeta,d=d,babai=True,mitm=True,
+                        red_cost_model=getattr(RC,cost_name),search_space=support,hit_probability=effective)
+                    record=cost_record(result,log)
                 backend_probability=effective*geometry['babai_probability']*geometry['mitm_probability']
                 if record['bits'] is None and not backend_probability:
                     original=record
