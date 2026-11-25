@@ -1,0 +1,208 @@
+{
+  "scope": "Modulus budget and average-case noise screen for TFHEpp's full-slot TUTTI.",
+  "model": "independent",
+  "security_validated": false,
+  "budget": {
+    "input_bits": 38,
+    "output_bits": 58,
+    "tree_output_bits": 60,
+    "factor_bits": 192,
+    "selector_bits": 212,
+    "dense_key_exposures": {
+      "indicators": 212,
+      "tree_relinearization": 192,
+      "output_conjugation": 78,
+      "s2c_rotations": 58,
+      "application_relinearization": 58
+    },
+    "maximum_dense_key_bits": 212,
+    "sparse_key_exposure_bits": 24,
+    "sparse_degree": 2048,
+    "sparse_blocks": 64,
+    "application_bits": 20,
+    "multiplication_drop_bits": 20,
+    "multiplications_returning_to_input": 1,
+    "one_multiplication_returns_to_input": true
+  },
+  "gap": 16.0,
+  "sine_scale": 1.0195143060582088,
+  "sine_error_bound": 0.006488040919360662,
+  "unit_circle_amplitude": 1.2980859308965391,
+  "per_factor_amplitude": 1.004084738938486,
+  "factor_log2_variances": {
+    "indicator_noise": -26.60938573199948,
+    "root_encoding": -26.573200441650798,
+    "accmul_rescale": -25.582147485114103,
+    "total": -24.5866564947537
+  },
+  "levels": [
+    {
+      "input_bits": 192,
+      "output_bits": 170,
+      "relin_log2_variance": -34.20611011980835,
+      "node_log2_variance": -23.25368577145407
+    },
+    {
+      "input_bits": 170,
+      "output_bits": 148,
+      "relin_log2_variance": -34.29921952419983,
+      "node_log2_variance": -22.09505908036317
+    },
+    {
+      "input_bits": 148,
+      "output_bits": 126,
+      "relin_log2_variance": -34.50567040166726,
+      "node_log2_variance": -20.986926291320447
+    },
+    {
+      "input_bits": 126,
+      "output_bits": 104,
+      "relin_log2_variance": -34.746678501171054,
+      "node_log2_variance": -19.86509032327735
+    },
+    {
+      "input_bits": 104,
+      "output_bits": 82,
+      "relin_log2_variance": -35.036185118366035,
+      "node_log2_variance": -18.66489349484554
+    },
+    {
+      "input_bits": 82,
+      "output_bits": 60,
+      "relin_log2_variance": -35.398755197750745,
+      "node_log2_variance": -17.29924915089414
+    }
+  ],
+  "tree_log2_variance": -17.29924915089414,
+  "output_drop_log2_variance": -21.582147485114103,
+  "conjugation_log2_variance": -21.582004643469833,
+  "unit_circle_real_log2_variance": -16.2094592550378,
+  "linear_log2_variances": {
+    "fresh": -23.621147791069838,
+    "input_conjugation": -36.206066264904166,
+    "baby_rotations": -34.62110376418301,
+    "giant_rotations": -40.03614126346186,
+    "rescale": -67.5821474851141,
+    "diagonal_encoding": -19.169925001442312,
+    "auxiliary_division": -34.5821474851141,
+    "sparse_switch": -20.036185290348676
+  },
+  "linear_log2_variance": -18.496970996703883,
+  "real_refresh_rms": 0.003987455859539975,
+  "rms_precision_bits": 7.970315736085583,
+  "expected_worst_slot_error": 0.023415637214834584,
+  "expected_worst_slot_precision_bits": 5.4163838908292234,
+  "eight_rms_plus_sine_screen": 0.03838768779568046,
+  "screen_note": "Expected maximum assumes independent Gaussian slot errors; neither figure is a tail or failure bound",
+  "accmul": {
+    "indicators": 2016,
+    "candidates_per_block": 32,
+    "selector_digit_bits": 60,
+    "selector_digits": 4,
+    "raw_indicator_bytes": 1056964608,
+    "ntt_cache_bytes": 2113929216,
+    "forward_ntts": 8064,
+    "inverse_ntts": 2016
+  },
+  "excluded": [
+    "FFT error",
+    "security"
+  ],
+  "parameters": {
+    "n": 8192,
+    "blocks": 64,
+    "stride": 4,
+    "base_bits": 24,
+    "input_scale_bits": 20,
+    "s2c_bits": 14,
+    "scale_bits": 22,
+    "indicator_scale_bits": 24,
+    "plain_bits": 18,
+    "output_bits": 58,
+    "output_scale_bits": 20,
+    "auxiliary_bits": 20,
+    "primary_bits": 12,
+    "bbar_bits": 8,
+    "sparse_digit_bits": 1,
+    "sigma": 3.2252837829007692,
+    "dense_weight": 512,
+    "message_bound": 1.0,
+    "minimax_sine": true
+  },
+  "published_caps": {
+    "source": "ePrint 2026/2848 Tables 1 and 2; sigma 3.2, lattice-estimator word operations",
+    "dense_cap_bits": 212,
+    "dense_within_cap": true,
+    "sparse_row": [
+      2048,
+      64
+    ],
+    "sparse_cap_bits": 27,
+    "sparse_within_cap": true,
+    "integer_noise_rms_matches_model": true
+  },
+  "sparse_key_combinatorial": {
+    "scope": "Combinatorial attack costs on anchored block-binary secrets (ordinary Python).",
+    "degree": 2048,
+    "blocks": 64,
+    "block_length": 32,
+    "anchored_dimension": 2016,
+    "anchored_weight": 63,
+    "log_q": 24,
+    "sigma": 3.2252837829007692,
+    "guess_alphabet": 19,
+    "log2_search_space": 315.0,
+    "odlyzko_list_bits": 160.0,
+    "odlyzko_ops_bits": 167.32192809488737,
+    "meet_lwe_guessing": {
+      "bits": 169.8028902503752,
+      "list_bits": 152.81118019660087,
+      "guess_bits": 16.99171005377434,
+      "guessed_coordinates": 8,
+      "depth": 3,
+      "epsilons": [
+        6,
+        0
+      ]
+    },
+    "guessing_free": {
+      "bits": 158.0469064842097,
+      "top_list_bits": 158.0469064842097,
+      "leaf_list_bits": 147.92501926781915,
+      "repetition_bits": 9.03648068875133,
+      "box_coordinates": 9,
+      "box_half_width": 160,
+      "extra_box_half_width": 1536,
+      "bucket_factor": 1.0,
+      "epsilon": 4,
+      "ops_bits": 165.35111547105177
+    },
+    "guessing_free_ten_repetitions": {
+      "bits": 161.36883457909704,
+      "top_list_bits": 158.0469064842097,
+      "leaf_list_bits": 147.92501926781915,
+      "repetition_bits": 12.358408783638692,
+      "box_coordinates": 9,
+      "box_half_width": 160,
+      "extra_box_half_width": 1536,
+      "bucket_factor": 1.0,
+      "epsilon": 4,
+      "ops_bits": 168.6730435659391
+    },
+    "closed_exponents_not_attacks": {
+      "S^0.25": 78.75,
+      "S^0.28": 88.2,
+      "S^0.4": 126.0
+    },
+    "cheapest_attack": "guessing_free_ops",
+    "cheapest_bits": 165.35111547105177,
+    "passes_128": true,
+    "excluded": [
+      "ring structure",
+      "lattice hybrids of the representation lists",
+      "van Oorschot-Wiener variant",
+      "polynomial factors",
+      "memory cost"
+    ]
+  }
+}

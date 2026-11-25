@@ -32,6 +32,64 @@ bitwise-forward parameter search. Neither option changes compiled C++ code.
 `--legacy-profile` reproduces the old
 untuned width-16 failure. An experimental correctness pass is not a failure bound.
 
+### TUTTI CKKS refresh parameters
+
+TFHEpp's `ckks/tutti.hpp` (ePrint 2026/2848) is tuned here. A schedule
+publishes two secrets: the dense key at the indicator modulus, and the
+anchored block-binary key `s'(X^R)` at the base modulus only.
+
+```sh
+python3 python/TUTTIparams.py --profile ll13 --combinatorial
+python3 python/TUTTIparams.py --profile ll13 --search --max-dense-bits 212
+python3 -m unittest discover -s python -p test_tutti.py -v
+sage -python python/estimates/tutti_security.py --profile ll13 --output /tmp/tutti-ll13.json
+sage -python python/estimates/tutti_security.py --dense 8192 0 214 --sparse 2048 64 27 --output /tmp/caps.json
+```
+
+`noiseestimation/tutti.py` reports the modulus at which each key is exposed
+and an average-case noise screen of the TFHEpp pipeline: auxiliary-lifted
+S2C, the base-modulus sparse switch, AccMul with its single division, the
+relinearize-before-rescale product tree, and the lifted conjugation.
+`--search` spends a dense-key budget over the gap, the S2C, tree, indicator,
+root-encoding and output scales, and ranks by the expected largest slot
+error. It excludes FFT error and bounds no failure probability.
+`noiseestimation/block_binary_meet_lwe.py` costs Odlyzko, Meet-LWE with
+guessing, and the guessing-free tree on the sparse key in ordinary Python;
+it reproduces the paper's Tables 3 and 10. `estimates/tutti_security.py`
+runs the pinned Lattice Estimator on both keys. It screens the sparse key as
+a uniform sparse binary secret, so the paper's rotated-primal-hybrid caps
+(`PAPER_SPARSE_CAP`) remain the binding external constraint there.
+
+The `ll13` profile (N = 8192, 64 blocks, R = 4, q0 = 2^24, gap 16, weight-512
+dense key, integer noise RMS 3.23, indicators at 2^212) is TFHEpp's
+`CKKSTuttiLL13Config`:
+
+| Screen | Result |
+| --- | --- |
+| Dense key, 2^212, weakest attack (primal BDD) | 128.28 bits |
+| Sparse proxy, dimension 2016, weight 63, 2^24 (BDD MITM hybrid) | 142.97 bits |
+| Sparse combinatorial (guessing-free tree, operations) | 165.35 bits |
+| Published caps (dense weight 512 / sparse (2^11, 64)) | 212 / 27 bits |
+| Modelled worst-slot / noise-RMS precision | 5.42 / 7.97 bits |
+| Measured in TFHEpp `ckks_tutti_ll13` (six runs) | 5.27 to 5.63 / 7.35 to 7.48 bits |
+
+The measured RMS includes the deterministic sine error (at most 0.0065),
+which the modelled noise RMS leaves out and the worst-slot figure adds.
+
+Reports: [`tutti_ll13_security.json`](python/estimates/tutti_ll13_security.json),
+[`tutti_ll13_parameters.json`](python/estimates/tutti_ll13_parameters.json), and
+[`tutti_n8192_cap_scan.json`](python/estimates/tutti_n8192_cap_scan.json).
+The scan locates the 128-bit dense caps under MATZOV with unbounded samples:
+a uniform ternary key passes at 2^214 (128.24) and fails at 2^216 (126.89);
+a weight-512 key passes at 2^212 and fails at 2^214 (127.12). The weight-512
+key is still preferred: its smaller norm lowers every rescaling error, worth
+about one bit of precision here. Two TFHEpp-specific choices matter. The
+indicator scale exceeds the tree scale by two bits (0.6 bits of precision
+for two bits of modulus), and continuous sigma 3.6 is configured because
+TFHEpp truncates samples toward zero: sigma 3.2 would give integer RMS 2.83,
+below the noise the caps assume. These screens are not security proofs and
+assume circular security.
+
 ### Narrow CKKS parameter tuning
 
 The ePrint 2026/2119 narrow CKKS DD port is tuned here. Its average-case
