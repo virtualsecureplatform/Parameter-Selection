@@ -58,6 +58,19 @@ class TuttiModelTests(unittest.TestCase):
         self.assertTrue(caps["dense_within_cap"] and caps["sparse_within_cap"])
         self.assertTrue(caps["integer_noise_rms_matches_model"])
 
+    def test_boolean_refresh_budget(self):
+        p = PROFILES["ll13_boolean"]
+        exposure = budget(p)
+        self.assertEqual(exposure["selector_bits"], 200)
+        self.assertEqual(exposure["maximum_dense_key_bits"], 200)
+        self.assertEqual(exposure["dense_key_exposures"]["s2c_rotations"], 66)
+        self.assertEqual(exposure["dense_key_exposures"]["tlwe_packing"], 48)
+        self.assertEqual(exposure["sparse_key_exposure_bits"], 24)
+        self.assertEqual(exposure["multiplications_returning_to_input"], 0)
+        self.assertTrue(published_caps(p)["dense_within_cap"])
+        with self.assertRaises(ValueError):
+            budget(replace(p, output_bits=58))
+
     def test_ll13_precision_screen(self):
         result = estimate(PROFILES["ll13"])
         # TFHEpp ckks_tutti_ll13 measured 5.27 bits (largest slot error).

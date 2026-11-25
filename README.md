@@ -71,10 +71,18 @@ dense key, integer noise RMS 3.23, indicators at 2^212) is TFHEpp's
 | Sparse combinatorial (guessing-free tree, operations) | 165.35 bits |
 | Published caps (dense weight 512 / sparse (2^11, 64)) | 212 / 27 bits |
 | Modelled worst-slot / noise-RMS precision | 5.42 / 7.97 bits |
-| Measured in TFHEpp `ckks_tutti_ll13` (six runs) | 5.27 to 5.63 / 7.35 to 7.48 bits |
+| Measured in TFHEpp `ckks_tutti_ll13` (eight runs) | 5.21 to 5.63 / 7.33 to 7.48 bits |
 
 The measured RMS includes the deterministic sine error (at most 0.0065),
 which the modelled noise RMS leaves out and the worst-slot figure adds.
+
+The `ll13_boolean` profile is TFHEpp's `CKKSTuttiBooleanLL13Config`, the batch
+refresh of TFHE Boolean TLWEs used by the encrypted RAM. It has no opening
+S2C and no application level, so the dense key is published at most at 2^200:
+136.28 bits ([`tutti_ll13_boolean_security.json`](python/estimates/tutti_ll13_boolean_security.json)).
+Its budget also lists the TLWE packing key (dense key, 2^48) and the closing
+S2C keys (2^66). The noise screen of this profile covers the unit-circle
+stage only, and the key that returns ciphertexts to TFHE is not screened here.
 
 Reports: [`tutti_ll13_security.json`](python/estimates/tutti_ll13_security.json),
 [`tutti_ll13_parameters.json`](python/estimates/tutti_ll13_parameters.json), and

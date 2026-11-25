@@ -1,0 +1,129 @@
+{
+  "utc": "2026-11-25T02:59:59.952625+00:00",
+  "scope": "Lattice Estimator screens for the keys a TFHEpp TUTTI schedule publishes.",
+  "estimator_revision": null,
+  "cost_model": "estimator default (RC.MATZOV classical), rop",
+  "samples": "unbounded",
+  "security_validated": false,
+  "excluded": [
+    "block constraint in lattice attacks",
+    "ring rotations (rotated primal hybrid)",
+    "circular/KDM security",
+    "exact error distribution"
+  ],
+  "cases": {
+    "dense": {
+      "kind": "dense",
+      "dimension": 8192,
+      "log_q": 200,
+      "sigma": 3.2252837829007692,
+      "secret": "sparse ternary, weight 512",
+      "requested_attacks": [
+        "primal_usvp",
+        "primal_bdd",
+        "dual",
+        "dual_hybrid",
+        "bdd_hybrid",
+        "bdd_mitm_hybrid",
+        "dual_mitm_hybrid"
+      ],
+      "attacks": {
+        "dual": {
+          "bits": 138.13069774841065,
+          "cost": "         rop: \u22482^138.1\n         mem: \u22482^88.7\n           m: \u22482^13.0\n           \u03b2:      365\n           d:    16229\n           \u21bb:        1\n         tag:     dual"
+        },
+        "primal_usvp": {
+          "bits": 136.80682517473116,
+          "cost": "         rop: \u22482^136.8\n         red: \u22482^136.8\n           \u03b4: 1.004250\n           \u03b2:      364\n           d:    15675\n         tag:     usvp"
+        },
+        "dual_hybrid": {
+          "bits": 136.27981656371205,
+          "cost": "         rop: \u22482^136.3\n         red: \u22482^136.3\n       guess: \u22482^127.8\n           \u03b2:      358\n           p:        2\n           \u03b6:        0\n           t:      110\n          \u03b2':      380\n           N: \u22482^76.8\n           m: \u22482^13.0"
+        },
+        "primal_bdd": {
+          "bits": 136.555176159489,
+          "cost": "         rop: \u22482^136.6\n         red: \u22482^136.5\n         svp: \u22482^130.7\n           \u03b2:      363\n           \u03b7:      391\n           d:    15685\n         tag:      bdd"
+        },
+        "dual_mitm_hybrid": {
+          "bits": 143.1127463802474,
+          "cost": "         rop: \u22482^143.1\n         mem: \u22482^126.5\n           m: \u22482^13.0\n           k:      329\n           \u21bb: \u22482^12.7\n           \u03b2:      361\n           d:    15653\n           \u03b6:      514\n          h1:       29\n         tag: dual_mitm_hybrid"
+        },
+        "bdd_hybrid": {
+          "bits": 136.57918810427736,
+          "cost": "         rop: \u22482^136.6\n         red: \u22482^136.6\n         svp: \u22482^126.2\n           \u03b2:      363\n           \u03b7:      375\n           \u03b6:        0\n         |S|:        1\n           d:    16199\n        prob:      1.0\n           \u21bb:        1\n         tag:   hybrid"
+        },
+        "bdd_mitm_hybrid": {
+          "bits": 141.25931613942794,
+          "cost": "         rop: \u22482^141.3\n         red: \u22482^141.1\n         svp: \u22482^137.6\n           \u03b2:      361\n           \u03b7:        2\n           \u03b6:      548\n         |S|: \u22482^209.2\n           d:    15618\n        prob:    0.120\n           \u21bb:       36\n         tag:   hybrid"
+        }
+      },
+      "complete": true,
+      "weakest_attack": "dual_hybrid",
+      "weakest_bits": 136.27981656371205,
+      "passes_128_screen": true
+    },
+    "sparse": {
+      "kind": "sparse",
+      "dimension": 2016,
+      "log_q": 24,
+      "sigma": 3.2252837829007692,
+      "secret": "uniform sparse binary proxy, weight 63",
+      "requested_attacks": [
+        "primal_usvp",
+        "primal_bdd",
+        "dual",
+        "dual_hybrid",
+        "bdd_hybrid",
+        "bdd_mitm_hybrid",
+        "dual_mitm_hybrid"
+      ],
+      "attacks": {
+        "dual": {
+          "bits": 276.40351068639353,
+          "cost": "         rop: \u22482^276.4\n         mem: \u22482^186.7\n           m:     1477\n           \u03b2:      870\n           d:     3493\n           \u21bb:        1\n         tag:     dual"
+        },
+        "primal_usvp": {
+          "bits": 268.6220397350588,
+          "cost": "         rop: \u22482^268.6\n         red: \u22482^268.6\n           \u03b4: 1.002317\n           \u03b2:      846\n           d:     3388\n         tag:     usvp"
+        },
+        "primal_bdd": {
+          "bits": 265.9896996378267,
+          "cost": "         rop: \u22482^266.0\n         red: \u22482^265.6\n         svp: \u22482^264.0\n           \u03b2:      835\n           \u03b7:      869\n           d:     3409\n         tag:      bdd"
+        },
+        "dual_hybrid": {
+          "bits": 251.94444225419574,
+          "cost": "         rop: \u22482^251.9\n         red: \u22482^251.8\n       guess: \u22482^248.8\n           \u03b2:      781\n           p:        2\n           \u03b6:        0\n           t:      230\n          \u03b2':      770\n           N: \u22482^157.3\n           m:     2016"
+        },
+        "dual_mitm_hybrid": {
+          "bits": 153.2138246203166,
+          "cost": "         rop: \u22482^153.2\n         mem: \u22482^119.6\n           m:      724\n           k:      870\n           \u21bb: \u22482^33.7\n           \u03b2:      324\n           d:     1161\n           \u03b6:     1579\n          h1:       29\n         tag: dual_mitm_hybrid"
+        },
+        "bdd_mitm_hybrid": {
+          "bits": 142.97283182948422,
+          "cost": "         rop: \u22482^143.0\n         red: \u22482^141.4\n         svp: \u22482^142.4\n           \u03b2:      277\n           \u03b7:        2\n           \u03b6:     1439\n         |S|: \u22482^178.3\n           d:     1247\n        prob: \u22482^-30.5\n           \u21bb: \u22482^32.7\n         tag:   hybrid"
+        },
+        "bdd_hybrid": {
+          "bits": 159.37975292021312,
+          "cost": "         rop: \u22482^159.4\n         red: \u22482^158.7\n         svp: \u22482^157.9\n           \u03b2:      282\n           \u03b7:       18\n           \u03b6:     1289\n         |S|: \u22482^88.4\n           d:     1408\n        prob: \u22482^-46.2\n           \u21bb: \u22482^48.4\n         tag:   hybrid"
+        }
+      },
+      "complete": true,
+      "weakest_attack": "bdd_mitm_hybrid",
+      "weakest_bits": 142.97283182948422,
+      "passes_128_screen": true
+    }
+  },
+  "profile": "ll13_boolean",
+  "published_caps": {
+    "source": "ePrint 2026/2848 Tables 1 and 2; sigma 3.2, lattice-estimator word operations",
+    "dense_cap_bits": 212,
+    "dense_within_cap": true,
+    "sparse_row": [
+      2048,
+      64
+    ],
+    "sparse_cap_bits": 27,
+    "sparse_within_cap": true,
+    "integer_noise_rms_matches_model": true
+  }
+}

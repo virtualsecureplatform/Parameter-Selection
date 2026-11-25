@@ -93,6 +93,11 @@ class TuttiParams:
     dense_weight: int = 512
     message_bound: float = 1.0
     minimax_sine: bool = True
+    # Boolean batch refresh of TFHE TLWEs (TFHEpp ckks/tutti_boolean.hpp): the
+    # input is packed into coefficients under the dense key at 2^48, so there
+    # is no opening S2C; a closing S2C at the output modulus returns the
+    # slots to coefficients at 2^32 for the switch back to TFHE.
+    boolean_refresh: bool = False
 
     @property
     def depth(self):
@@ -190,6 +195,13 @@ def budget(p):
         "s2c_rotations": input_bits + p.auxiliary_bits,
         "application_relinearization": p.output_bits,
     }
+    if p.boolean_refresh:
+        if p.output_bits != 32 + p.s2c_bits:
+            raise ValueError("the closing S2C must end at the 32-bit TLWE modulus")
+        del dense["application_relinearization"]
+        dense["s2c_rotations"] = p.output_bits + p.auxiliary_bits
+        dense["tlwe_packing"] = 48
+        input_bits, application, mult_drop = p.base_bits, 0, 0
     return {
         "input_bits": input_bits, "output_bits": p.output_bits,
         "tree_output_bits": p.tree_output_bits, "factor_bits": p.factor_bits,
@@ -200,7 +212,9 @@ def budget(p):
         "application_bits": application,
         "multiplication_drop_bits": mult_drop,
         "multiplications_returning_to_input": application // mult_drop if mult_drop > 0 else 0,
-        "one_multiplication_returns_to_input": application == mult_drop,
+        "one_multiplication_returns_to_input": mult_drop > 0 and application == mult_drop,
+        "other_published_keys": ["dense CKKS key under the TFHE ring key at 2^32 (subring switch)"]
+                                if p.boolean_refresh else [],
     }
 
 
@@ -393,4 +407,12 @@ PROFILES = {
                         output_bits=58, output_scale_bits=20, auxiliary_bits=20,
                         primary_bits=12, bbar_bits=8, sparse_digit_bits=1, sigma=_RMS,
                         dense_weight=512),
+    # TFHEpp CKKSTuttiBooleanLL13Config. The noise screen of this profile
+    # covers the unit-circle stage only; Boolean values sit on the sine peaks.
+    "ll13_boolean": TuttiParams(n=8192, blocks=64, stride=4, base_bits=24,
+                                input_scale_bits=20, s2c_bits=14, scale_bits=22,
+                                indicator_scale_bits=24, plain_bits=18, output_bits=46,
+                                output_scale_bits=20, auxiliary_bits=20, primary_bits=12,
+                                bbar_bits=8, sparse_digit_bits=1, sigma=_RMS,
+                                dense_weight=512, boolean_refresh=True),
 }
